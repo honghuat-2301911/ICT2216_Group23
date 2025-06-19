@@ -17,6 +17,7 @@ ICT2216_GROUP23/
 │ ├── static/ # CSS, JS, images
 │ └── templates/ # HTML templates (Jinja2)
 │
+└── app.py # Application entry point
 ```
 Link to Class Diagram:
 
