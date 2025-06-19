@@ -48,7 +48,7 @@ Link to Class Diagram:
 4. Flask app processes the request and interacts with MySQL (`mysqldb:3306`)
 5. Response is sent back through Nginx to the user
 
-## Run Locally (LOOK HERE)
+## Run Locally (LOOK HERE) (need to open your docker desktop first) (run these lines in your PowerShell)
 
 ```bash
 docker-compose down -v
