@@ -15,6 +15,8 @@ ICT2216_GROUP23/
 ├── presentation/ # Presentation layer (UI and controllers)
 │ ├── controller/ # Route handlers (Flask Blueprints)
 │ ├── static/ # CSS, JS, images
+│ │ ├── css/ # Stylesheets
+│ │ └── img/ # Images 
 │ └── templates/ # HTML templates (Jinja2)
 │
 └── app.py # Application entry point

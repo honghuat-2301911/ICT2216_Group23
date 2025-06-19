@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8" />
     <title>Login</title>
-    <link rel="stylesheet" href="">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+
 </head>
 <body>
+    {% include 'navbar.html' %}
     <h2>Login</h2>
 
     <h3>{{text}}</h3>
