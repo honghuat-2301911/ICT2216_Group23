@@ -12,22 +12,17 @@ register_bp = Blueprint(
 @register_bp.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
+        if request.form["password"] != request.form["confirm_password"]:
+            return redirect(url_for("register.register"))   
         # Handle form submission
         # hashed_password = hash_password(request.form["password"])
         user_data = {
-            # "id": random.randint(5,200), #THIS IS JUST A TEMP ID, IS STUDENTS WILL NEED TO CHANGE THIS, edit init.sql if needed for schema changes
-            # "name": request.form["name"],
-            # "email": request.form["email"],
-            # "password": request.form["password"],
-            # "skill_lvl": request.form.get("skill_lvl"),
-            # "sports_exp": request.form.get("sports_exp"),
-            # "role": "user"
             "id": random.randint(5,200), #THIS IS JUST A TEMP ID, IS STUDENTS WILL NEED TO CHANGE THIS, edit init.sql if needed for schema changes
-            "name": "lebron",
-            "email": "lebing@gmail.com",
-            "password": "99999",
-            "skill_lvl": "pro",
-            "sports_exp": "noob",
+            "name": request.form["name"],
+            "email": request.form["email"],
+            "password": request.form["password"],
+            "skill_lvl": request.form.get("skill_lvl"),
+            "sports_exp": request.form.get("sports_exp"),
             "role": "user"
         }
 
