@@ -9,6 +9,10 @@ login_bp = Blueprint(
     template_folder="../templates"
 )
 
+@login_bp.route("/")
+def root_redirect():
+    return redirect(url_for("login.login"))
+
 @login_bp.route("/login", methods=["GET", "POST"])
 def login():
     # ggs@gg.com is just for testing, u have to get input from form in login.html.
