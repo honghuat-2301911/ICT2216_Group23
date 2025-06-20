@@ -32,4 +32,4 @@ def register():
             return redirect(url_for("register.register"))
 
     # If GET request, show the registration form
-    return render_template("register.html")
+    return render_template("register/register.html")
