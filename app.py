@@ -1,5 +1,6 @@
 from flask import Flask
 from presentation.controller.login_controller import login_bp
+from presentation.controller.register_controller import register_bp
 # from data_source.login_queries import init_schema
 
 def create_app():
@@ -10,6 +11,7 @@ def create_app():
 
     # register page-controller blueprints
     app.register_blueprint(login_bp)
+    app.register_blueprint(register_bp)
 
     # make sure DB has the required tables
     # init_schema()
