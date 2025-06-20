@@ -1,12 +1,11 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from domain.control.login_management import *
 
-# Create a blueprint for all main routes
 login_bp = Blueprint(
     "login",
     __name__,
     url_prefix="/",
-    template_folder="../templates"
+    template_folder="../templates/login"
 )
 
 @login_bp.route("/")
