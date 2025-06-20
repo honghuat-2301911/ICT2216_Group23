@@ -21,7 +21,7 @@
             {% if success %}
             <div class="success-message">{{ success }}</div>
             {% endif %}
-            <form method="POST" action="{{ url_for('login.register') }}" class="register-form">
+            <form method="POST" action="{{ url_for('register.register') }}" class="register-form">
                 <div class="form-group">
                     <label for="name">Name</label>
                     <input type="text" id="name" name="name" required placeholder="Enter your name">
@@ -37,6 +37,14 @@
                 <div class="form-group">
                     <label for="confirm_password">Confirm Password</label>
                     <input type="password" id="confirm_password" name="confirm_password" required placeholder="Confirm your password">
+                </div>
+                <div class="form-group">
+                    <label for="skill_lvl">Skill Level</label>
+                    <input type="skill_lvl" id="skill_lvl" name="skill_lvl" required placeholder="Enter your skill level">
+                </div>
+                <div class="form-group">
+                    <label for="sports_exp">Sports Experience</label>
+                    <input type="sports_exp" id="sports_exp" name="sports_exp" required placeholder="Share something about your sports experience">
                 </div>
                 <button type="submit" class="register-btn">Register</button>
             </form>
