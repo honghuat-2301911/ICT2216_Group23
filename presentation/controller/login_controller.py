@@ -11,39 +11,20 @@ login_bp = Blueprint(
 
 @login_bp.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == "POST":
-        email = request.form.get('email')
-        password = request.form.get('password')
-        remember = request.form.get('remember')
-        
-        if not email or not password:
-            return render_template("login/login.html", error="Please fill in all fields")
-        
-        if email == "test@example.com" and password == "password123":
-            # session['user_id'] = 1
-            # session['email'] = email
-            # if remember:
-            #     session.permanent = True
-            
-            return redirect(url_for('login.bulletin'))
-        else:
-            return render_template("login/login.html", error="Invalid email or password.")
-    
-    return render_template("login/login.html")
+    # ggs@gg.com is just for testing, u have to get input from form in login.html.
+    # insert a new record in user table in mysql and then put the same email and password here to test login
+    user = login_user("ggs@gg.com", "123")
+    if user:
+        # Create a safe user dictionary to avoid exposing sensitive data
+        safe_user = {
+            "name": user.get_name(),
+            "email": user.get_email(),
+            "skill_lvl": user.get_skill_lvl(),
+            "sports_exp": user.get_sports_exp(),
+        }
+        #just change render to maybe profile page and see if can display on ur html by right need session
+        return render_template("login/login.html", user=safe_user)
+    else:
+        return render_template("login/login.html", error="Login failed.")
 
-@login_bp.route("/register", methods=["GET", "POST"])
-def register():
-    # You can add registration logic here
-    return render_template("register/register.html")
-
-@login_bp.route("/bulletin")
-def bulletin():
-    # if 'user_id' not in session:
-    #     return redirect(url_for('login.login'))
-    return render_template("bulletin/bulletin.html")
-
-@login_bp.route("/logout")
-def logout():
-    # session.clear()
-    return redirect(url_for('login.login'))
 

@@ -9,36 +9,17 @@
 </head>
 <body>
 
-    <div class="login-container">
-        <div class="login-card">
-            <div class="login-header">
-                <h1>Welcome to SIT Sports Buddy!</h1>
-                <p>Sign in to your account</p>
-            </div>
-            {% if error %}
-            <div class="error-message">{{ error }}</div>
-            {% endif %}
-            {% if success %}
-            <div class="success-message">{{ success }}</div>
-            {% endif %}
-            <form method="POST" action="{{ url_for('login.login') }}" class="login-form">
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" name="email" required placeholder="Enter your email">
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required placeholder="Enter your password">
-                </div>
-                <div class="form-options">
-                    <a href="#" class="forgot-password">Forgot password?</a>
-                </div>
-                <button type="submit" class="login-btn">Sign In</button>
-            </form>
-            <div class="login-footer">
-                <p>Don't have an account? <a href="{{ url_for('login.register') }}" class="signup-link">Sign up</a></p>
-            </div>
+    {% if user %}
+            <h2>User Profile</h2>
+            <p><label>Name:</label> {{ user.get("name") }}</p>
+            <p><label>Email:</label> {{ user.get("email") }}</p>
+            <p><label>Skill Level:</label> {{ user.get("skill_lvl") or "N/A" }}</p>
+            <p><label>Experience:</label> {{ user.get("sports_exp") or "N/A" }}</p>
         </div>
-    </div>
+    {% elif error %}
+        <p class="error">{{ error }}</p>
+    {% else %}
+        <p>No user data available.</p>
+    {% endif %}
 </body>
 </html>
