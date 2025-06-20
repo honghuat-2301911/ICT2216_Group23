@@ -9,7 +9,7 @@ services:
       DB_HOST: mysqldb
       DB_USER: user
       DB_PASSWORD: pass
-      DB_NAME: testdb
+      DB_NAME: mydb
     depends_on:
       - mysqldb
 

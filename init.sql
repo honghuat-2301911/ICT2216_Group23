@@ -20,7 +20,7 @@ USE `mydb` ;
 CREATE TABLE IF NOT EXISTS `mydb`.`user` (
   `id` INT NOT NULL,
   `name` VARCHAR(45) NOT NULL,
-  `password` VARCHAR(45) NOT NULL,
+  `password` VARCHAR(225) NOT NULL,
   `email` VARCHAR(225) NOT NULL,
   `skill_lvl` VARCHAR(45) NULL,
   `sports_exp` VARCHAR(45) NULL,
@@ -53,9 +53,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`sports_activity` (
 ENGINE = InnoDB;
 
 
--- -----------------------------------------------------
--- Table `mydb`.`feed`
--- -----------------------------------------------------
+-- feed table
 CREATE TABLE IF NOT EXISTS `mydb`.`feed` (
   `id` INT NOT NULL,
   `user_id` INT NOT NULL,
@@ -63,37 +61,35 @@ CREATE TABLE IF NOT EXISTS `mydb`.`feed` (
   `caption` VARCHAR(45) NULL,
   `like_count` INT NULL,
   PRIMARY KEY (`id`),
-  INDEX `fk_user_id_idx` (`user_id` ASC) VISIBLE,
-  CONSTRAINT `fk_user_id`
+  INDEX `idx_feed_user_id` (`user_id`),
+  CONSTRAINT `fk_feed_user`
     FOREIGN KEY (`user_id`)
     REFERENCES `mydb`.`user` (`id`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+    ON UPDATE NO ACTION
+) ENGINE = InnoDB;
 
-
--- -----------------------------------------------------
--- Table `mydb`.`comments`
--- -----------------------------------------------------
+-- comments table
 CREATE TABLE IF NOT EXISTS `mydb`.`comments` (
   `id` INT NOT NULL,
   `feed_id` INT NOT NULL,
   `user_id` INT NOT NULL,
   `comments` VARCHAR(225) NOT NULL,
   PRIMARY KEY (`id`),
-  INDEX `fk_user_id_idx` (`user_id` ASC) VISIBLE,
-  INDEX `fk_feed_id_idx` (`feed_id` ASC) VISIBLE,
-  CONSTRAINT `fk_feed_id`
+  INDEX `idx_comments_user_id` (`user_id`),
+  INDEX `idx_comments_feed_id` (`feed_id`),
+  CONSTRAINT `fk_comments_feed`
     FOREIGN KEY (`feed_id`)
     REFERENCES `mydb`.`feed` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_user_id`
+  CONSTRAINT `fk_comments_user`
     FOREIGN KEY (`user_id`)
     REFERENCES `mydb`.`user` (`id`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+    ON UPDATE NO ACTION
+) ENGINE = InnoDB;
+
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
