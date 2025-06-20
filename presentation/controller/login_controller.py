@@ -27,4 +27,18 @@ def login():
     else:
         return render_template("login/login.html", error="Login failed.")
 
+@login_bp.route("/register", methods=["GET", "POST"])
+def register():
+    # Registration logic can go here
+    return render_template("register/register.html")
+
+@login_bp.route("/bulletin")
+def bulletin():
+    return render_template("bulletin/bulletin.html")
+
+@login_bp.route("/logout")
+def logout():
+    # session.clear()
+    return redirect(url_for('login.login'))
+
 
