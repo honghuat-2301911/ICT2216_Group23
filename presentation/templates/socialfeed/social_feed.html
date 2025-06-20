@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Feed</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/social_feed.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <div class="container">
+        <!-- Post Composer -->
+        <div class="social-card post-composer">
+            <form method="post" action="{{ url_for('social_feed.create_post') }}" enctype="multipart/form-data">
+                <div class="post-header">
+                    <div class="avatar">{{ session.get('username', 'U')[0]|upper }}</div>
+                    <textarea name="content" placeholder="Share something with your buddies..." required></textarea>
+                </div>
+                <div class="post-footer">
+                    <input type="file" name="image" id="image-upload" class="file-upload" style="display:none;">
+                    <label for="image-upload" class="upload-btn" style="cursor:pointer; display:inline-flex; align-items:center;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-paperclip">
+                            <path d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l10-10a3 3 0 0 1 4.24 4.24l-10 10a1 1 0 0 1-1.41-1.41l9.19-9.19"/>
+                        </svg>
+                    </label>
+                    <button type="submit" class="post-btn">Post</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Feed -->
+        {% for post in posts %}
+        <div class="social-card post">
+            <div class="post-header">
+                <div class="avatar">{{ post.user[0]|upper }}</div>
+                <div class="user-info">
+                    <span class="username">{{ post.user }}</span>
+                    <span class="user-handle">@{{ post.user|lower }}</span>
+                    <span class="post-time">· {{ post.created_at.split(' ')[0] if post.created_at else 'Just now' }}</span>
+                </div>
+            </div>
+            <div class="post-content">{{ post.content }}</div>
+            {% if post.image_url %}
+            <div class="post-image">
+                <img src="{{ post.image_url }}" alt="Post image">
+            </div>
+            {% endif %}
+            <div class="post-stats">
+                <div class="stat-item comment-button" onclick="commentClick(this)">
+                    <span class="comment-icon"></span>
+                    <span class="stat-count">{{ post.comments|length }}</span>
+                </div>                
+                <div class="stat-item like-button" onclick="toggleLike(this)">
+                    <span class="heart-icon"></span>
+                    <span class="stat-count">{{ post.likes }}</span>
+                </div>                
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <script>
+        function toggleLike(el) {
+          const heart = el.querySelector('.heart-icon');
+          heart.classList.toggle('liked');
+        }
+      </script>   
+      <script>
+        function commentClick(el) {
+          const icon = el.querySelector('.comment-icon');
+          icon.classList.add('clicked');
+          setTimeout(() => icon.classList.remove('clicked'), 200);
+        }
+      </script>
+</body>
+</html>
