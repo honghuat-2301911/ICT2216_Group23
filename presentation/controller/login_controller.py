@@ -16,23 +16,18 @@ def login():
         password = request.form.get('password')
         remember = request.form.get('remember')
         
-        # Basic validation
         if not email or not password:
             return render_template("login/login.html", error="Please fill in all fields")
         
-        # Here you would typically validate against your database
-        # For now, let's use a simple check (you can replace this with actual authentication)
         if email == "test@example.com" and password == "password123":
-            # Set session data
-            session['user_id'] = 1
-            session['email'] = email
-            session['name'] = "Jarrett"
-            if remember:
-                session.permanent = True
+            # session['user_id'] = 1
+            # session['email'] = email
+            # if remember:
+            #     session.permanent = True
             
             return redirect(url_for('login.bulletin'))
         else:
-            return render_template("login/login.html", error="Invalid email or password. Please try again.")
+            return render_template("login/login.html", error="Invalid email or password.")
     
     return render_template("login/login.html")
 
@@ -43,12 +38,12 @@ def register():
 
 @login_bp.route("/bulletin")
 def bulletin():
-    if 'user_id' not in session:
-        return redirect(url_for('login.login'))
+    # if 'user_id' not in session:
+    #     return redirect(url_for('login.login'))
     return render_template("bulletin/bulletin.html")
 
 @login_bp.route("/logout")
 def logout():
-    session.clear()
+    # session.clear()
     return redirect(url_for('login.login'))
 
