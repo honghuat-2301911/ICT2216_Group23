@@ -14,22 +14,26 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Start Docker
-        run: |
-            docker compose up --build -d
-            
-      - name: Wait for Docker to start
+        run: docker compose up --build -d
+
+      - name: Wait for Nginx
         run: sleep 5
 
-      - name: Test Index Page
+      - name: Validate Nginx Config
+        run: docker compose exec nginx nginx -t
+
+      - name: Test Status Codes
         run: |
-            curl -s -o response.html http://localhost
-            grep "<title>Redirecting...</title>" response.html
-            
-      - name: Test Login Page
+          curl -s -o /dev/null -w "%{http_code}" http://localhost | grep 302
+          curl -s -o /dev/null -w "%{http_code}" http://localhost/login | grep 200
+          curl -s -o /dev/null -w "%{http_code}" http://localhost/nonexistent | grep 404
+
+      - name: Test Security Headers
         run: |
-            curl -s -o response.html http://localhost/login
-            grep "<title>Login</title>" response.html
-            
+          curl -s -I http://localhost/login | grep "X-Frame-Options: DENY"
+
+      - name: Check Nginx Logs
+        run: docker compose logs nginx | grep -i "error" && exit 1 || exit 0
+
       - name: Stop Docker
-        run: |
-            docker compose down -v
+        run: docker compose down -v
