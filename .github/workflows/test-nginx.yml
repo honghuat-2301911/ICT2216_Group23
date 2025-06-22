@@ -1,0 +1,35 @@
+name: Test Nginx
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test-nginx:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Start Docker
+        run: |
+            docker compose up --build -d
+            
+      - name: Wait for Docker to start
+        run: sleep 5
+
+      - name: Test Index Page
+        run: |
+            curl -s -o response.html http://localhost
+            grep "<title>Redirecting...</title>" response.html
+            
+      - name: Test Login Page
+        run: |
+            curl -s -o response.html http://localhost/login
+            grep "<title>Login</title>" response.html
+            
+      - name: Stop Docker
+        run: |
+            docker compose down -v
