@@ -19,32 +19,13 @@ def login():
     if request.method == "POST":
         user = login_user(request.form["email"], request.form["password"])
         if user:
-            # Create a safe user dictionary to avoid exposing sensitive data
-            safe_user = {
-                "name": user.get_name(),
-                "email": user.get_email(),
-                "skill_lvl": user.get_skill_lvl(),
-                "sports_exp": user.get_sports_exp(),
-            }
-            #just change render to maybe profile page and see if can display on ur html by right need session
-            return render_template("login/login.html", user=safe_user)
+            result = get_user_display_data()
+            return render_template("login/login.html", user=result)
         else:
             return render_template("login/login.html", error="Login failed.")
     return render_template("login/login.html")
     
+   
 
-# @login_bp.route("/register", methods=["GET", "POST"])
-# def register():
-#     # Registration logic can go here
-#     return render_template("register/register.html")
-
-# @login_bp.route("/bulletin")
-# def bulletin():
-#     return render_template("bulletin/bulletin.html")
-
-# @login_bp.route("/logout")
-# def logout():
-#     # session.clear()
-#     return redirect(url_for('login.login'))
 
 

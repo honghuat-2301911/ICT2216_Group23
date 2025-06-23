@@ -22,9 +22,9 @@ def insert_user(user_data):
             user_data['name'],
             user_data['password'],
             user_data['email'],
-            user_data.get('skill_lvl'),
-            user_data.get('sports_exp'),
-            user_data.get('role', 'user')
+            user_data['skill_lvl'],
+            user_data['sports_exp'],
+            user_data['role']
         ))
         connection.commit()
         return True

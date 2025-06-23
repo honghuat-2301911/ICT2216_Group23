@@ -14,8 +14,8 @@ def register_user(user_data: dict) -> bool:
         print("User already exists with this email.")
         return False
 
-    # Create a User entity (includes manually set `id`)
-    user = User(**user_data)
+    # # Create a User entity (includes manually set `id`)
+    # user = User(**user_data)
 
     # Insert the new user into the database using asdict()
-    return insert_user(asdict(user))
+    return insert_user(user_data)
