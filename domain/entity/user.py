@@ -1,29 +1,4 @@
-# class User:
-#     def __init__(self, id, name, password, email, skill_lvl=None, sports_exp=None, role="user"):
-#         self._id = id
-#         self._name = name
-#         self._password = password
-#         self._email = email
-#         self._skill_lvl = skill_lvl
-#         self._sports_exp = sports_exp
-#         self._role = role
-
-#     # Getters
-#     def get_id(self): return self._id
-#     def get_name(self): return self._name
-#     def get_password(self): return self._password
-#     def get_email(self): return self._email
-#     def get_skill_lvl(self): return self._skill_lvl
-#     def get_sports_exp(self): return self._sports_exp
-#     def get_role(self): return self._role
-
-#     # Setters
-#     def set_name(self, name): self._name = name
-#     def set_password(self, password): self._password = password
-#     def set_email(self, email): self._email = email
-#     def set_skill_lvl(self, skill_lvl): self._skill_lvl = skill_lvl
-#     def set_sports_exp(self, sports_exp): self._sports_exp = sports_exp
-#     def set_role(self, role): self._role = role
+"""Define user entity for the application"""
 
 from dataclasses import dataclass, field
 from typing import Optional
@@ -31,6 +6,18 @@ from typing import Optional
 
 @dataclass
 class User:
+    """A user class
+
+    Attributes:
+        id (int): Unique ID for the user
+        name (str): User's name
+        password (str): User's password hash
+        email (str): User's email address
+        skill_lvl (Optional[str]): User's skill level (default: None)
+        sports_exp (Optional[str]): User's sports experience (default: None)
+        role (str): User's role (default: 'user')
+    """
+
     id: int
     name: str
     password: str
@@ -40,42 +27,79 @@ class User:
     role: str = field(default="user")
 
     # --- Getters ---
-    def get_id(self):
+    def get_id(self) -> int:
+        """Get the user ID"""
         return self.id
 
-    def get_name(self):
+    def get_name(self) -> str:
+        """Get the user's name"""
         return self.name
 
-    def get_password(self):
+    def get_password(self) -> str:
+        """Get the user's password hash"""
         return self.password
 
-    def get_email(self):
+    def get_email(self) -> str:
+        """Get the user's email address"""
         return self.email
 
-    def get_skill_lvl(self):
+    def get_skill_lvl(self) -> Optional[str]:
+        """Get the user's skill level"""
         return self.skill_lvl
 
-    def get_sports_exp(self):
+    def get_sports_exp(self) -> Optional[str]:
+        """Get the user's sports experience"""
         return self.sports_exp
 
-    def get_role(self):
+    def get_role(self) -> str:
+        """Get the user's role"""
         return self.role
 
     # --- Setters ---
-    def set_name(self, name: str):
+    def set_name(self, name: str) -> None:
+        """Set the user's name
+
+        Args:
+            name (str): New display name
+        """
         self.name = name
 
-    def set_password(self, password: str):
+    def set_password(self, password: str) -> None:
+        """Set the user's password
+
+        Args:
+            password (str): New password hash
+        """
         self.password = password
 
-    def set_email(self, email: str):
+    def set_email(self, email: str) -> None:
+        """Set the user's email address
+
+        Args:
+            email (str): New email address
+        """
         self.email = email
 
-    def set_skill_lvl(self, skill_lvl: str):
+    def set_skill_lvl(self, skill_lvl: str) -> None:
+        """Set the user's skill level
+
+        Args:
+            skill_lvl (str): New skill level
+        """
         self.skill_lvl = skill_lvl
 
-    def set_sports_exp(self, sports_exp: str):
+    def set_sports_exp(self, sports_exp: str) -> None:
+        """Set the user's sports experience
+
+        Args:
+            sports_exp (str): New sports experience
+        """
         self.sports_exp = sports_exp
 
-    def set_role(self, role: str):
+    def set_role(self, role: str) -> None:
+        """Set the user's role
+
+        Args:
+            role (str): New role
+        """
         self.role = role

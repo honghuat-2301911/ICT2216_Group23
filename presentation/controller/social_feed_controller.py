@@ -1,3 +1,8 @@
+"""Controller for social feed routes and logic
+
+Handles displaying the feed, creating posts, and adding comments
+"""
+
 import os
 
 from flask import (
@@ -17,6 +22,14 @@ social_feed_bp = Blueprint("social_feed", __name__, url_prefix="/feed")
 
 
 def allowed_file(filename):
+    """Check if the uploaded file has an allowed image extension
+
+    Args:
+        filename (str): The name of the file
+
+    Returns:
+        bool: True if the file is allowed, False otherwise
+    """
     return "." in filename and filename.rsplit(".", 1)[1].lower() in {
         "png",
         "jpg",
@@ -27,12 +40,14 @@ def allowed_file(filename):
 
 @social_feed_bp.route("/", methods=["GET"])
 def feed():
+    """Render the main social feed page with all posts"""
     posts = get_all_posts()
     return render_template("socialfeed/social_feed.html", posts=posts)
 
 
 @social_feed_bp.route("/create", methods=["POST"])
 def create_post():
+    """Handle creation of a new post, including optional image upload"""
     user = session.get("username", "Anonymous")
     content = request.form["content"]
     image_url = None
@@ -56,6 +71,11 @@ def create_post():
 
 @social_feed_bp.route("/comment/<int:post_id>", methods=["POST"])
 def create_comment(post_id):
+    """Handle creation of a new comment for a specific post
+
+    Args:
+        post_id (int): The ID of the post to comment on
+    """
     user = session.get("username", "Anonymous")
     content = request.form["comment"]
     add_comment(post_id, user, content)
