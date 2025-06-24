@@ -8,10 +8,11 @@ class Post:
         self.likes = likes
         self.comments = comments or []
 
+
 class Comment:
     def __init__(self, id, post_id, user, content, created_at):
         self.id = id
         self.post_id = post_id
         self.user = user
         self.content = content
-        self.created_at = created_at 
+        self.created_at = created_at

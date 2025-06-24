@@ -1,7 +1,8 @@
-from domain.entity.user import User
-from data_source.user_queries import *;
-
 from dataclasses import asdict
+
+from data_source.user_queries import *
+from domain.entity.user import User
+
 
 def register_user(user_data: dict) -> bool:
     """
@@ -9,7 +10,7 @@ def register_user(user_data: dict) -> bool:
     :param user_data: A dictionary containing user information.
     :return: True if registration is successful, False otherwise.
     """
-    existing_user = get_user_by_email(user_data['email'])
+    existing_user = get_user_by_email(user_data["email"])
     if existing_user:
         print("User already exists with this email.")
         return False
