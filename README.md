@@ -53,3 +53,12 @@ Link to Class Diagram:
 ```bash
 docker-compose down -v
 docker-compose up --build
+```
+## If you only need to update web codes
+
+```bash
+docker-compose build web
+docker-compose up --build
+```
+
+## If need to recreate SQL schema or restart db from scratch, need to delete mysql_data folder first before running down and up commands
