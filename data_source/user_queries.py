@@ -1,5 +1,6 @@
 from data_source.db_connection import get_connection
 
+
 def get_user_by_email(email: str):
     connection = get_connection()
     cursor = connection.cursor(dictionary=True)
@@ -9,6 +10,7 @@ def get_user_by_email(email: str):
     connection.close()
     return user_data
 
+
 def insert_user(user_data):
     try:
         connection = get_connection()
@@ -17,15 +19,18 @@ def insert_user(user_data):
             INSERT INTO user (id, name, password, email, skill_lvl, sports_exp, role)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
         """
-        cursor.execute(query, (
-            user_data['id'],
-            user_data['name'],
-            user_data['password'],
-            user_data['email'],
-            user_data['skill_lvl'],
-            user_data['sports_exp'],
-            user_data['role']
-        ))
+        cursor.execute(
+            query,
+            (
+                user_data["id"],
+                user_data["name"],
+                user_data["password"],
+                user_data["email"],
+                user_data["skill_lvl"],
+                user_data["sports_exp"],
+                user_data["role"],
+            ),
+        )
         connection.commit()
         return True
     except Exception as e:
@@ -36,4 +41,3 @@ def insert_user(user_data):
             cursor.close()
         if connection:
             connection.close()
-
