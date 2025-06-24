@@ -1,0 +1,172 @@
+/* Profile Page & Modal Styles */
+
+body {
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #ff5858 0%, #f857a6 100%);
+    min-height: 100vh;
+    padding-top: 80px;
+    color: #0F1419;
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 70vh;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 20px;
+    box-shadow: 0 10px 24px rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 32px 32px 24px 32px;
+    width: 100%;
+    max-width: 420px;
+    margin: 32px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.card h2 {
+    margin-bottom: 18px;
+    color: #ff5858;
+    font-weight: 700;
+}
+
+.profile-details p {
+    font-size: 1.1em;
+    margin: 12px 0;
+    color: #0F1419;
+    text-align: left;
+    width: 100%;
+}
+
+#editProfileBtn {
+    margin-top: 18px;
+    width: 100%;
+    background: linear-gradient(135deg, #ff5858 0%, #f857a6 100%);
+    color: #fff;
+    border: none;
+    border-radius: 24px;
+    font-size: 1.1em;
+    font-weight: 700;
+    padding: 12px 0;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.10);
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+    outline: none;
+    display: block;
+}
+#editProfileBtn:hover, #editProfileBtn:focus {
+    background: linear-gradient(135deg, #f857a6 0%, #ff5858 100%);
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.18);
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: auto;
+    background: rgba(0,0,0,0.4);
+    align-items: center;
+    justify-content: center;
+}
+.modal.show {
+    display: flex;
+}
+.modal-content {
+    background: #fff;
+    margin: auto;
+    padding: 32px 24px 24px 24px;
+    border-radius: 18px;
+    max-width: 400px;
+    width: 90vw;
+    box-shadow: 0 8px 32px rgba(239, 68, 68, 0.18);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    animation: slideUp 0.3s;
+}
+.close-modal {
+    position: absolute;
+    top: 14px;
+    right: 20px;
+    font-size: 1.7em;
+    color: #b91c1c;
+    cursor: pointer;
+    font-weight: bold;
+    transition: color 0.2s;
+}
+.close-modal:hover {
+    color: #ff5858;
+}
+.profile-edit-form label {
+    font-weight: 500;
+    color: #23272a;
+    margin-top: 10px;
+    margin-bottom: 2px;
+}
+.profile-edit-form input[type="text"],
+.profile-edit-form input[type="email"],
+.profile-edit-form input[type="password"] {
+    padding: 8px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 1em;
+    margin-bottom: 10px;
+    background: #fafafa;
+    transition: border 0.2s;
+}
+.profile-edit-form input:focus {
+    border: 1.5px solid #ff5858;
+    outline: none;
+}
+.profile-edit-form button[type="submit"] {
+    background: linear-gradient(135deg, #ff5858 0%, #f857a6 100%);
+    color: #fff;
+    border: none;
+    border-radius: 24px;
+    font-size: 1.1em;
+    font-weight: 700;
+    padding: 12px 0;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.10);
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+    outline: none;
+    display: block;
+    width: 100%;
+    margin-top: 18px;
+}
+.profile-edit-form button[type="submit"]:hover, .profile-edit-form button[type="submit"]:focus {
+    background: linear-gradient(135deg, #f857a6 0%, #ff5858 100%);
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.18);
+}
+@media (max-width: 500px) {
+    .container {
+        padding: 0 4px;
+    }
+    .card {
+        padding: 16px 8px 12px 8px;
+        max-width: 98vw;
+    }
+    .modal-content {
+        padding: 16px 6px 12px 6px;
+        max-width: 98vw;
+    }
+} 

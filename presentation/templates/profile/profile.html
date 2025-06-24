@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Simple modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: auto;
+            background: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background: #fff;
+            margin: 8% auto;
+            padding: 32px 24px;
+            border-radius: 10px;
+            max-width: 400px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.15);
+            position: relative;
+        }
+        .close-modal {
+            position: absolute;
+            top: 12px;
+            right: 18px;
+            font-size: 1.5em;
+            color: #888;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <div class="container">
+        <div class="card">
+            <h2 style="text-align:center;">User Profile</h2>
+            <div class="profile-details" id="profileDetails">
+                <p><strong>Name:</strong> {{ user.name or 'Jane Doe' }}</p>
+                <p><strong>Email:</strong> {{ user.email or 'jane@example.com' }}</p>
+                <p><strong>Skill Level:</strong> {{ user.skill_lvl or 'Intermediate' }}</p>
+                <p><strong>Sports Experience:</strong> {{ user.sports_exp or '2 years' }}</p>
+                <button id="editProfileBtn" class="post-btn" style="margin-top:18px;">Edit Profile</button>
+            </div>
+        </div>
+    </div>
+    <!-- Modal for editing profile -->
+    <div id="editProfileModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeModalBtn">&times;</span>
+            <h3>Edit Profile</h3>
+            <form class="profile-edit-form" id="profileEditForm" method="POST" action="{{ url_for('profile_bp.edit_profile') }}">
+                <div>
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" value="{{ user.name or 'Jane Doe' }}" required>
+                </div>
+                <div>
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" value="{{ user.email or 'jane@example.com' }}" required>
+                </div>
+                <div>
+                    <label for="skill_lvl">Skill Level:</label>
+                    <input type="text" id="skill_lvl" name="skill_lvl" value="{{ user.skill_lvl or 'Intermediate' }}" required>
+                </div>
+                <div>
+                    <label for="sports_exp">Sports Experience:</label>
+                    <input type="text" id="sports_exp" name="sports_exp" value="{{ user.sports_exp or '2 years' }}" required>
+                </div>
+                <div>
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" placeholder="Enter new password">
+                </div>
+                <button type="submit">Save Changes</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        // Modal logic
+        const editBtn = document.getElementById('editProfileBtn');
+        const modal = document.getElementById('editProfileModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        if (editBtn) {
+            editBtn.onclick = function() {
+                modal.style.display = 'block';
+            };
+        }
+        if (closeModalBtn) {
+            closeModalBtn.onclick = function() {
+                modal.style.display = 'none';
+            };
+        }
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html> 
