@@ -53,12 +53,12 @@ CREATE TABLE IF NOT EXISTS `mydb`.`sports_activity` (
 ENGINE = InnoDB;
 
 
--- feed table
+-- feed table with image path instead of binary blob
 CREATE TABLE IF NOT EXISTS `mydb`.`feed` (
   `id` INT NOT NULL,
   `user_id` INT NOT NULL,
-  `image` MEDIUMBLOB NULL,
-  `caption` VARCHAR(45) NULL,
+  `image_path` VARCHAR(255) NULL,  
+  `caption` VARCHAR(255) NULL,
   `like_count` INT NULL,
   PRIMARY KEY (`id`),
   INDEX `idx_feed_user_id` (`user_id`),
