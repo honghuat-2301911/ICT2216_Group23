@@ -1,15 +1,10 @@
-from dataclasses import asdict
+"""User registration control logic and business rules"""
 
-from data_source.user_queries import *
-from domain.entity.user import User
+from data_source.user_queries import get_user_by_email, insert_user
 
 
 def register_user(user_data: dict) -> bool:
-    """
-    Register a new user in the system.
-    :param user_data: A dictionary containing user information.
-    :return: True if registration is successful, False otherwise.
-    """
+    # TODO: Implement register function
     existing_user = get_user_by_email(user_data["email"])
     if existing_user:
         print("User already exists with this email.")

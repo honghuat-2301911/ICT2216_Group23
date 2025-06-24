@@ -1,7 +1,18 @@
+"""Authentication management for password hashing and verification"""
+
 import bcrypt
 
 
 def hash_password(plain_text_password: str) -> str:
+    """
+    Hash plaintext password using bcrypt
+
+    Args:
+        plain_text_password (str): The plaintext password
+
+    Returns:
+        str: Hashed password as a UTF-8 string
+    """
     # Generate a salt
     salt = bcrypt.gensalt()
     # Hash the password (result is in bytes)
@@ -11,6 +22,16 @@ def hash_password(plain_text_password: str) -> str:
 
 
 def check_password(plain_text_password: str, hashed_password: str) -> bool:
+    """
+    Check if a plaintext password matches the given bcrypt hash
+
+    Args:
+        plain_text_password (str): The plaintext password
+        hashed_password (str): The hashed password as stored
+
+    Returns:
+        bool: True if the password matches, False otherwise
+    """
     return bcrypt.checkpw(
         plain_text_password.encode("utf-8"), hashed_password.encode("utf-8")
     )
