@@ -3,7 +3,7 @@ name: Pylint check
 on: push
 
 jobs:
-  lint-format-typecheck:
+  pylint-typecheck:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
