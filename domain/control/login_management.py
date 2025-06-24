@@ -12,7 +12,7 @@ def login_user(email: str, password: str):
 
     Args:
         email (str): User's email address
-        password (str): User's password 
+        password (str): User's password
 
     Returns:
         User: The authenticated User object if found, else None

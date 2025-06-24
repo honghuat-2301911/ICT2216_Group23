@@ -1,6 +1,5 @@
 """Dummy in-memory data and query functions for the social feed feature"""
 
-
 DUMMY_POSTS = [
     {
         "feed_id": 1,
