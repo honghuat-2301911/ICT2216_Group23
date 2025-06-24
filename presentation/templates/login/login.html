@@ -14,13 +14,14 @@
                 <h1>Welcome to SIT Sports Buddy!</h1>
                 <p>Sign in to your account</p>
             </div>
+            <!--Display user profile if logged in but its a placeholder for now, to be shown in profile instead-->
             {% if user %}
                 <div class="profile-section">
                     <h2>User Profile</h2>
-                    <p><label>Name:</label> {{ user.get("name") }}</p>
-                    <p><label>Email:</label> {{ user.get("email") }}</p>
-                    <p><label>Skill Level:</label> {{ user.get("skill_lvl") or "N/A" }}</p>
-                    <p><label>Experience:</label> {{ user.get("sports_exp") or "N/A" }}</p>
+                    <p><label>Name:</label> {{ user.name }}</p>
+                    <p><label>Email:</label> {{ user.email }}</p>
+                    <p><label>Skill Level:</label> {{ user.skill_lvl or "N/A" }}</p>
+                    <p><label>Experience:</label> {{ user.sports_exp or "N/A" }}</p>
                 </div>
             {% else %}
                 {% if error %}
