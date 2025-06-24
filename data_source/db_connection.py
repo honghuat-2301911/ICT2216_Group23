@@ -1,6 +1,8 @@
 import os
+
 import mysql.connector
 from mysql.connector import Error
+
 
 def get_connection():
     try:
@@ -8,7 +10,7 @@ def get_connection():
             host=os.getenv("DB_HOST", "localhost"),
             user=os.getenv("DB_USER", "root"),
             password=os.getenv("DB_PASSWORD", ""),
-            database=os.getenv("DB_NAME", "")
+            database=os.getenv("DB_NAME", ""),
         )
         if connection.is_connected():
             return connection
