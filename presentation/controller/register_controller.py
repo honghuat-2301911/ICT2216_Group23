@@ -27,8 +27,6 @@ def register():
 
         # Prepare user data
         user_data = {
-            "id": random.randint(5, 200),
-            # THIS IS JUST A TEMP ID, IS STUDENTS WILL NEED TO CHANGE THIS, edit init.sql if needed for schema changes
             "name": request.form["name"],
             "email": request.form["email"],
             "password": request.form["password"],

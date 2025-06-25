@@ -38,13 +38,12 @@ def insert_user(user_data: dict) -> bool:
         connection = get_connection()
         cursor = connection.cursor()
         query = """
-            INSERT INTO user (id, name, password, email, skill_lvl, sports_exp, role)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO user (name, password, email, skill_lvl, sports_exp, role)
+            VALUES (%s, %s, %s, %s, %s, %s)
         """
         cursor.execute(
             query,
             (
-                user_data["id"],
                 user_data["name"],
                 user_data["password"],
                 user_data["email"],
