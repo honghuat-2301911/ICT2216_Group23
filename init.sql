@@ -18,7 +18,7 @@ USE `mydb` ;
 -- Table `mydb`.`user`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `mydb`.`user` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NOT NULL,
   `password` VARCHAR(225) NOT NULL,
   `email` VARCHAR(225) NOT NULL,
@@ -34,7 +34,7 @@ ENGINE = InnoDB;
 -- Table `mydb`.`sports_activity`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `mydb`.`sports_activity` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `user_id` INT NOT NULL,
   `activity_name` VARCHAR(225) NOT NULL,
   `activity_type` VARCHAR(225) NOT NULL,
@@ -55,7 +55,7 @@ ENGINE = InnoDB;
 
 -- feed table with image path instead of binary blob
 CREATE TABLE IF NOT EXISTS `mydb`.`feed` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `user_id` INT NOT NULL,
   `image_path` VARCHAR(255) NULL,  
   `caption` VARCHAR(255) NULL,
@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`feed` (
 
 -- comments table
 CREATE TABLE IF NOT EXISTS `mydb`.`comments` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `feed_id` INT NOT NULL,
   `user_id` INT NOT NULL,
   `comments` VARCHAR(225) NOT NULL,
