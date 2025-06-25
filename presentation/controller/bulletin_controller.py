@@ -9,8 +9,6 @@ bulletin_bp = Blueprint(
 )
 
 @bulletin_bp.route("/")
-def bulletin_page():
-    # Check if user is logged in
-    if 'user_id' not in session:
-        return redirect(url_for('login.login'))
+def bulletin():
+
     return render_template("bulletin/bulletin.html")

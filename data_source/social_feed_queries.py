@@ -4,6 +4,18 @@ DUMMY_POSTS = [
     {
         'feed_id': 1,
         'id': 1,
+        'user': 'Jane Doe',
+        'content': 'This is my first post on SIT Sports Buddy! Excited to join the community.',
+        'image_url': None,
+        'likes': 2,
+        'created_at': '2024-06-25 10:00',
+        'comments': [
+            {'id': 1, 'user': 'Jane', 'content': 'Welcome Jane!', 'created_at': '2024-06-25 10:05'},
+        ]
+    },
+    {
+        'feed_id': 2,
+        'id': 2,
         'user': 'Alice',
         'content': 'Excited for the basketball game this weekend!',
         'image_url': None,
@@ -14,8 +26,8 @@ DUMMY_POSTS = [
         ]
     },
     {
-        'feed_id': 2,
-        'id': 2,
+        'feed_id': 3,
+        'id': 3,
         'user': 'Charlie',
         'content': 'Check out this cool shot from last night!',
         'image_url': '/static/img/sample.jpg',
@@ -59,3 +71,6 @@ def add_comment(feed_id, user, content):
             }
             post['comments'].append(new_comment)
             break
+
+def get_posts_by_user(username):
+    return [post for post in DUMMY_POSTS if post['user'] == username]
