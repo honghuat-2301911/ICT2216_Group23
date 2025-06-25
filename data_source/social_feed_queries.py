@@ -1,4 +1,6 @@
 from data_source.db_connection import get_connection
+import os
+from werkzeug.utils import secure_filename
 
 DUMMY_POSTS = [
     {
@@ -74,3 +76,28 @@ def add_comment(feed_id, user, content):
 
 def get_posts_by_user(username):
     return [post for post in DUMMY_POSTS if post['user'] == username]
+
+def add_post_to_db(user_id, content, image_file=None):
+    connection = get_connection()
+    if connection is None:
+        print("[DB ERROR] Could not connect to database.")
+        return
+    cursor = connection.cursor()
+    image_url = None
+
+    # Handle image upload (save to static/images/social/)
+    if image_file and image_file.filename:
+        filename = secure_filename(image_file.filename)
+        image_path = os.path.join('presentation', 'static', 'images', 'social', filename)
+        os.makedirs(os.path.dirname(image_path), exist_ok=True)
+        image_file.save(image_path)
+        image_url = f'/static/images/social/{filename}'
+
+    query = """
+        INSERT INTO feed (user_id, caption, image, like_count)
+        VALUES (%s, %s, %s, 0)
+    """
+    cursor.execute(query, (user_id, content, image_url))
+    connection.commit()
+    cursor.close()
+    connection.close()

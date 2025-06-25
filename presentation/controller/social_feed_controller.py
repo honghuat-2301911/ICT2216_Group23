@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, current_app
-from data_source.social_feed_queries import get_all_posts, add_post, add_comment
+from data_source.social_feed_queries import get_all_posts, add_post, add_comment, add_post_to_db
 import os
 from werkzeug.utils import secure_filename
 
@@ -15,22 +15,24 @@ def feed():
 
 @social_feed_bp.route('/create', methods=['POST'])
 def create_post():
-    user = session.get('username', 'Anonymous')
+    user_id = session.get('user_id')
     content = request.form['content']
-    image_url = None
+    image_file = request.files.get('image')
 
-    if 'image' in request.files:
-        file = request.files['image']
-        filename = file.filename
-        if file and filename and allowed_file(filename):
-            filename = secure_filename(filename)
+    if user_id:
+        add_post_to_db(user_id, content, image_file)
+    else:
+        # fallback to old dummy logic if not logged in
+        user = session.get('username', 'Anonymous')
+        image_url = None
+        if image_file and image_file.filename:
+            filename = secure_filename(image_file.filename)
             upload_folder = current_app.config.get('UPLOAD_FOLDER', 'presentation/static/img/uploads')
             os.makedirs(upload_folder, exist_ok=True)
             filepath = os.path.join(upload_folder, filename)
-            file.save(filepath)
+            image_file.save(filepath)
             image_url = f'/static/img/uploads/{filename}'
-
-    add_post(user, content, image_url)
+        add_post(user, content, image_url)
     return redirect(url_for('social_feed.feed'))
 
 @social_feed_bp.route('/comment/<int:post_id>', methods=['POST'])
