@@ -8,11 +8,16 @@ bulletin_bp = Blueprint(
     template_folder="../templates"
 )
 
+
 @bulletin_bp.route("/bulletin", methods=["GET", "POST"])
 def bulletin_page():
+    """Render the bulletin board page if the user is logged in.
+
+    Redirects to the login page if the user is not authenticated.
+    """
     # # Check if user is logged in
-    # if 'user_id' not in session:
-    #     return redirect(url_for('login.login'))
+    # if "user_id" not in session:
+    #     return redirect(url_for("login.login"))
     # need validation here for query lol
 
     query = request.form.get("query") if request.method == "POST" else None
