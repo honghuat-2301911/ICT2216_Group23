@@ -1,8 +1,23 @@
+"""User login management for authentication and session handling"""
+
 from flask import g
-from domain.entity.user import User
+
 from data_source.user_queries import get_user_by_email
+from domain.entity.user import User
+
 
 def login_user(email: str, password: str):
+    """
+    Attempt to authenticate a user by email and password
+
+    Args:
+        email (str): User's email address
+        password (str): User's password
+
+    Returns:
+        User: The authenticated User object if found, else None
+    """
+    # TODO: Implement password verification
     result = get_user_by_email(email)
     if not result:
         return None
@@ -14,26 +29,29 @@ def login_user(email: str, password: str):
         email=result["email"],
         skill_lvl=result.get("skill_lvl"),
         sports_exp=result.get("sports_exp"),
-        role=result.get("role", "user")
+        role=result.get("role", "user"),
     )
 
     g.current_user = user  # Store in request scope
     return user
 
+
 def get_user_display_data():
+    """
+    Retrieve display data for the currently logged-in user
+
+    Returns:
+        dict: User display information, or None if no user is logged in
+    """
     user = g.get("current_user")
     if not user:
         return None
 
     return {
-        # "id": user.get_id(), # Uncomment if you want to display user ID
+        # "id": user.get_id(),  # Uncomment if you want to display user ID
         "name": user.get_name(),
         "email": user.get_email(),
         "skill_lvl": user.get_skill_lvl(),
         "sports_exp": user.get_sports_exp(),
-        "role": user.get_role()
+        "role": user.get_role(),
     }
-
-    
-
-
