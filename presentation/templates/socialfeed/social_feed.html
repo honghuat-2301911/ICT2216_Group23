@@ -18,8 +18,13 @@
                     <div class="avatar">{{ session.get('username', 'U')[0]|upper }}</div>
                     <textarea name="content" placeholder="Share something with your buddies..." required></textarea>
                 </div>
+                <div id="image-preview-container" class="image-preview-container" style="display:none;">
+                    <button type="button" class="remove-image-btn" onclick="removeImagePreview()">&times;</button>
+                    <img id="image-preview" src="" alt="Image preview" />
+                </div>
+                <div class="composer-divider"></div>
                 <div class="post-footer">
-                    <input type="file" name="image" id="image-upload" class="file-upload" style="display:none;">
+                    <input type="file" name="image" id="image-upload" class="file-upload" style="display:none;" accept="image/*" onchange="previewImage(event)">
                     <label for="image-upload" class="upload-btn" style="cursor:pointer; display:inline-flex; align-items:center;">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-paperclip">
                             <path d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l10-10a3 3 0 0 1 4.24 4.24l-10 10a1 1 0 0 1-1.41-1.41l9.19-9.19"/>
@@ -71,6 +76,29 @@
           const icon = el.querySelector('.comment-icon');
           icon.classList.add('clicked');
           setTimeout(() => icon.classList.remove('clicked'), 200);
+        }
+      </script>
+      <script>
+        function previewImage(event) {
+            const input = event.target;
+            const previewContainer = document.getElementById('image-preview-container');
+            const preview = document.getElementById('image-preview');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        function removeImagePreview() {
+            const previewContainer = document.getElementById('image-preview-container');
+            const preview = document.getElementById('image-preview');
+            const fileInput = document.getElementById('image-upload');
+            preview.src = '';
+            previewContainer.style.display = 'none';
+            fileInput.value = '';
         }
       </script>
 </body>

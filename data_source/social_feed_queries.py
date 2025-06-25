@@ -1,4 +1,4 @@
-# Dummy in-memory data for social feed
+from data_source.db_connection import get_connection
 
 DUMMY_POSTS = [
     {
