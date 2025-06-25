@@ -19,8 +19,8 @@ def login():
     if request.method == "POST":
         user = login_user(request.form["email"], request.form["password"])
         if user:
-            result = get_user_display_data()
-            return render_template("login/login.html", user=result)
+            # result = get_user_display_data()
+            return redirect(url_for("bulletin.bulletin_page"))
         else:
             return render_template("login/login.html", error="Login failed.")
     return render_template("login/login.html")
