@@ -24,6 +24,45 @@ def get_user_by_email(email: str):
     return user_data
 
 
+# def insert_user(user_data: dict) -> bool:
+#     """
+#     Insert a new user into the database
+
+#     Args:
+#         user_data (dict): Dictionary containing user information
+
+#     Returns:
+#         bool: True if insertion is successful, False otherwise
+#     """
+#     try:
+#         connection = get_connection()
+#         cursor = connection.cursor()
+#         query = """
+#             INSERT INTO user (name, password, email, skill_lvl, sports_exp, role)
+#             VALUES (%s, %s, %s, %s, %s, %s)
+#         """
+#         cursor.execute(
+#             query,
+#             (
+#                 user_data["name"],
+#                 user_data["password"],
+#                 user_data["email"],
+#                 user_data.get("skill_lvl"),
+#                 user_data.get("sports_exp"),
+#                 user_data.get("role", "user"),
+#             ),
+#         )
+#         connection.commit()
+#         return True
+#     except mysql.connector.Error as e:
+#         print("Insert failed:", e)
+#         return False
+#     finally:
+#         if cursor:
+#             cursor.close()
+#         if connection:
+#             connection.close()
+
 def insert_user(user_data: dict) -> bool:
     """
     Insert a new user into the database
@@ -34,31 +73,24 @@ def insert_user(user_data: dict) -> bool:
     Returns:
         bool: True if insertion is successful, False otherwise
     """
-    try:
-        connection = get_connection()
-        cursor = connection.cursor()
-        query = """
-            INSERT INTO user (name, password, email, skill_lvl, sports_exp, role)
-            VALUES (%s, %s, %s, %s, %s, %s)
-        """
-        cursor.execute(
-            query,
-            (
-                user_data["name"],
-                user_data["password"],
-                user_data["email"],
-                user_data.get("skill_lvl"),
-                user_data.get("sports_exp"),
-                user_data.get("role", "user"),
-            ),
-        )
-        connection.commit()
-        return True
-    except mysql.connector.Error as e:
-        print("Insert failed:", e)
-        return False
-    finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
+    connection = get_connection()
+    cursor = connection.cursor()
+    query = """
+        INSERT INTO user (name, password, email, skill_lvl, sports_exp, role)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """
+    cursor.execute(
+        query,
+        (
+            user_data["name"],
+            user_data["password"],
+            user_data["email"],
+            user_data.get("skill_lvl"),
+            user_data.get("sports_exp"),
+            user_data.get("role", "user"),
+        ),
+    )
+    connection.commit()
+    cursor.close()
+    connection.close()
+    return True

@@ -41,39 +41,65 @@ def update_sports_activity(activity_id: int, user_id_list_join: str):
     connection.close()
 
 
+# def insert_new_activity(activity_data):
+#     try:
+#         connection = get_connection()
+#         cursor = connection.cursor()
+
+#         query = """
+#         INSERT INTO sports_activity (
+#             user_id, activity_name, activity_type, skills_req, date, location, max_pax
+#         ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+#         """
+
+#         cursor.execute(query, (
+#             activity_data['user_id'],
+#             activity_data['activity_name'],
+#             activity_data['activity_type'],
+#             activity_data['skills_req'],
+#             activity_data['date'],
+#             activity_data['location'],
+#             activity_data['max_pax'],
+#         ))
+
+#         connection.commit()
+#         return True
+
+#     except Exception as e:
+#         print("Insert failed:", e)
+#         return False
+
+#     finally:
+#         if cursor:
+#             cursor.close()
+#         if connection:
+#             connection.close()
+
 def insert_new_activity(activity_data):
-    try:
-        connection = get_connection()
-        cursor = connection.cursor()
+    connection = get_connection()
+    cursor = connection.cursor()
 
-        query = """
-        INSERT INTO sports_activity (
-            user_id, activity_name, activity_type, skills_req, date, location, max_pax
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """
+    query = """
+    INSERT INTO sports_activity (
+        user_id, activity_name, activity_type, skills_req, date, location, max_pax
+    ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+    """
 
-        cursor.execute(query, (
-            activity_data['user_id'],
-            activity_data['activity_name'],
-            activity_data['activity_type'],
-            activity_data['skills_req'],
-            activity_data['date'],
-            activity_data['location'],
-            activity_data['max_pax'],
-        ))
+    cursor.execute(query, (
+        activity_data['user_id'],
+        activity_data['activity_name'],
+        activity_data['activity_type'],
+        activity_data['skills_req'],
+        activity_data['date'],
+        activity_data['location'],
+        activity_data['max_pax'],
+    ))
 
-        connection.commit()
-        return True
+    connection.commit()
+    cursor.close()
+    connection.close()
+    return True
 
-    except Exception as e:
-        print("Insert failed:", e)
-        return False
-
-    finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
 
 def get_bulletin_by_types(activity_types):
     connection = get_connection()
