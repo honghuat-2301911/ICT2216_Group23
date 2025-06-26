@@ -129,7 +129,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`sports_activity` (
   `location` VARCHAR(225) NOT NULL,
   `max_pax` INT NOT NULL,
   `user_id_list_join` VARCHAR(225) NULL,
-  PRIMARY KEY (`id`, `date`),
+  PRIMARY KEY (`id`),
   INDEX `fk_user_id_idx` (`user_id` ASC) VISIBLE,
   CONSTRAINT `fk_user_id`
     FOREIGN KEY (`user_id`)
@@ -137,6 +137,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`sports_activity` (
     ON DELETE CASCADE  
     ON UPDATE NO ACTION
 ) ENGINE = InnoDB;
+
 
 -- FEED TABLE
 CREATE TABLE IF NOT EXISTS `mydb`.`feed` (
