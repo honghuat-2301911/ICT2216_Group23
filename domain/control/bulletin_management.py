@@ -32,30 +32,6 @@ def get_bulletin_listing():
     result = get_all_bulletin()
     if not result:
         return []
-
-    # bulletin_list = []
-
-    # for row in result:
-    #     user_id_list = row.get("user_id_list_join")
-    #     current_count = len(user_id_list.split(",")) if user_id_list else 0
-
-    #     if current_count >= row["max_pax"]:
-    #         continue  # Skip adding this activity if full
-
-    #     activity = SportsActivity(
-    #         id=row["id"],
-    #         user_id=row["user_id"],
-    #         activity_name=row["activity_name"],
-    #         activity_type=row["activity_type"],
-    #         skills_req=row["skills_req"],
-    #         date=row["date"],  # optionally parse as datetime
-    #         location=row["location"],
-    #         max_pax=row["max_pax"],
-    #         user_id_list_join=user_id_list
-    #     )
-    #     bulletin_list.append(activity)
-
-    # g.bulletin_list = bulletin_list
     bulletin_list =  create_entity_from_row(result)
     return bulletin_list
 
@@ -82,22 +58,6 @@ def search_bulletin(query):
     result = get_bulletin_via_name(query)
     if not result:
         return []
-
-    # bulletin_list = []
-    # for row in result:
-    #     activity = SportsActivity(
-    #         id=row["id"],
-    #         user_id=row["user_id"],
-    #         activity_name=row["activity_name"],
-    #         activity_type=row["activity_type"],
-    #         skills_req=row["skills_req"],
-    #         date=row["date"],
-    #         location=row["location"],
-    #         max_pax=row["max_pax"],
-    #         user_id_list_join=row.get("user_id_list_join"),
-    #     )
-    #     bulletin_list.append(activity)
-    # g.bulletin_list = bulletin_list
     bulletin_list =  create_entity_from_row(result)
     return bulletin_list
 
@@ -153,28 +113,5 @@ def get_filtered_bulletins(sports: bool, non_sports: bool):
     result = get_bulletin_by_types(types)
     if not result:
         return None
-
-    # bulletin_list = []
-    # for row in result:
-    #     user_id_list = row.get("user_id_list_join")
-    #     current_count = len(user_id_list.split(",")) if user_id_list else 0
-
-    #     if current_count >= row["max_pax"]:
-    #         continue  # Skip adding this activity if full
-
-    #     activity = SportsActivity(
-    #         id=row["id"],
-    #         user_id=row["user_id"],
-    #         activity_name=row["activity_name"],
-    #         activity_type=row["activity_type"],
-    #         skills_req=row["skills_req"],
-    #         date=row["date"],  # optionally parse as datetime
-    #         location=row["location"],
-    #         max_pax=row["max_pax"],
-    #         user_id_list_join=user_id_list
-    #     )
-    #     bulletin_list.append(activity)
-    
-    # g.bulletin_list = bulletin_list
     bulletin_list =  create_entity_from_row(result)
     return bulletin_list
