@@ -74,7 +74,7 @@ def search_bulletin(query):
     return bulletin_list
 
 def join_activity_control(activity_id):
-    user_id = 16 # Replace with actual user ID from session or context
+    user_id = 1 # Replace with actual user ID from session or context
     activity_data = get_sports_activity_by_id(activity_id)
     if not activity_data:
         return None
@@ -103,7 +103,7 @@ def join_activity_control(activity_id):
     return False
 
 def create_activity(activity_name, activity_type, skills_req, date, location, max_pax):
-    user_id = 15  # Should be set in session after login but hardcode for now
+    user_id = 1  # Should be set in session after login but hardcode for now
     new_data = {
         "user_id": user_id,
         "activity_name": activity_name,
