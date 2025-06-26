@@ -128,16 +128,22 @@ def get_filtered_bulletins(sports: bool, non_sports: bool):
 
     bulletin_list = []
     for row in result:
+        user_id_list = row.get("user_id_list_join")
+        current_count = len(user_id_list.split(",")) if user_id_list else 0
+
+        if current_count >= row["max_pax"]:
+            continue  # Skip adding this activity if full
+
         activity = SportsActivity(
             id=row["id"],
             user_id=row["user_id"],
             activity_name=row["activity_name"],
             activity_type=row["activity_type"],
             skills_req=row["skills_req"],
-            date=row["date"],
+            date=row["date"],  # optionally parse as datetime
             location=row["location"],
             max_pax=row["max_pax"],
-            user_id_list_join=row.get("user_id_list_join")
+            user_id_list_join=user_id_list
         )
         bulletin_list.append(activity)
     
