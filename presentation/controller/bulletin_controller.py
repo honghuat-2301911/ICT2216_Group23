@@ -37,7 +37,8 @@ def bulletin_page():
 @login_required
 def join_activity():
     activity_id = request.form.get("activity_id")
-    result = join_activity_control(activity_id)
+    user_id = int(current_user.get_id())
+    result = join_activity_control(activity_id, user_id)
     if not result:
         #flash ("Failed to join the activity You Joined Already Please try again.")
         return redirect(url_for("bulletin.bulletin_page"))
@@ -52,8 +53,9 @@ def host_activity():
     date = request.form["date"]
     location = request.form["location"]
     max_pax = request.form["max_pax"]
+    user_id = int(current_user.get_id())
 
-    success = create_activity(activity_name, activity_type, skills_req, date, location, max_pax)
+    success = create_activity(activity_name, activity_type, skills_req, date, location, max_pax, user_id)
 
     if success:
         return redirect(url_for("bulletin.bulletin_page"))

@@ -68,37 +68,62 @@
     <div id="activitiesSection" class="profile-section" style="display:none;">
         <div class="profile-feed">
             <h3>Sports Activities</h3>
-            {% if joined_activities and joined_activities|length > 0 %}
-                {% for activity in joined_activities %}
-                    <div class="profile-feed-item" data-activity-id="{{ activity.user_id }}-{{ activity.date }}">
-                        <img src="{{ user.profile_pic_url or url_for('static', filename='icons/user.png') }}" class="feed-avatar" alt="Profile Picture">
-                        <div class="feed-content">
-                            <p><strong>{{ activity.activity_name }}</strong></p>
-                            <p>Type: {{ activity.activity_type }}</p>
-                            <p>Skills Required: {{ activity.skills_req }}</p>
-                            <p>Date: {{ activity.date }}</p>
-                            <p>Location: {{ activity.location }}</p>
-                            <p>Max Participants: {{ activity.max_pax }}</p>
-                        </div>
-                        {% if activity.user_id == user.userId %}
+            <div class="activity-group">
+                <h4>Hosted Activities ({{ hosted_activities|length }})</h4>
+                {% if hosted_activities|length > 0 %}
+                    {% for activity in hosted_activities %}
+                        <div class="profile-feed-item" data-activity-id="{{ activity.id }}-{{ activity.date }}">
+                            <img src="{{ user.profile_pic_url or url_for('static', filename='icons/user.png') }}" class="feed-avatar" alt="Profile Picture">
+                            <div class="feed-content">
+                                <p><strong>{{ activity.activity_name }}</strong></p>
+                                <p>Type: {{ activity.activity_type }}</p>
+                                <p>Skills Required: {{ activity.skills_req }}</p>
+                                <p>Date: {{ activity.date }}</p>
+                                <p>Location: {{ activity.location }}</p>
+                                <p>Max Participants: {{ activity.max_pax }}</p>
+                                <span class="activity-label hosted">Hosted</span>
+                            </div>
                             <button class="icon-btn edit-activity-btn" title="Edit Activity">
                                 <img src="{{ url_for('static', filename='icons/edit.png') }}" alt="Edit" class="edit-icon">
                             </button>
-                        {% else %}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="profile-feed-item">
+                        <div class="feed-content">
+                            <p>You have not hosted any activities yet.</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="activity-group">
+                <h4>Joined Activities ({{ joined_only_activities|length }})</h4>
+                {% if joined_only_activities|length > 0 %}
+                    {% for activity in joined_only_activities %}
+                        <div class="profile-feed-item" data-activity-id="{{ activity.id }}-{{ activity.date }}">
+                            <img src="{{ user.profile_pic_url or url_for('static', filename='icons/user.png') }}" class="feed-avatar" alt="Profile Picture">
+                            <div class="feed-content">
+                                <p><strong>{{ activity.activity_name }}</strong></p>
+                                <p>Type: {{ activity.activity_type }}</p>
+                                <p>Skills Required: {{ activity.skills_req }}</p>
+                                <p>Date: {{ activity.date }}</p>
+                                <p>Location: {{ activity.location }}</p>
+                                <p>Max Participants: {{ activity.max_pax }}</p>
+                                <span class="activity-label joined">Joined</span>
+                            </div>
                             <button class="icon-btn leave-activity-btn" title="Leave Activity">
                                 <img src="{{ url_for('static', filename='icons/delete.png') }}" alt="Leave" class="edit-icon">
                             </button>
-                        {% endif %}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="profile-feed-item">
+                        <div class="feed-content">
+                            <p>You have not joined any activities yet.</p>
+                        </div>
                     </div>
-                {% endfor %}
-            {% else %}
-                <div class="profile-feed-item">
-                    <img src="{{ user.profile_pic_url or url_for('static', filename='icons/user.png') }}" class="feed-avatar" alt="Profile Picture">
-                    <div class="feed-content">
-                        <p>You have not joined or hosted any activities yet.</p>
-                    </div>
-                </div>
-            {% endif %}
+                {% endif %}
+            </div>
         </div>
     </div>
     <!-- Modal for editing profile -->

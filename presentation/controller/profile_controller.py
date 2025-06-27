@@ -5,6 +5,8 @@ from data_source.social_feed_queries import get_posts_by_user
 from data_source.user_queries import get_user_by_id
 from flask_login import login_required, current_user
 import bcrypt
+from data_source.bulletin_queries import get_all_bulletin
+from domain.entity.sports_activity import SportsActivity
 
 profile_bp = Blueprint('profile_bp', __name__, template_folder='../templates/profile', url_prefix='/profile')
 
@@ -31,8 +33,34 @@ def fetchProfile():
         )
     user_posts = get_posts_by_user(user.get_name()) if user else []
     user_id_str = str(user.get_id()) if user else ''
-    joined_activities = []  # No activities since get_all_activities is removed
-    return render_template('profile/profile.html', user=user, posts=user_posts, joined_activities=joined_activities)
+
+    # Fetch all activities and filter for hosted/joined
+    all_activities = get_all_bulletin()
+    hosted_activities = []
+    joined_only_activities = []
+    if all_activities:
+        for row in all_activities:
+            row = dict(row)  # Ensure row is a dict
+            activity = SportsActivity(
+                id=int(row.get('id', 0)),
+                user_id=int(row.get('user_id', 0)),
+                activity_name=str(row.get('activity_name', '')),
+                activity_type=str(row.get('activity_type', '')),
+                skills_req=str(row.get('skills_req', '')),
+                date=str(row.get('date', '')),
+                location=str(row.get('location', '')),
+                max_pax=int(row.get('max_pax', 0)),
+                user_id_list_join=row.get('user_id_list_join', None)
+            )
+            # Hosted: user_id matches current user
+            if activity.user_id == user_id:
+                hosted_activities.append(activity)
+            # Joined: user_id is in join list, but not the host
+            else:
+                joined_ids = [uid.strip() for uid in (activity.user_id_list_join or '').split(',') if uid.strip()]
+                if str(user_id) in joined_ids:
+                    joined_only_activities.append(activity)
+    return render_template('profile/profile.html', user=user, posts=user_posts, hosted_activities=hosted_activities, joined_only_activities=joined_only_activities)
 
 
 @profile_bp.route('/', methods=['POST'])
