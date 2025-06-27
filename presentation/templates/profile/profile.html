@@ -15,8 +15,8 @@
         <div class="profile-header">
             <img src="{{ user.profile_pic_url or url_for('static', filename='icons/user.png') }}" class="profile-avatar" alt="Profile Picture">
             <div class="profile-header-info">
-                <h2>{{ user.name or 'Jane Doe' }}</h2>
-                <p>{{ user.email or 'jane@example.com' }}</p>
+                <h2>{{ user.name}}</h2>
+                <p>{{ user.email}}</p>
             </div>
         </div>
     </div>
@@ -31,10 +31,9 @@
             <div class="profile-feed-item">
                 <img src="{{ user.profile_pic_url or url_for('static', filename='icons/user.png') }}" class="feed-avatar" alt="Profile Picture">
                 <div class="feed-content">
-                    <p><strong>Name:</strong> {{ user.name or 'Jane Doe' }}</p>
-                    <p><strong>Email:</strong> {{ user.email or 'jane@example.com' }}</p>
-                    <p><strong>Skill Level:</strong> {{ user.skill_lvl or 'Intermediate' }}</p>
-                    <p><strong>Sports Experience:</strong> {{ user.sports_exp or '2 years' }}</p>
+                    <p><strong>Name:</strong> {{ user.name}}</p>
+                    <p><strong>Email:</strong> {{ user.email}}</p>
+
                 </div>
                 <button id="editProfileBtn" class="icon-btn" title="Edit Profile">
                     <img src="{{ url_for('static', filename='icons/edit.png') }}" alt="Edit" class="edit-icon">
@@ -110,19 +109,11 @@
             <form class="profile-edit-form" id="profileEditForm" method="POST" action="{{ url_for('profile_bp.edit_profile') }}">
                 <div>
                     <label for="name">Name:</label>
-                    <input type="text" id="name" name="name" value="{{ user.name or 'Jane Doe' }}" required>
+                    <input type="text" id="name" name="name" value="{{ user.name }}" required>
                 </div>
                 <div>
                     <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" value="{{ user.email or 'jane@example.com' }}" required>
-                </div>
-                <div>
-                    <label for="skill_lvl">Skill Level:</label>
-                    <input type="text" id="skill_lvl" name="skill_lvl" value="{{ user.skill_lvl or 'Intermediate' }}" required>
-                </div>
-                <div>
-                    <label for="sports_exp">Sports Experience:</label>
-                    <input type="text" id="sports_exp" name="sports_exp" value="{{ user.sports_exp or '2 years' }}" required>
+                    <input type="email" id="email" name="email" value="{{ user.email}}" required disabled>
                 </div>
                 <div>
                     <label for="password">Password:</label>

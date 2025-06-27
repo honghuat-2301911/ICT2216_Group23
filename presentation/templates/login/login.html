@@ -20,8 +20,6 @@
                     <h2>User Profile</h2>
                     <p><label>Name:</label> {{ user.name }}</p>
                     <p><label>Email:</label> {{ user.email }}</p>
-                    <p><label>Skill Level:</label> {{ user.skill_lvl or "N/A" }}</p>
-                    <p><label>Experience:</label> {{ user.sports_exp or "N/A" }}</p>
                 </div>
             {% else %}
                 {% if error %}
