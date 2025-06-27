@@ -106,7 +106,7 @@
         <div class="modal-content">
             <span class="close-modal" id="closeModalBtn">&times;</span>
             <h3>Edit Profile</h3>
-            <form class="profile-edit-form" id="profileEditForm" method="POST" action="{{ url_for('profile_bp.edit_profile') }}">
+            <form class="profile-edit-form" id="profileEditForm" method="POST" action="{{ url_for('profile_bp.editProfile') }}">
                 <div>
                     <label for="name">Name:</label>
                     <input type="text" id="name" name="name" value="{{ user.name }}" required>

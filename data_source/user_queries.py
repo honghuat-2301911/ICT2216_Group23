@@ -1,116 +1,140 @@
+"""Database queries for user operations"""
+
+import mysql.connector
+
 from data_source.db_connection import get_connection
 
+
 def get_user_by_email(email: str):
-    connection = get_connection()
-    if connection is None:
-        return None
-    cursor = None
-    try:
-        cursor = connection.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM user WHERE email = %s", (email,))
-        user_data = cursor.fetchone()
-        return user_data
-    finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
+    """
+    Retrieve user data by email
 
-def insert_user(user_data):
-    try:
-        connection = get_connection()
-        cursor = connection.cursor()
-        query = """
-            INSERT INTO user (id, name, password, email, role)
-            VALUES (%s, %s, %s, %s)
-        """
-        cursor.execute(query, (
-            user_data['name'],
-            user_data['password'],
-            user_data['email'],
-            user_data['role']
-        ))
-        connection.commit()
-        return True
-    except Exception as e:
-        print("Insert failed:", e)
-        return False
-    finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
+    Args:
+        email (str): The email address of the user
 
-def update_user_profile(email, name, password=None):
+    Returns:
+        dict or None: User data dictionary if found, else None
+    """
     connection = get_connection()
-    if connection is None:
-        return False
-    cursor = None
-    try:
-        cursor = connection.cursor()
-        if password:
-            cursor.execute(
-                "UPDATE user SET name=%s, password=%s WHERE email=%s",
-                (name, password, email)
-            )
-        else:
-            cursor.execute(
-                "UPDATE user SET name=%s WHERE email=%s",
-                (name,  email)
-            )
-        try:
-            connection.commit()
-        except Exception as e:
-            print("Commit failed:", e)
-            return False
-        return True
-    finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM user WHERE email = %s", (email,))
+    user_data = cursor.fetchone()
+    cursor.close()
+    connection.close()
+    return user_data
+
+
+# def insert_user(user_data: dict) -> bool:
+#     """
+#     Insert a new user into the database
+
+#     Args:
+#         user_data (dict): Dictionary containing user information
+
+#     Returns:
+#         bool: True if insertion is successful, False otherwise
+#     """
+#     try:
+#         connection = get_connection()
+#         cursor = connection.cursor()
+#         query = """
+#             INSERT INTO user (name, password, email, skill_lvl, sports_exp, role)
+#             VALUES (%s, %s, %s, %s, %s, %s)
+#         """
+#         cursor.execute(
+#             query,
+#             (
+#                 user_data["name"],
+#                 user_data["password"],
+#                 user_data["email"],
+#                 user_data.get("skill_lvl"),
+#                 user_data.get("sports_exp"),
+#                 user_data.get("role", "user"),
+#             ),
+#         )
+#         connection.commit()
+#         return True
+#     except mysql.connector.Error as e:
+#         print("Insert failed:", e)
+#         return False
+#     finally:
+#         if cursor:
+#             cursor.close()
+#         if connection:
+#             connection.close()
+
+def insert_user(user_data: dict) -> bool:
+    """
+    Insert a new user into the database
+
+    Args:
+        user_data (dict): Dictionary containing user information
+
+    Returns:
+        bool: True if insertion is successful, False otherwise
+    """
+    connection = get_connection()
+    cursor = connection.cursor()
+    query = """
+        INSERT INTO user (name, password, email, role)
+        VALUES (%s, %s, %s, %s)
+    """
+    cursor.execute(
+        query,
+        (
+            user_data["name"],
+            user_data["password"],
+            user_data["email"],
+            user_data.get("role", "user"),
+        ),
+    )
+    connection.commit()
+    cursor.close()
+    connection.close()
+    return True
+
 
 def get_user_by_id(user_id: int):
-    connection = get_connection()
-    if connection is None:
-        return None
-    cursor = None
-    try:
-        cursor = connection.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM user WHERE id = %s", (user_id,))
-        user_data = cursor.fetchone()
-        return user_data
-    finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
+    """
+    Retrieve user data by user ID
 
-def update_user_profile_by_id(user_id, name, password=None):
+    Args:
+        user_id (int): The ID of the user
+
+    Returns:
+        dict or None: User data dictionary if found, else None
+    """
     connection = get_connection()
-    if connection is None:
-        print("No DB connection")
-        return False
-    cursor = None
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM user WHERE id = %s", (user_id,))
+    user_data = cursor.fetchone()
+    cursor.close()
+    connection.close()
+    return user_data
+
+
+def update_user_profile_by_id(user_id: int, name: str, password: str) -> bool:
+    """
+    Update a user's profile by user ID.
+
+    Args:
+        user_id (int): The ID of the user to update.
+        name (str): The new name for the user.
+        password (str): The new password for the user.
+
+    Returns:
+        bool: True if the update was successful, False otherwise.
+    """
+    connection = get_connection()
+    cursor = connection.cursor()
     try:
-        cursor = connection.cursor()
-        if password:
-            print("Running: UPDATE user SET name=%s, password=%s WHERE id=%s" % (name, password, user_id))
-            cursor.execute(
-                "UPDATE user SET name=%s, password=%s WHERE id=%s",
-                (name, password, user_id)
-            )
-        else:
-            print("Running: UPDATE user SET name=%s WHERE id=%s" % (name, user_id))
-            cursor.execute(
-                "UPDATE user SET name=%s WHERE id=%s",
-                (name, user_id)
-            )
+        query = "UPDATE user SET name = %s, password = %s WHERE id = %s"
+        cursor.execute(query, (name, password, user_id))
         connection.commit()
-        return True
+        return cursor.rowcount > 0
+    except Exception as e:
+        print("Update failed:", e)
+        return False
     finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
-
+        cursor.close()
+        connection.close()

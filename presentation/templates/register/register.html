@@ -15,11 +15,14 @@
                 <p style="color:#b91c1c;">Join us to stay active!</p>
             </div>
             
-            {% if error %}
+            <!-- {% if error %}
             <div class="error-message">{{ error }}</div>
             {% endif %}
             {% if success %}
             <div class="success-message">{{ success }}</div>
+            {% endif %} -->
+            {% if result %}
+            <div>{{ result }}</div>
             {% endif %}
             <form method="POST" action="{{ url_for('register.register') }}" class="register-form">
                 <div class="form-group">
