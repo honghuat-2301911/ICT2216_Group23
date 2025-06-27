@@ -21,8 +21,6 @@ def register():
             "name": request.form["name"],
             "email": request.form["email"],
             "password": request.form["password"],
-            "skill_lvl": request.form.get("skill_lvl"),
-            "sports_exp": request.form.get("sports_exp"),
             "role": "user"
         }
 
