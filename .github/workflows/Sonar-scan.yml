@@ -1,4 +1,4 @@
-name: Test Nginx
+name: SonarQube scan
 
 on:
   push:
