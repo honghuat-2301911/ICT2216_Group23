@@ -17,7 +17,7 @@ from flask import (
 from werkzeug.utils import secure_filename
 from flask_login import login_required, current_user
 
-from data_source.social_feed_queries import add_comment, add_post, get_all_posts
+from data_source.social_feed_queries import add_comment, add_post, get_all_posts, increment_like, decrement_like, get_featured_posts, search_posts
 
 social_feed_bp = Blueprint("social_feed", __name__, url_prefix="/feed")
 
@@ -44,14 +44,18 @@ def allowed_file(filename):
 def feed():
     """Render the main social feed page with all posts"""
     posts = get_all_posts()
-    return render_template("socialfeed/social_feed.html", posts=posts)
+    featured_posts = get_featured_posts()
+    return render_template("socialfeed/social_feed.html", posts=posts, featured_posts=featured_posts)
 
 
 @social_feed_bp.route("/create", methods=["POST"])
 @login_required
 def create_post():
     """Handle creation of a new post, including optional image upload"""
-    user = current_user.get_name() if current_user.is_authenticated else "Anonymous"
+    if not current_user.is_authenticated:
+        return redirect(url_for("login.login"))
+    
+    user_id = int(current_user.get_id())
     content = request.form["content"]
     image_url = None
 
@@ -61,14 +65,14 @@ def create_post():
         if file and filename and allowed_file(filename):
             filename = secure_filename(filename)
             upload_folder = current_app.config.get(
-                "UPLOAD_FOLDER", "presentation/static/img/uploads"
+                "UPLOAD_FOLDER", "presentation/static/images/social"
             )
             os.makedirs(upload_folder, exist_ok=True)
             filepath = os.path.join(upload_folder, filename)
             file.save(filepath)
-            image_url = f"/static/img/uploads/{filename}"
+            image_url = f"/static/images/social/{filename}"
 
-    add_post(user, content, image_url)
+    add_post(user_id, content, image_url)
     return redirect(url_for("social_feed.feed"))
 
 
@@ -80,7 +84,24 @@ def create_comment(post_id):
     Args:
         post_id (int): The ID of the post to comment on
     """
-    user = current_user.get_name() if current_user.is_authenticated else "Anonymous"
+    if not current_user.is_authenticated:
+        return redirect(url_for("login.login"))
+    
+    user_id = int(current_user.get_id())
     content = request.form["comment"]
-    add_comment(post_id, user, content)
+    add_comment(post_id, user_id, content)
     return redirect(url_for("social_feed.feed"))
+
+
+@social_feed_bp.route("/like/<int:post_id>", methods=["POST"])
+@login_required
+def like_post(post_id):
+    success = increment_like(post_id)
+    return {"success": success}
+
+
+@social_feed_bp.route("/unlike/<int:post_id>", methods=["POST"])
+@login_required
+def unlike_post(post_id):
+    success = decrement_like(post_id)
+    return {"success": success}
