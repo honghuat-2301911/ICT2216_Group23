@@ -94,3 +94,22 @@ def insert_user(user_data: dict) -> bool:
     cursor.close()
     connection.close()
     return True
+
+
+def get_user_by_id(user_id: int):
+    """
+    Retrieve user data by user ID
+
+    Args:
+        user_id (int): The ID of the user
+
+    Returns:
+        dict or None: User data dictionary if found, else None
+    """
+    connection = get_connection()
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM user WHERE id = %s", (user_id,))
+    user_data = cursor.fetchone()
+    cursor.close()
+    connection.close()
+    return user_data

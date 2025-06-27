@@ -15,6 +15,7 @@ from flask import (
     url_for,
 )
 from werkzeug.utils import secure_filename
+from flask_login import login_required, current_user
 
 from data_source.social_feed_queries import add_comment, add_post, get_all_posts
 
@@ -39,6 +40,7 @@ def allowed_file(filename):
 
 
 @social_feed_bp.route("/", methods=["GET"])
+@login_required
 def feed():
     """Render the main social feed page with all posts"""
     posts = get_all_posts()
@@ -46,9 +48,10 @@ def feed():
 
 
 @social_feed_bp.route("/create", methods=["POST"])
+@login_required
 def create_post():
     """Handle creation of a new post, including optional image upload"""
-    user = session.get("username", "Anonymous")
+    user = current_user.get_name() if current_user.is_authenticated else "Anonymous"
     content = request.form["content"]
     image_url = None
 
@@ -70,13 +73,14 @@ def create_post():
 
 
 @social_feed_bp.route("/comment/<int:post_id>", methods=["POST"])
+@login_required
 def create_comment(post_id):
     """Handle creation of a new comment for a specific post
 
     Args:
         post_id (int): The ID of the post to comment on
     """
-    user = session.get("username", "Anonymous")
+    user = current_user.get_name() if current_user.is_authenticated else "Anonymous"
     content = request.form["comment"]
     add_comment(post_id, user, content)
     return redirect(url_for("social_feed.feed"))
