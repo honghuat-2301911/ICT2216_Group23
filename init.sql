@@ -22,8 +22,6 @@
 --   `name` VARCHAR(45) NOT NULL,
 --   `password` VARCHAR(225) NOT NULL,
 --   `email` VARCHAR(225) NOT NULL,
---   `skill_lvl` VARCHAR(45) NULL,
---   `sports_exp` VARCHAR(45) NULL,
 --   `role` VARCHAR(45) NOT NULL,
 --   PRIMARY KEY (`id`),
 --   UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE)
@@ -143,8 +141,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`feed` (
   `user_id` INT NOT NULL,
   `image_path` VARCHAR(255) NULL,  
   `caption` VARCHAR(255) NULL,
-  `like_count` INT NULL DEFAULT 0,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `like_count` INT NULL,
   PRIMARY KEY (`id`),
   INDEX `idx_feed_user_id` (`user_id`),
   CONSTRAINT `fk_feed_user`
@@ -160,7 +157,6 @@ CREATE TABLE IF NOT EXISTS `mydb`.`comments` (
   `feed_id` INT NOT NULL,
   `user_id` INT NOT NULL,
   `comments` VARCHAR(225) NOT NULL,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   INDEX `idx_comments_user_id` (`user_id`),
   INDEX `idx_comments_feed_id` (`feed_id`),
@@ -175,6 +171,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`comments` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION
 ) ENGINE = InnoDB;
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;

@@ -17,7 +17,7 @@ from flask import (
 from werkzeug.utils import secure_filename
 from flask_login import login_required, current_user
 
-from data_source.social_feed_queries import add_comment, add_post, get_all_posts, increment_like, decrement_like, get_featured_posts, search_posts
+from data_source.social_feed_queries import add_comment, add_post, get_all_posts, increment_like, decrement_like, get_featured_posts
 
 social_feed_bp = Blueprint("social_feed", __name__, url_prefix="/feed")
 
