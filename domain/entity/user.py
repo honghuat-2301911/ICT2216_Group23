@@ -27,9 +27,9 @@ class User:
     role: str = field(default="user")
 
     # --- Getters ---
-    def get_id(self) -> int:
-        """Get the user ID"""
-        return self.id
+    def get_id(self):
+        """Return the user ID as a string for Flask-Login compatibility"""
+        return str(self.id)
 
     def get_name(self) -> str:
         """Get the user's name"""
@@ -54,6 +54,18 @@ class User:
     def get_role(self) -> str:
         """Get the user's role"""
         return self.role
+
+    @property
+    def is_authenticated(self):
+        return True
+
+    @property
+    def is_active(self):
+        return True
+
+    @property
+    def is_anonymous(self):
+        return False
 
     # --- Setters ---
     def set_name(self, name: str) -> None:

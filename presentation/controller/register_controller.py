@@ -1,6 +1,7 @@
 """Controller for user registration functionality"""
 
 import random
+import bcrypt
 
 from flask import Blueprint, redirect, render_template, request, url_for
 
@@ -29,7 +30,7 @@ def register():
         user_data = {
             "name": request.form["name"],
             "email": request.form["email"],
-            "password": request.form["password"],
+            "password": bcrypt.hashpw(request.form["password"].encode("utf-8"), bcrypt.gensalt()).decode("utf-8"),
             "skill_lvl": request.form.get("skill_lvl"),
             "sports_exp": request.form.get("sports_exp"),
             "role": "user",

@@ -1,5 +1,6 @@
 from flask import Blueprint, redirect, render_template, session, url_for, request, flash
 from domain.control.bulletin_management import *
+from flask_login import login_required, current_user
 # Create a blueprint for the bulletin page
 bulletin_bp = Blueprint(
     "bulletin",
@@ -10,6 +11,7 @@ bulletin_bp = Blueprint(
 
 
 @bulletin_bp.route("/bulletin", methods=["GET", "POST"])
+@login_required
 def bulletin_page():
     """Render the bulletin board page if the user is logged in.
 
@@ -32,6 +34,7 @@ def bulletin_page():
         
 
 @bulletin_bp.route("/join", methods=["POST"])
+@login_required
 def join_activity():
     activity_id = request.form.get("activity_id")
     result = join_activity_control(activity_id)
@@ -41,6 +44,7 @@ def join_activity():
     return redirect(url_for("bulletin.bulletin_page"))
 
 @bulletin_bp.route("/host", methods=["POST"])
+@login_required
 def host_activity():
     activity_name = request.form["activity_name"]
     activity_type = request.form["activity_type"]
@@ -56,6 +60,7 @@ def host_activity():
     return redirect(url_for("bulletin.bulletin_page"))
 
 @bulletin_bp.route("/bulletin/filtered", methods=["POST"])
+@login_required
 def filtered_bulletin():
     sports_checked = request.form.get("sports_checkbox") == "on"
     non_sports_checked = request.form.get("non_sports_checkbox") == "on"

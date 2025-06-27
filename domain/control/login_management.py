@@ -1,6 +1,8 @@
 """User login management for authentication and session handling"""
 
 from flask import g
+from flask_login import login_user as flask_login_user, logout_user as flask_logout_user
+import bcrypt
 
 from data_source.user_queries import get_user_by_email
 from domain.entity.user import User
@@ -17,9 +19,13 @@ def login_user(email: str, password: str):
     Returns:
         User: The authenticated User object if found, else None
     """
-    # TODO: Implement password verification
     result = get_user_by_email(email)
     if not result:
+        return None
+
+    # Check password hash
+    stored_hash = result["password"]
+    if not bcrypt.checkpw(password.encode("utf-8"), stored_hash.encode("utf-8")):
         return None
 
     user = User(
@@ -32,8 +38,13 @@ def login_user(email: str, password: str):
         role=result.get("role", "user"),
     )
 
-    g.current_user = user  # Store in request scope
+    flask_login_user(user)
     return user
+
+
+def logout_user():
+    """Log out the current user using flask_login"""
+    flask_logout_user()
 
 
 def get_user_display_data():
