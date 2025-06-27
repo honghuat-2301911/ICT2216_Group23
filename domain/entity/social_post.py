@@ -8,7 +8,7 @@ from typing import List
 class Comment:
     """A comment on a social media post"""
 
-    id_: int
+    id: int
     post_id: int
     user: str
     content: str
@@ -19,7 +19,7 @@ class Comment:
 class Post:
     """A social media post"""
 
-    id_: int
+    id: int
     user: str
     content: str
     image_url: str

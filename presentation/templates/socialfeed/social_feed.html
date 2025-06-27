@@ -97,10 +97,10 @@
                 <h3 class="featured-title">Featured</h3>
                 {% for post in featured_posts %}
                 <div class="featured-post-card">
-                    <div class="avatar" style="width:36px;height:36px;font-size:1em;">{{ post.user_name[0]|upper }}</div>
+                    <div class="avatar" style="width:36px;height:36px;font-size:1em;">{{ post.user[0]|upper }}</div>
                     <div class="featured-post-content">
-                        <div class="featured-post-title">{{ post.caption[:40] }}{% if post.caption|length > 40 %}...{% endif %}</div>
-                        <div class="featured-post-meta">by {{ post.user_name }} · {{ post.like_count }} likes</div>
+                        <div class="featured-post-title">{{ post.content[:40] }}{% if post.content|length > 40 %}...{% endif %}</div>
+                        <div class="featured-post-meta">by {{ post.user }} · {{ post.likes }} likes</div>
                     </div>
                 </div>
                 {% endfor %}
