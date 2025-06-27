@@ -22,10 +22,9 @@ def insert_user(user_data):
         cursor = connection.cursor()
         query = """
             INSERT INTO user (id, name, password, email, role)
-            VALUES (%s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s)
         """
         cursor.execute(query, (
-            user_data['id'],
             user_data['name'],
             user_data['password'],
             user_data['email'],
