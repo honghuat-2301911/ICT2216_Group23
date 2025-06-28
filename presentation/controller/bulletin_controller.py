@@ -30,7 +30,7 @@ def bulletin_page():
     if not result:  
         return render_template("bulletin/bulletin.html", bulletin_list=[], error="No activities found.")
     bulletin_list = get_bulletin_display_data()
-    return render_template("bulletin/bulletin.html", bulletin_list=bulletin_list)
+    return render_template("bulletin/bulletin.html", bulletin_list=bulletin_list, query=query)
         
 
 @bulletin_bp.route("/join", methods=["POST"])

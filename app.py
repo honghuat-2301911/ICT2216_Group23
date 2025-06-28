@@ -10,6 +10,7 @@ from presentation.controller.social_feed_controller import social_feed_bp
 
 from presentation.controller.register_controller import register_bp
 from presentation.controller.bulletin_controller import bulletin_bp
+from presentation.controller.admin_controller import admin_bp
 # from data_source.login_queries import init_schema
 
 
@@ -48,6 +49,7 @@ def create_app():
     app.register_blueprint(social_feed_bp)
     app.register_blueprint(register_bp)
     app.register_blueprint(bulletin_bp)
+    app.register_blueprint(admin_bp)
 
     # make sure DB has the required tables
     # init_schema()
