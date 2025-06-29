@@ -3,7 +3,7 @@
 import random
 import bcrypt
 
-from flask import Blueprint, redirect, render_template, request, url_for
+from flask import Blueprint, redirect, render_template, request, url_for, flash
 
 from domain.control.register import register_user
 
@@ -22,6 +22,7 @@ def register():
     if request.method == "POST":
         # Validate password match
         if request.form["password"] != request.form["confirm_password"]:
+            flash("Passwords do not match", "error")
             return redirect(url_for("register.register"))
         # Handle form submission
         # hashed_password = hash_password(request.form["password"])
@@ -37,12 +38,13 @@ def register():
         }
 
         # Attempt registration
-        try:
-            if register_user(user_data):
-                return redirect(url_for("login.login"))
-            return redirect(url_for("register.register"))
-        except Exception as e:
-            return f"Registration failed: {str(e)}", 500
+        if register_user(user_data):
+            flash("Registration successful", "success")
+            return redirect(url_for("login.login"))
+        
+        # Handle registration failure
+        flash("Email already registered", "error")
+        return redirect(url_for("register.register"))
 
     # Show registration form for GET requests
     return render_template("register/register.html")

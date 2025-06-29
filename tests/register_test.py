@@ -31,12 +31,11 @@ class RegisterPageTest(unittest.TestCase):
 
     def test_register_success(self):
         self.fill_registration_form(email=self.test_email)
-        print(self.driver.page_source)
-        self.assertIn("/login", self.driver.current_url)
+        self.assertIn("Registration successful", self.driver.page_source)
 
     def test_register_duplicate_email(self):
         self.fill_registration_form(email=self.test_email)
-        self.assertIn("/register", self.driver.current_url)
+        self.assertIn("Email already registered", self.driver.page_source)
 
     @classmethod
     def tearDownClass(cls):

@@ -24,6 +24,14 @@
             {% if result %}
             <div>{{ result }}</div>
             {% endif %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
             <form method="POST" action="{{ url_for('register.register') }}" class="register-form">
                 <div class="form-group">
                     <label for="name">Name</label>
