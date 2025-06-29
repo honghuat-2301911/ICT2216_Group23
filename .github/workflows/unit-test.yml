@@ -31,4 +31,6 @@ jobs:
           pip install webdriver-manager>=4.0.0
 
       - name: Run Unit Tests
-        run: python tests/register_test.py
+        run: | 
+          python tests/register_test.py
+

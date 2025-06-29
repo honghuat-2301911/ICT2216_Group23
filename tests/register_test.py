@@ -1,29 +1,41 @@
 import unittest
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
+import time
 
-class RegisterTest(unittest.TestCase):
+class RegisterPageTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         options = Options()
         options.add_argument("--headless")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
-        service = Service(ChromeDriverManager().install())
-        cls.driver = webdriver.Chrome(service=service, options=options)
+        cls.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
         cls.driver.implicitly_wait(10)
+        cls.base_url = "http://localhost"
+        cls.test_email = "testuser@example.com"  # Same email used for both tests
 
-    def test_title(self):
-        self.driver.get("https://example.com")
-        self.assertIn("Example Domain", self.driver.title)
+    def fill_registration_form(self, email):
+        self.driver.get(f"{self.base_url}/register")
+        self.driver.find_element(By.NAME, "name").send_keys("Test User")
+        self.driver.find_element(By.NAME, "email").send_keys(email)
+        self.driver.find_element(By.NAME, "password").send_keys("securepassword")
+        self.driver.find_element(By.NAME, "confirmPassword").send_keys("securepassword")
+        self.driver.find_element(By.NAME, "skill").send_keys("Intermediate")
+        self.driver.find_element(By.NAME, "experience").send_keys("Played soccer for 3 years")
+        self.driver.find_element(By.XPATH, "//button[contains(text(), 'Register')]").click()
+        time.sleep(2)  # wait for redirect or validation
 
-    def test_paragraph_text(self):
-        self.driver.get("https://example.com")
-        paragraph = self.driver.find_element(By.TAG_NAME, "p")
-        self.assertIn("illustrative examples", paragraph.text)
+    def test_register_success(self):
+        self.fill_registration_form(email=self.test_email)
+        self.assertIn("/login", self.driver.current_url)
+
+    def test_register_duplicate_email(self):
+        self.fill_registration_form(email=self.test_email)
+        self.assertIn("/register", self.driver.current_url)
 
     @classmethod
     def tearDownClass(cls):
