@@ -1,50 +1,40 @@
-"""Controller for user registration functionality"""
-
-import random
 import bcrypt
-
-from flask import Blueprint, redirect, render_template, request, url_for, flash
-
+from flask import Blueprint, redirect, render_template, flash, url_for
+from domain.entity.forms import RegisterForm
 from domain.control.register import register_user
 
-register_bp = Blueprint(
-    "register", __name__, url_prefix="/", template_folder="../templates/"
-)
 
+register_bp = Blueprint(
+    "register", __name__,
+    url_prefix="/",
+    template_folder="../templates/"
+)
 
 @register_bp.route("/register", methods=["GET", "POST"])
 def register():
-    """Handle user registration requests.
-
-    GET: Show registration form
-    POST: Process registration data
-    """
-    if request.method == "POST":
-        # Validate password match
-        if request.form["password"] != request.form["confirm_password"]:
-            flash("Passwords do not match", "error")
-            return redirect(url_for("register.register"))
-        # Handle form submission
-        # hashed_password = hash_password(request.form["password"])
-
+    form = RegisterForm()
+    if form.validate_on_submit():
         # Prepare user data
+        hashed = bcrypt.hashpw(
+            form.password.data.encode("utf-8"),
+            bcrypt.gensalt()
+        ).decode("utf-8")
+
         user_data = {
-            "name": request.form["name"],
-            "email": request.form["email"],
-            "password": bcrypt.hashpw(request.form["password"].encode("utf-8"), bcrypt.gensalt()).decode("utf-8"),
-            "skill_lvl": request.form.get("skill_lvl"),
-            "sports_exp": request.form.get("sports_exp"),
+            "name": form.name.data,
+            "email": form.email.data,
+            "password": hashed,
+            "skill_lvl": form.skill_lvl.data,
+            "sports_exp": form.sports_exp.data,
             "role": "user",
         }
 
-        # Attempt registration
         if register_user(user_data):
             flash("Registration successful", "success")
             return redirect(url_for("login.login"))
-        
-        # Handle registration failure
-        flash("Email already registered", "error")
+
+        flash("Something went wrong. Please try again.", "error")
         return redirect(url_for("register.register"))
 
-    # Show registration form for GET requests
-    return render_template("register/register.html")
+    # If GET or validation failed, render form with errors
+    return render_template("register/register.html", form=form)

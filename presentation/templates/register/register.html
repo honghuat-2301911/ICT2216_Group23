@@ -32,33 +32,63 @@
                 {% endif %}
             {% endwith %}
 
-            <form method="POST" action="{{ url_for('register.register') }}" class="register-form">
-                <div class="form-group">
-                    <label for="name">Name</label>
-                    <input type="text" id="name" name="name" required placeholder="Enter your name">
-                </div>
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" name="email" required placeholder="Enter your email">
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required placeholder="Enter your password">
-                </div>
-                <div class="form-group">
-                    <label for="confirm_password">Confirm Password</label>
-                    <input type="password" id="confirm_password" name="confirm_password" required placeholder="Confirm your password">
-                </div>
-                <div class="form-group">
-                    <label for="skill_lvl">Skill Level</label>
-                    <input type="text" id="skill_lvl" name="skill_lvl" required placeholder="Enter your skill level">
-                </div>
-                <div class="form-group">
-                    <label for="sports_exp">Sports Experience</label>
-                    <input type="text" id="sports_exp" name="sports_exp" required placeholder="Share something about your sports experience">
-                </div>
-                <button type="submit" class="register-btn">Register</button>
-            </form>
+      <form method="POST" action="{{ url_for('register.register') }}" class="register-form">
+        {{ form.hidden_tag() }}
+
+        <div class="form-group">
+          {{ form.name.label }}
+          {{ form.name(class="form-control", placeholder="Enter your name") }}
+          {% if form.name.errors %}
+            <ul class="errors">
+              {% for err in form.name.errors %}
+                <li>{{ err }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          {{ form.email.label }}
+          {{ form.email(class="form-control", placeholder="Enter your email") }}
+          {% for err in form.email.errors %}
+            <div class="error">{{ err }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
+          {{ form.password.label }}
+          {{ form.password(class="form-control", placeholder="Enter your password") }}
+          {% for err in form.password.errors %}
+            <div class="error">{{ err }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
+          {{ form.confirm_password.label }}
+          {{ form.confirm_password(class="form-control", placeholder="Confirm your password") }}
+          {% for err in form.confirm_password.errors %}
+            <div class="error">{{ err }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
+          {{ form.skill_lvl.label }}
+          {{ form.skill_lvl(class="form-control", placeholder="Enter your skill level") }}
+          {% for err in form.skill_lvl.errors %}
+            <div class="error">{{ err }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
+          {{ form.sports_exp.label }}
+          {{ form.sports_exp(class="form-control", placeholder="Share something about your sports experience") }}
+          {% for err in form.sports_exp.errors %}
+            <div class="error">{{ err }}</div>
+          {% endfor %}
+        </div>
+
+        {{ form.submit(class="register-btn") }}
+      </form>
             <div class="register-footer">
                 <p>Already have an account? <a href="{{ url_for('login.login') }}" class="signup-link">Sign in</a></p>
             </div>
