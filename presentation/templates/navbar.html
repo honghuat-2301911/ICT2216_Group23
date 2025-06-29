@@ -5,9 +5,9 @@
     <span class="brand"><strong>SIT SPORTS BUDDY</strong>
   </div>
   <ul class="navbar-links">
-    <li><a href="/">Bulletin</a></li>
-    <li><a href="/">Social Feed</a></li>
-    
+    <li><a href="{{ url_for('bulletin.bulletin_page') }}">Bulletin</a></li>
+    <li><a href="{{ url_for('social_feed.feed') }}">Social Feed</a></li>
+
   </ul>
   <div class="navbar-right">
     <a href="/">Profile</a>
