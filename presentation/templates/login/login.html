@@ -30,6 +30,14 @@
                 {% if success %}
                 <div class="success-message">{{ success }}</div>
                 {% endif %}
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="flash {{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
                 <form method="POST" action="{{ url_for('login.login') }}" class="login-form">
                     <div class="form-group">
                         <label for="email">Email Address</label>
