@@ -113,3 +113,18 @@ def get_user_by_id(user_id: int):
     cursor.close()
     connection.close()
     return user_data
+
+
+def clear_users():
+    """
+    Clear all users from the database
+
+    Returns:
+        None
+    """
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute("DELETE FROM user")
+    connection.commit()
+    cursor.close()
+    connection.close()
