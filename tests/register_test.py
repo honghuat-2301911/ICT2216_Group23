@@ -7,8 +7,8 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 import time
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from data_source.user_queries import clear_users
+# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# from data_source.user_queries import clear_users
 
 class RegisterPageTest(unittest.TestCase):
     @classmethod
@@ -22,7 +22,7 @@ class RegisterPageTest(unittest.TestCase):
         cls.base_url = "http://localhost"
         cls.test_email = "testuser@example.com"  # Same email to test duplicate
 
-        clear_users()  # Clear users before tests to ensure a clean state
+        # clear_users()  # Clear users before tests to ensure a clean state
 
     def fill_registration_form(self, email):
         self.driver.get(f"{self.base_url}/register")
