@@ -10,7 +10,7 @@ from werkzeug.utils import secure_filename
 
 from data_source.social_feed_queries import (
     add_comment, add_post, get_all_posts, increment_like, 
-    decrement_like, get_featured_posts
+    decrement_like, get_featured_posts, get_post_by_id, update_post, delete_post as ds_delete_post
 )
 from domain.entity.social_post import Post, Comment
 
@@ -207,3 +207,41 @@ def get_posts_display_data():
         })
 
     return display_data
+
+
+def editPost(userId: int, postId: int, updatedContent: str, removeImage: bool = False, newImage: str = None) -> bool:
+    post = get_post_by_id(postId)
+    if not post or int(post['user_id']) != userId:
+        return False
+
+    image_filename = post.get('image_path')
+    # Remove image if requested
+    if removeImage and image_filename:
+        image_path = os.path.join('presentation', 'static', 'uploads', os.path.basename(image_filename))
+        if os.path.exists(image_path):
+            os.remove(image_path)
+        image_filename = None
+
+    # Replace image if new one uploaded
+    if newImage:
+        # Optionally remove old image
+        if image_filename:
+            old_image_path = os.path.join('presentation', 'static', 'uploads', os.path.basename(image_filename))
+            if os.path.exists(old_image_path):
+                os.remove(old_image_path)
+        image_filename = newImage
+
+    # Update post in DB
+    return update_post(postId, updatedContent, image_filename)
+
+
+def deletePost(userId: int, postId: int) -> bool:
+    post = get_post_by_id(postId)
+    if not post or int(post['user_id']) != userId:
+        return False
+    image_filename = post.get('image_path')
+    if image_filename:
+        image_path = os.path.join('presentation', 'static', 'uploads', os.path.basename(image_filename))
+        if os.path.exists(image_path):
+            os.remove(image_path)
+    return ds_delete_post(postId)

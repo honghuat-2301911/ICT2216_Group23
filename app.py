@@ -48,7 +48,9 @@ def create_app():
     app.register_blueprint(social_feed_bp)
     app.register_blueprint(register_bp)
     app.register_blueprint(bulletin_bp)
-    app.register_blueprint(admin_bp)
+    app.register_blueprint(admin_bp) 
+    app.register_blueprint(profile_bp)
+
 
     # make sure DB has the required tables
     # init_schema()

@@ -1,12 +1,16 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from domain.control.profile_management import ProfileManagement
 from domain.entity.user import User
 from data_source.social_feed_queries import get_posts_by_user
 from data_source.user_queries import get_user_by_id
 from flask_login import login_required, current_user
 import bcrypt
-from data_source.bulletin_queries import get_all_bulletin
+from data_source.bulletin_queries import get_all_bulletin, get_sports_activity_by_id, update_sports_activity, get_connection
 from domain.entity.sports_activity import SportsActivity
+from domain.control import social_feed_management 
+from werkzeug.utils import secure_filename
+import os
+from domain.control.social_feed_management import editPost, deletePost
 
 profile_bp = Blueprint('profile_bp', __name__, template_folder='../templates/profile', url_prefix='/profile')
 
@@ -80,3 +84,86 @@ def editProfile():
         current_password = user_data['password'] if isinstance(user_data, dict) and 'password' in user_data else ''
         result = profile_manager.updateProfile(user_id, name, current_password)
     return redirect(url_for('profile_bp.fetchProfile'))
+
+@profile_bp.route('/leave_activity/<int:activity_id>', methods=['POST'])
+@login_required
+def leave_activity(activity_id):
+    user_id = str(current_user.get_id())
+    activity = get_sports_activity_by_id(activity_id)
+    if not activity or not activity.get('user_id_list_join'):
+        flash("Activity not found or you are not a participant.", "danger")
+        return redirect(url_for('profile_bp.fetchProfile'))
+    joined_ids = [uid.strip() for uid in activity['user_id_list_join'].split(',') if uid.strip()]
+    if user_id in joined_ids:
+        joined_ids.remove(user_id)
+        new_join_list = ','.join(joined_ids)
+        update_sports_activity(activity_id, new_join_list)
+        flash("You have left the activity.", "success")
+    else:
+        flash("You are not a participant in this activity.", "warning")
+    return redirect(url_for('profile_bp.fetchProfile') + '#activitiesSection')
+
+@profile_bp.route('/edit_activity/<int:activity_id>', methods=['POST'])
+@login_required
+def edit_activity(activity_id):
+    user_id = int(current_user.get_id())
+    activity = get_sports_activity_by_id(activity_id)
+    if not activity or int(activity['user_id']) != user_id:
+        flash("You are not authorized to edit this activity.", "danger")
+        return redirect(url_for('profile_bp.fetchProfile'))
+    # Get new details from form
+    activity_name = request.form['activity_name']
+    activity_type = request.form['activity_type']
+    skills_req = request.form['skills_req']
+    date = request.form['date']
+    location = request.form['location']
+    max_pax = request.form['max_pax']
+    user_id_list_join = activity.get('user_id_list_join', '')
+    # Update the activity
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        UPDATE sports_activity
+        SET activity_name=%s, activity_type=%s, skills_req=%s, date=%s, location=%s, max_pax=%s, user_id_list_join=%s
+        WHERE id=%s
+    """, (activity_name, activity_type, skills_req, date, location, max_pax, user_id_list_join, activity_id))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    flash("Activity updated successfully.", "success")
+    return redirect(url_for('profile_bp.fetchProfile') + '#activitiesSection')
+
+@profile_bp.route('/edit_post/<int:post_id>', methods=['POST'])
+@login_required
+def edit_post(post_id):
+    user_id = int(current_user.get_id())
+    updated_content = request.form['content']
+    remove_image = request.form.get('remove_image') == 'on'
+    new_image_file = request.files.get('new_image')
+    new_image_filename = None
+
+    if new_image_file and new_image_file.filename:
+        filename = secure_filename(new_image_file.filename)
+        upload_folder = os.path.join('presentation', 'static', 'uploads')
+        os.makedirs(upload_folder, exist_ok=True)
+        upload_path = os.path.join(upload_folder, filename)
+        new_image_file.save(upload_path)
+        new_image_filename = filename
+
+    success = editPost(user_id, post_id, updated_content, remove_image, new_image_filename)
+    if success:
+        flash('Post updated successfully.', 'success')
+    else:
+        flash('Failed to update post.', 'danger')
+    return redirect(url_for('profile_bp.fetchProfile') + '#feedSection')
+
+@profile_bp.route('/delete_post/<int:post_id>', methods=['POST'])
+@login_required
+def delete_post(post_id):
+    user_id = int(current_user.get_id())
+    success = deletePost(user_id, post_id)
+    if success:
+        flash('Post deleted successfully.', 'success')
+    else:
+        flash('Failed to delete post.', 'danger')
+    return redirect(url_for('profile_bp.fetchProfile') + '#feedSection')

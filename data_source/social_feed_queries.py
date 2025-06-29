@@ -257,3 +257,94 @@ def get_featured_posts():
     finally:
         cursor.close()
         connection.close()
+
+
+def get_post_by_id(post_id):
+    """
+    Retrieve a single post by its ID.
+    Args:
+        post_id (int): The ID of the post
+    Returns:
+        dict or None: The post dictionary if found, else None
+    """
+    connection = get_connection()
+    if connection is None:
+        print("[DB ERROR] Could not connect to database.")
+        return None
+    cursor = connection.cursor(dictionary=True)
+    try:
+        query = """
+            SELECT f.id, f.user_id, f.caption, f.image_path, f.like_count, u.name as user_name
+            FROM feed f
+            JOIN user u ON f.user_id = u.id
+            WHERE f.id = %s
+        """
+        cursor.execute(query, (post_id,))
+        post = cursor.fetchone()
+        if post:
+            post['feed_id'] = post['id']
+            post['user'] = post['user_name']
+            post['content'] = post['caption']
+            post['image_url'] = post['image_path']
+            post['likes'] = post['like_count'] or 0
+        return post
+    except Exception as e:
+        print(f"[DB ERROR] Error fetching post by id: {e}")
+        return None
+    finally:
+        cursor.close()
+        connection.close()
+
+
+def update_post(post_id, content, image_filename):
+    """
+    Update a post's content and image.
+    Args:
+        post_id (int): The ID of the post
+        content (str): The new content
+        image_filename (str or None): The new image filename or None
+    Returns:
+        bool: True if update was successful, False otherwise
+    """
+    connection = get_connection()
+    if connection is None:
+        print("[DB ERROR] Could not connect to database.")
+        return False
+    cursor = connection.cursor()
+    try:
+        query = "UPDATE feed SET caption=%s, image_path=%s WHERE id=%s"
+        cursor.execute(query, (content, image_filename, post_id))
+        connection.commit()
+        return cursor.rowcount > 0
+    except Exception as e:
+        print(f"[DB ERROR] Error updating post: {e}")
+        return False
+    finally:
+        cursor.close()
+        connection.close()
+
+
+def delete_post(post_id):
+    """
+    Delete a post by its ID.
+    Args:
+        post_id (int): The ID of the post
+    Returns:
+        bool: True if deletion was successful, False otherwise
+    """
+    connection = get_connection()
+    if connection is None:
+        print("[DB ERROR] Could not connect to database.")
+        return False
+    cursor = connection.cursor()
+    try:
+        query = "DELETE FROM feed WHERE id=%s"
+        cursor.execute(query, (post_id,))
+        connection.commit()
+        return cursor.rowcount > 0
+    except Exception as e:
+        print(f"[DB ERROR] Error deleting post: {e}")
+        return False
+    finally:
+        cursor.close()
+        connection.close()

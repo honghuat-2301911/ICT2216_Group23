@@ -46,10 +46,14 @@
             <h3>My Social Feed</h3>
             {% if posts and posts|length > 0 %}
                 {% for post in posts %}
+                    <form id="deletePostForm-{{ post.id }}" action="{{ url_for('profile_bp.delete_post', post_id=post.id) }}" method="POST" style="display:none;"></form>
                     <div class="profile-feed-item" data-post-id="{{ post.id }}">
                         <img src="{{ user.profile_pic_url or url_for('static', filename='icons/user.png') }}" class="feed-avatar" alt="Avatar">
                         <div class="feed-content">
                             <p class="post-content">{{ post.content }}</p>
+                            {% if post.image_url %}
+                                <img src="{{ post.image_url }}" alt="Post Image" class="post-image" style="max-width: 100%; margin-top: 8px; border-radius: 8px;" />
+                            {% endif %}
                             <span class="feed-timestamp">{{ post.created_at }}</span>
                         </div>
                         <button class="icon-btn edit-post-btn" title="Edit Post" data-post-id="{{ post.id }}" data-post-content="{{ post.content|e }}">
@@ -83,7 +87,7 @@
                                 <p>Max Participants: {{ activity.max_pax }}</p>
                                 <span class="activity-label hosted">Hosted</span>
                             </div>
-                            <button class="icon-btn edit-activity-btn" title="Edit Activity">
+                            <button class="icon-btn edit-activity-btn" title="Edit Activity" data-activity-id="{{ activity.id }}">
                                 <img src="{{ url_for('static', filename='icons/edit.png') }}" alt="Edit" class="edit-icon">
                             </button>
                         </div>
@@ -111,7 +115,8 @@
                                 <p>Max Participants: {{ activity.max_pax }}</p>
                                 <span class="activity-label joined">Joined</span>
                             </div>
-                            <button class="icon-btn leave-activity-btn" title="Leave Activity">
+                            <!-- Leave Activity Button triggers modal -->
+                            <button type="button" class="icon-btn leave-activity-btn" data-activity-id="{{ activity.id }}" title="Leave Activity">
                                 <img src="{{ url_for('static', filename='icons/delete.png') }}" alt="Leave" class="edit-icon">
                             </button>
                         </div>
@@ -153,11 +158,21 @@
         <div class="modal-content">
             <span class="close-modal" id="closeEditPostModalBtn">&times;</span>
             <h3>Edit Post</h3>
-            <form id="editPostForm">
+            <form id="editPostForm" method="POST" enctype="multipart/form-data">
                 <input type="hidden" id="editPostId" name="post_id">
                 <div>
                     <label for="editPostContent">Content:</label>
                     <textarea id="editPostContent" name="content" rows="4" style="width:100%;"></textarea>
+                </div>
+                <div id="editPostImageSection" style="display:none; margin-top:10px;">
+                    <div id="currentPostImageContainer"></div>
+                    <label>
+                        <input type="checkbox" id="removeImageCheckbox" name="remove_image"> Remove image from post
+                    </label>
+                </div>
+                <div style="margin-top:10px;">
+                    <label for="newImageInput">Change image:</label>
+                    <input type="file" id="newImageInput" name="new_image" accept="image/*">
                 </div>
                 <button type="submit">Save Changes</button>
             </form>
@@ -180,7 +195,7 @@
         <div class="modal-content">
             <span class="close-modal" id="closeEditActivityModalBtn">&times;</span>
             <h3>Edit Activity</h3>
-            <form id="editActivityForm">
+            <form id="editActivityForm" method="POST">
                 <input type="hidden" id="editActivityId" name="activity_id">
                 <div>
                     <label for="editActivityName">Activity Name:</label>
@@ -210,6 +225,8 @@
             </form>
         </div>
     </div>
+    <!-- Hidden Leave Activity Form -->
+    <form id="leaveActivityForm" method="POST" style="display:none;"></form>
     <!-- Leave Activity Modal -->
     <div id="leaveActivityModal" class="modal">
         <div class="modal-content">
@@ -217,8 +234,8 @@
             <h3>Leave Activity</h3>
             <p>Are you sure you want to leave this activity?</p>
             <div class="delete-modal-actions">
-                <button id="confirmLeaveActivityBtn" class="delete-confirm-btn">Yes, Leave</button>
-                <button id="cancelLeaveActivityBtn" class="cancel-confirm-btn">Cancel</button>
+                <button id="confirmLeaveActivityBtn" class="delete-confirm-btn" type="button">Yes, Leave</button>
+                <button id="cancelLeaveActivityBtn" class="cancel-confirm-btn" type="button">Cancel</button>
             </div>
         </div>
     </div>
@@ -266,8 +283,23 @@
         document.querySelectorAll('.edit-post-btn').forEach(btn => {
             btn.onclick = function() {
                 currentEditPostId = this.getAttribute('data-post-id');
+                const postDiv = document.querySelector('.profile-feed-item[data-post-id="' + currentEditPostId + '"]');
                 document.getElementById('editPostId').value = currentEditPostId;
                 document.getElementById('editPostContent').value = this.getAttribute('data-post-content');
+                // Show remove image checkbox and current image if post has image
+                const postImage = postDiv.querySelector('.post-image');
+                const imageSection = document.getElementById('editPostImageSection');
+                const currentImageContainer = document.getElementById('currentPostImageContainer');
+                if (postImage) {
+                    imageSection.style.display = 'block';
+                    document.getElementById('removeImageCheckbox').checked = false;
+                    // Show the current image in the modal
+                    currentImageContainer.innerHTML = `<img src="${postImage.src}" alt="Current Image" style="max-width: 200px; display:block; margin-bottom:8px;">`;
+                } else {
+                    imageSection.style.display = 'none';
+                    currentImageContainer.innerHTML = '';
+                }
+                document.getElementById('editPostForm').action = '/profile/edit_post/' + currentEditPostId;
                 editPostModal.style.display = 'block';
             };
         });
@@ -284,15 +316,6 @@
                 modal.style.display = 'none';
             }
         }
-        document.getElementById('editPostForm').onsubmit = function(e) {
-            e.preventDefault();
-            // For now, just log the new content
-            const postId = document.getElementById('editPostId').value;
-            const newContent = document.getElementById('editPostContent').value;
-            console.log('Edit Post:', postId, newContent);
-            editPostModal.style.display = 'none';
-            // In a real app, send an AJAX request to update the post
-        };
 
         // Delete Post Modal logic
         const deletePostModal = document.getElementById('deletePostModal');
@@ -300,8 +323,10 @@
         let currentDeletePostId = null;
         document.querySelectorAll('.delete-post-btn').forEach(btn => {
             btn.onclick = function() {
-                currentDeletePostId = this.getAttribute('data-post-id');
-                deletePostModal.style.display = 'block';
+                const postId = this.getAttribute('data-post-id');
+                if (confirm('Are you sure you want to delete this post?')) {
+                    document.getElementById('deletePostForm-' + postId).submit();
+                }
             };
         });
         if (closeDeletePostModalBtn) {
@@ -330,9 +355,10 @@
         document.querySelectorAll('.edit-activity-btn').forEach(btn => {
             btn.onclick = function() {
                 const activityDiv = this.closest('.profile-feed-item');
-                currentEditActivityId = activityDiv ? activityDiv.getAttribute('data-activity-id') : null;
+                currentEditActivityId = activityDiv ? activityDiv.getAttribute('data-activity-id').split('-')[0] : null;
                 // For now, just fill with dummy data from the DOM
                 document.getElementById('editActivityId').value = currentEditActivityId;
+                document.getElementById('editActivityForm').action = '/profile/edit_activity/' + currentEditActivityId;
                 document.getElementById('editActivityName').value = activityDiv.querySelector('p strong').textContent;
                 document.getElementById('editActivityType').value = activityDiv.querySelector('p:nth-of-type(2)').textContent.replace('Type: ', '');
                 document.getElementById('editSkillsReq').value = activityDiv.querySelector('p:nth-of-type(3)').textContent.replace('Skills Required: ', '');
@@ -348,17 +374,7 @@
             };
         }
         document.getElementById('editActivityForm').onsubmit = function(e) {
-            e.preventDefault();
-            // For now, just log the new activity details
-            const activityId = document.getElementById('editActivityId').value;
-            const name = document.getElementById('editActivityName').value;
-            const type = document.getElementById('editActivityType').value;
-            const skills = document.getElementById('editSkillsReq').value;
-            const date = document.getElementById('editActivityDate').value;
-            const location = document.getElementById('editActivityLocation').value;
-            const maxPax = document.getElementById('editActivityMaxPax').value;
-            console.log('Edit Activity:', activityId, name, type, skills, date, location, maxPax);
-            editActivityModal.style.display = 'none';
+            // Let the form submit normally (POST to /profile/edit_activity/<id>)
         };
 
         // Leave Activity Modal logic
@@ -368,28 +384,33 @@
         document.querySelectorAll('.leave-activity-btn').forEach(btn => {
             btn.onclick = function() {
                 const activityDiv = this.closest('.profile-feed-item');
-                currentLeaveActivityId = activityDiv ? activityDiv.getAttribute('data-activity-id') : null;
+                currentLeaveActivityId = activityDiv ? activityDiv.getAttribute('data-activity-id').split('-')[0] : null;
                 leaveActivityModal.style.display = 'block';
             };
         });
+        document.getElementById('confirmLeaveActivityBtn').onclick = function() {
+            if (currentLeaveActivityId) {
+                const form = document.getElementById('leaveActivityForm');
+                form.action = '/profile/leave_activity/' + currentLeaveActivityId;
+                form.submit();
+            }
+            leaveActivityModal.style.display = 'none';
+        };
+        document.getElementById('cancelLeaveActivityBtn').onclick = function() {
+            leaveActivityModal.style.display = 'none';
+        };
         if (closeLeaveActivityModalBtn) {
             closeLeaveActivityModalBtn.onclick = function() {
                 leaveActivityModal.style.display = 'none';
             };
         }
-        document.getElementById('cancelLeaveActivityBtn').onclick = function() {
-            leaveActivityModal.style.display = 'none';
-        };
-        document.getElementById('confirmLeaveActivityBtn').onclick = function() {
-            if (currentLeaveActivityId) {
-                // Remove the activity card from the DOM
-                const activityDiv = document.querySelector('.profile-feed-item[data-activity-id="' + currentLeaveActivityId + '"]');
-                if (activityDiv) {
-                    activityDiv.remove();
-                }
-                // Optionally, you can also show a toast or message here
+
+        window.onload = function() {
+            if (window.location.hash === "#activitiesSection") {
+                showSection('activitiesSection', document.getElementById('activitiesTab'));
+            } else if (window.location.hash === "#feedSection") {
+                showSection('feedSection', document.getElementById('feedTab'));
             }
-            leaveActivityModal.style.display = 'none';
         };
     </script>
 </body>
