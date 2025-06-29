@@ -35,19 +35,11 @@ class RegisterPageTest(unittest.TestCase):
         self.driver.find_element(By.CLASS_NAME, "register-btn").click()
         time.sleep(2)
 
-    def test_register_success(self):
+    def test_register_a(self):
         self.fill_registration_form(email=self.test_email)
         self.assertIn("Registration successful", self.driver.page_source)
 
     def test_register_duplicate_email(self):
-        self.fill_registration_form(email=self.test_email)
-        self.assertIn("Something went wrong. Please try again.", self.driver.page_source)
-
-    def test_register_duplicate_email_again(self):
-        self.fill_registration_form(email=self.test_email)
-        self.assertIn("Something went wrong. Please try again.", self.driver.page_source)
-
-    def test_register_duplicate_email_again2(self):
         self.fill_registration_form(email=self.test_email)
         self.assertIn("Something went wrong. Please try again.", self.driver.page_source)
 
