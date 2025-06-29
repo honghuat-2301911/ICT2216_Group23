@@ -37,9 +37,12 @@ def register():
         }
 
         # Attempt registration
-        if register_user(user_data):
-            return redirect(url_for("login.login"))
-        return redirect(url_for("register.register"))
+        try:
+            if register_user(user_data):
+                return redirect(url_for("login.login"))
+            return redirect(url_for("register.register"))
+        except Exception as e:
+            return f"Registration failed: {str(e)}", 500
 
     # Show registration form for GET requests
     return render_template("register/register.html")
