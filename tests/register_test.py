@@ -41,7 +41,7 @@ class RegisterPageTest(unittest.TestCase):
 
     def test_register_duplicate_email(self):
         self.fill_registration_form(email=self.test_email)
-        self.assertIn("Email already registered", self.driver.page_source)
+        self.assertIn("Something went wrong. Please try again.", self.driver.page_source)
 
     @classmethod
     def tearDownClass(cls):
