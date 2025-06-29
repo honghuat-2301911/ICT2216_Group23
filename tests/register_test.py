@@ -43,6 +43,10 @@ class RegisterPageTest(unittest.TestCase):
         self.fill_registration_form(email=self.test_email)
         self.assertIn("Something went wrong. Please try again.", self.driver.page_source)
 
+    def test_register_duplicate_email_again(self):
+        self.fill_registration_form(email=self.test_email)
+        self.assertIn("Something went wrong. Please try again.", self.driver.page_source)
+
     @classmethod
     def tearDownClass(cls):
         cls.driver.quit()
