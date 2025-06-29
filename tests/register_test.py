@@ -16,18 +16,18 @@ class RegisterPageTest(unittest.TestCase):
         cls.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
         cls.driver.implicitly_wait(10)
         cls.base_url = "http://localhost"
-        cls.test_email = "testuser@example.com"  # Same email used for both tests
+        cls.test_email = "testuser@example.com"  # Same email to test duplicate
 
     def fill_registration_form(self, email):
         self.driver.get(f"{self.base_url}/register")
         self.driver.find_element(By.NAME, "name").send_keys("Test User")
         self.driver.find_element(By.NAME, "email").send_keys(email)
         self.driver.find_element(By.NAME, "password").send_keys("securepassword")
-        self.driver.find_element(By.NAME, "confirmPassword").send_keys("securepassword")
-        self.driver.find_element(By.NAME, "skill").send_keys("Intermediate")
-        self.driver.find_element(By.NAME, "experience").send_keys("Played soccer for 3 years")
-        self.driver.find_element(By.XPATH, "//button[contains(text(), 'Register')]").click()
-        time.sleep(2)  # wait for redirect or validation
+        self.driver.find_element(By.NAME, "confirm_password").send_keys("securepassword")
+        self.driver.find_element(By.NAME, "skill_lvl").send_keys("Intermediate")
+        self.driver.find_element(By.NAME, "sports_exp").send_keys("Played soccer for 3 years")
+        self.driver.find_element(By.CLASS_NAME, "register-btn").click()
+        time.sleep(2)
 
     def test_register_success(self):
         self.fill_registration_form(email=self.test_email)
