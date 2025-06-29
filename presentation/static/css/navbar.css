@@ -56,6 +56,23 @@
     background: whitesmoke;
     color: #23272a;
 }
+.logout-btn {
+    color: white;
+    text-decoration: none;
+    font-size: 1.1em;
+    padding: 8px 16px;
+    border-radius: 4px;
+    transition: background 0.2s, color 0.2s;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: inline-block;
+}
+.logout-btn:hover, .logout-btn:focus {
+    background: whitesmoke;
+    color: #23272a;
+    text-decoration: none;
+}
 @media (max-width: 700px) {
     .navbar {
         flex-direction: column;
