@@ -203,7 +203,10 @@
                 </div>
                 <div>
                     <label for="editActivityType">Type:</label>
-                    <input type="text" id="editActivityType" name="activity_type" style="width:100%;" required>
+                    <select id="editActivityType" name="activity_type" class="profile-input" style="width:100%;" required>
+                        <option value="Sports">Sports</option>
+                        <option value="Non Sports">Non Sports</option>
+                    </select>
                 </div>
                 <div>
                     <label for="editSkillsReq">Skills Required:</label>
@@ -211,7 +214,7 @@
                 </div>
                 <div>
                     <label for="editActivityDate">Date:</label>
-                    <input type="text" id="editActivityDate" name="date" style="width:100%;" required>
+                    <input type="datetime-local" id="editActivityDate" name="date" class="profile-input" style="width:100%;" required>
                 </div>
                 <div>
                     <label for="editActivityLocation">Location:</label>

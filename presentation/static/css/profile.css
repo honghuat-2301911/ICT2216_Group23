@@ -481,3 +481,22 @@ body {
     border: 1.5px solid #ff5858;
     outline: none;
 }
+
+.profile-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-family: inherit;
+    margin-top: 4px;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+    background: #f9f9f9;
+    transition: border-color 0.2s;
+}
+.profile-input:focus {
+    border-color: #007bff;
+    outline: none;
+    background: #fff;
+}
