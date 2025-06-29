@@ -1,10 +1,13 @@
 import unittest
+import sys
+import os
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 import time
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from data_source.user_queries import clear_users
 
 class RegisterPageTest(unittest.TestCase):
