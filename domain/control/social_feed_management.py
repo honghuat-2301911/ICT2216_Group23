@@ -209,7 +209,7 @@ def get_posts_display_data():
     return display_data
 
 
-def editPost(userId: int, postId: int, updatedContent: str, removeImage: bool = False, newImage: str = None) -> bool:
+def editPost(userId: int, postId: int, updatedContent: str, removeImage: bool = False) -> bool:
     post = get_post_by_id(postId)
     if not post or int(post['user_id']) != userId:
         return False
@@ -222,16 +222,7 @@ def editPost(userId: int, postId: int, updatedContent: str, removeImage: bool = 
             os.remove(image_path)
         image_filename = None
 
-    # Replace image if new one uploaded
-    if newImage:
-        # Optionally remove old image
-        if image_filename:
-            old_image_path = os.path.join('presentation', 'static', 'uploads', os.path.basename(image_filename))
-            if os.path.exists(old_image_path):
-                os.remove(old_image_path)
-        image_filename = newImage
-
-    # Update post in DB
+    # Update post in DB 
     return update_post(postId, updatedContent, image_filename)
 
 

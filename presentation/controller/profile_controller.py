@@ -139,18 +139,7 @@ def edit_post(post_id):
     user_id = int(current_user.get_id())
     updated_content = request.form['content']
     remove_image = request.form.get('remove_image') == 'on'
-    new_image_file = request.files.get('new_image')
-    new_image_filename = None
-
-    if new_image_file and new_image_file.filename:
-        filename = secure_filename(new_image_file.filename)
-        upload_folder = os.path.join('presentation', 'static', 'uploads')
-        os.makedirs(upload_folder, exist_ok=True)
-        upload_path = os.path.join(upload_folder, filename)
-        new_image_file.save(upload_path)
-        new_image_filename = filename
-
-    success = editPost(user_id, post_id, updated_content, remove_image, new_image_filename)
+    success = editPost(user_id, post_id, updated_content, remove_image)
     if success:
         flash('Post updated successfully.', 'success')
     else:
