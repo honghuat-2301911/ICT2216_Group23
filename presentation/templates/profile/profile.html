@@ -72,7 +72,7 @@
         <div class="profile-feed">
             <h3>Sports Activities</h3>
             <div class="activity-group">
-                <h4>Hosted Activities ({{ hosted_activities|length }})</h4>
+                <h4>Hosted Activities ({{ hosted_activities|length }})</h4><br>
                 {% if hosted_activities|length > 0 %}
                     {% for activity in hosted_activities %}
                         <div class="profile-feed-item" data-activity-id="{{ activity.id }}-{{ activity.date }}">
@@ -100,7 +100,7 @@
                 {% endif %}
             </div>
             <div class="activity-group">
-                <h4>Joined Activities ({{ joined_only_activities|length }})</h4>
+                <h4>Joined Activities ({{ joined_only_activities|length }})</h4><br>
                 {% if joined_only_activities|length > 0 %}
                     {% for activity in joined_only_activities %}
                         <div class="profile-feed-item" data-activity-id="{{ activity.id }}-{{ activity.date }}">
