@@ -1,9 +1,3 @@
-"""Social feed management for handling posts, comments, and interactions
-
-Contains business logic for social feed operations including post creation,
-comment management, and like/unlike functionality.
-"""
-
 import os
 from flask import g, current_app
 from werkzeug.utils import secure_filename
@@ -74,12 +68,9 @@ def get_all_posts_control():
     return post_list
 
 
+"""Get featured posts (top 5 by likes) for display"""
 def get_featured_posts_control():
-    """Get featured posts (top 5 by likes) for display
-
-    Returns:
-        list: List of Post entities for featured section
-    """
+    
     result = get_featured_posts()
     if not result:
         return []
@@ -101,16 +92,8 @@ def get_featured_posts_control():
     
     return featured_list
 
-
+"""Get a specific post by ID"""
 def get_post_by_id_control(post_id):
-    """Get a specific post by ID
-
-    Args:
-        post_id (int): ID of the post to retrieve
-
-    Returns:
-        Post: Post entity if found, None otherwise
-    """
     result = get_post_by_id(post_id)
     if not result:
         return None

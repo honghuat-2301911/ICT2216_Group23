@@ -1,5 +1,3 @@
-"""Database queries for the social feed feature"""
-
 import os
 from datetime import datetime
 from werkzeug.utils import secure_filename
@@ -7,12 +5,6 @@ from data_source.db_connection import get_connection
 
 
 def get_all_posts(current_user_id=None):
-    """
-    Retrieve all posts from the database with user information and comments (no created_at),
-    and add liked_by_current_user for each post.
-    Returns:
-        list: List of all post dictionaries with user info and comments
-    """
     connection = get_connection()
     if connection is None:
         print("[DB ERROR] Could not connect to database.")
@@ -63,13 +55,6 @@ def get_all_posts(current_user_id=None):
 
 
 def add_post(user_id, content, image_url=None):
-    """
-    Add a new post to the database (no created_at)
-    Args:
-        user_id (int): ID of the user creating the post
-        content (str): Text content of the post
-        image_url (str, optional): URL of the image to attach
-    """
     connection = get_connection()
     if connection is None:
         print("[DB ERROR] Could not connect to database.")
@@ -92,13 +77,6 @@ def add_post(user_id, content, image_url=None):
 
 
 def add_comment(feed_id, user_id, content):
-    """
-    Add a comment to a post in the database (no created_at)
-    Args:
-        feed_id (int): The feed ID of the post to comment on
-        user_id (int): ID of the user making the comment
-        content (str): Text content of the comment
-    """
     connection = get_connection()
     if connection is None:
         print("[DB ERROR] Could not connect to database.")
@@ -121,13 +99,6 @@ def add_comment(feed_id, user_id, content):
 
 
 def get_posts_by_user(username):
-    """
-    Get all posts by a specific user (no created_at)
-    Args:
-        username (str): The username to search for
-    Returns:
-        list: List of posts by the user
-    """
     connection = get_connection()
     if connection is None:
         print("[DB ERROR] Could not connect to database.")
@@ -159,13 +130,6 @@ def get_posts_by_user(username):
 
 
 def get_posts_by_user_id(user_id):
-    """
-    Get all posts by a specific user ID
-    Args:
-        user_id (int): The user ID to search for
-    Returns:
-        list: List of posts by the user
-    """
     connection = get_connection()
     if connection is None:
         print("[DB ERROR] Could not connect to database.")
@@ -298,13 +262,6 @@ def get_featured_posts():
 
 
 def get_post_by_id(post_id):
-    """
-    Retrieve a single post by its ID.
-    Args:
-        post_id (int): The ID of the post
-    Returns:
-        dict or None: The post dictionary if found, else None
-    """
     connection = get_connection()
     if connection is None:
         print("[DB ERROR] Could not connect to database.")
@@ -335,15 +292,6 @@ def get_post_by_id(post_id):
 
 
 def update_post(post_id, content, image_filename):
-    """
-    Update a post's content and image.
-    Args:
-        post_id (int): The ID of the post
-        content (str): The new content
-        image_filename (str or None): The new image filename or None
-    Returns:
-        bool: True if update was successful, False otherwise
-    """
     connection = get_connection()
     if connection is None:
         print("[DB ERROR] Could not connect to database.")
@@ -363,13 +311,6 @@ def update_post(post_id, content, image_filename):
 
 
 def delete_post(post_id):
-    """
-    Delete a post by its ID.
-    Args:
-        post_id (int): The ID of the post
-    Returns:
-        bool: True if deletion was successful, False otherwise
-    """
     connection = get_connection()
     if connection is None:
         print("[DB ERROR] Could not connect to database.")

@@ -23,19 +23,19 @@ from data_source.user_queries import search_users_by_name
 social_feed_bp = Blueprint("social_feed", __name__, url_prefix="/feed")
 
 
+"""Render the main social feed page with all posts"""
 @social_feed_bp.route("/", methods=["GET"])
 @login_required
 def feed():
-    """Render the main social feed page with all posts"""
     posts = get_all_posts_control()
     featured_posts = get_featured_posts_control()
     return render_template("socialfeed/social_feed.html", posts=posts, featured_posts=featured_posts)
 
 
+"""Handle creation of a new post, including optional image upload"""
 @social_feed_bp.route("/create", methods=["POST"])
 @login_required
 def create_post():
-    """Handle creation of a new post, including optional image upload"""
     if not current_user.is_authenticated:
         return redirect(url_for("login.login"))
     
@@ -46,15 +46,10 @@ def create_post():
     create_post_control(user_id, content, image_file)
     return redirect(url_for("social_feed.feed"))
 
-
+"""Handle creation of a new comment for a specific post"""
 @social_feed_bp.route("/comment/<int:post_id>", methods=["POST"])
 @login_required
 def create_comment(post_id):
-    """Handle creation of a new comment for a specific post
-
-    Args:
-        post_id (int): The ID of the post to comment on
-    """
     if not current_user.is_authenticated:
         return redirect(url_for("login.login"))
     
@@ -78,10 +73,10 @@ def unlike_post(post_id):
     return {"success": success}
 
 
+"""Render the social feed page filtered to show only a specific post"""
 @social_feed_bp.route("/post/<int:post_id>", methods=["GET"])
 @login_required
 def view_post(post_id):
-    """Render the social feed page filtered to show only a specific post"""
     all_posts = get_all_posts_control()
     featured_posts = get_featured_posts_control()
     target_post = get_post_by_id_control(post_id)
@@ -98,10 +93,10 @@ def view_post(post_id):
         return redirect(url_for("social_feed.feed"))
 
 
+"""Search for users by name for autocomplete functionality"""
 @social_feed_bp.route("/search-users", methods=["GET"])
 @login_required
 def search_users():
-    """Search for users by name for autocomplete functionality"""
     search_term = request.args.get("q", "")
     if len(search_term) < 2:
         return jsonify([])
@@ -119,10 +114,10 @@ def search_users():
     return jsonify(user_list)
 
 
+"""Render the social feed page filtered to show only posts by a specific user"""
 @social_feed_bp.route("/user/<int:user_id>", methods=["GET"])
 @login_required
 def view_user_posts(user_id):
-    """Render the social feed page filtered to show only posts by a specific user"""
     filtered_posts = get_posts_by_user_id_control(user_id)
     featured_posts = get_featured_posts_control()
     
