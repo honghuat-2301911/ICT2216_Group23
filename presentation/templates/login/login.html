@@ -14,48 +14,48 @@
                 <h1>Welcome to SIT Sports Buddy!</h1>
                 <p>Sign in to your account</p>
             </div>
-            <!--Display user profile if logged in but its a placeholder for now, to be shown in profile instead-->
-            {% if user %}
-                <div class="profile-section">
-                    <h2>User Profile</h2>
-                    <p><label>Name:</label> {{ user.name }}</p>
-                    <p><label>Email:</label> {{ user.email }}</p>
-                    <p><label>Skill Level:</label> {{ user.skill_lvl or "N/A" }}</p>
-                    <p><label>Experience:</label> {{ user.sports_exp or "N/A" }}</p>
-                </div>
-            {% else %}
-                {% if error %}
-                <div class="error-message">{{ error }}</div>
-                {% endif %}
-                {% if success %}
-                <div class="success-message">{{ success }}</div>
-                {% endif %}
-
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div class="flash {{ category }}">{{ message }}</div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
-                <form method="POST" action="{{ url_for('login.login') }}" class="login-form">
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required placeholder="Enter your email">
-                    </div>
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" name="password" required placeholder="Enter your password">
-                    </div>
-                    <div class="form-options">
-                        <a href="#" class="forgot-password">Forgot password?</a>
-                    </div>
-                    <button type="submit" class="login-btn">Sign In</button>
-                </form>
-                <div class="login-footer">
-                    <p>Don't have an account? <a href="{{ url_for('register.register') }}" class="signup-link">Sign up</a></p>
-                </div>
+            {% if error %}
+            <div class="error-message">{{ error }}</div>
             {% endif %}
+            {% if success %}
+            <div class="success-message">{{ success }}</div>
+            {% endif %}
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            <form method="POST" action="{{ url_for('login.login') }}" class="login-form">
+            {{ form.hidden_tag() }}
+
+            <div class="form-group">
+                {{ form.email.label }}
+                {{ form.email(class="form-control", placeholder="Enter your email") }}
+                {% for err in form.email.errors %}
+                <div class="error-message">{{ err }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                {{ form.password.label }}
+                {{ form.password(class="form-control", placeholder="Enter your password") }}
+                {% for err in form.password.errors %}
+                <div class="error-message">{{ err }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-options">
+                <a href="#" class="forgot-password">Forgot password?</a>
+            </div>
+
+            {{ form.submit(class="login-btn") }}
+            </form>
+            <div class="login-footer">
+                <p>Don't have an account? <a href="{{ url_for('register.register') }}" class="signup-link">Sign up</a></p>
+            </div>
         </div>
     </div>
 </body>
