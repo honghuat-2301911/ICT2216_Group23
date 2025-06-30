@@ -15,16 +15,9 @@ from data_source.social_feed_queries import (
 )
 from domain.entity.social_post import Post, Comment
 
-
+"""Check if the uploaded file has an allowed image extension """
 def allowed_file(filename):
-    """Check if the uploaded file has an allowed image extension
-
-    Args:
-        filename (str): The name of the file
-
-    Returns:
-        bool: True if the file is allowed, False otherwise
-    """
+    
     return "." in filename and filename.rsplit(".", 1)[1].lower() in {
         "png",
         "jpg",
@@ -33,15 +26,9 @@ def allowed_file(filename):
     }
 
 
+"""Convert database rows to Post entities using actual DB field names """
 def create_entity_from_row(result):
-    """Convert database rows to Post entities using actual DB field names
-
-    Args:
-        result (list): List of database row dictionaries
-
-    Returns:
-        list: List of Post entities
-    """
+    
     post_list = []
     
     for row in result:
@@ -156,18 +143,8 @@ def get_post_by_id_control(post_id):
     
     return post
 
-
+"""Handle creation of a new post with optional image upload"""
 def create_post_control(user_id, content, image_file=None):
-    """Handle creation of a new post with optional image upload
-
-    Args:
-        user_id (int): ID of the user creating the post
-        content (str): Text content of the post
-        image_file: Optional uploaded image file
-
-    Returns:
-        bool: True if post was created successfully, False otherwise
-    """
     image_url = None
     
     if image_file and image_file.filename:
@@ -183,51 +160,21 @@ def create_post_control(user_id, content, image_file=None):
     
     return add_post(user_id, content, image_url)
 
-
+"""Handle creation of a new comment on a post"""
 def create_comment_control(post_id, user_id, content):
-    """Handle creation of a new comment on a post
 
-    Args:
-        post_id (int): ID of the post to comment on
-        user_id (int): ID of the user making the comment
-        content (str): Text content of the comment
-
-    Returns:
-        bool: True if comment was created successfully, False otherwise
-    """
     return add_comment(post_id, user_id, content)
 
 
 def like_post_control(post_id):
-    """Handle liking a post (increment like count)
-
-    Args:
-        post_id (int): ID of the post to like
-
-    Returns:
-        bool: True if like was successful, False otherwise
-    """
     return increment_like(post_id)
 
 
 def unlike_post_control(post_id):
-    """Handle unliking a post (decrement like count)
-
-    Args:
-        post_id (int): ID of the post to unlike
-
-    Returns:
-        bool: True if unlike was successful, False otherwise
-    """
     return decrement_like(post_id)
 
-
+"""Get formatted display data for posts"""
 def get_posts_display_data():
-    """Get formatted display data for posts
-
-    Returns:
-        list: List of post dictionaries formatted for template display
-    """
     post_list = g.get("post_list")
     if not post_list:
         return []
@@ -280,16 +227,9 @@ def deletePost(userId: int, postId: int) -> bool:
             os.remove(image_path)
     return ds_delete_post(postId)
 
-
+"""Get all posts by a specific user ID"""
 def get_posts_by_user_id_control(user_id):
-    """Get all posts by a specific user ID
-
-    Args:
-        user_id (int): ID of the user whose posts to retrieve
-
-    Returns:
-        list: List of Post entities for the user
-    """
+    
     result = get_posts_by_user_id(user_id)
     if not result:
         return []
