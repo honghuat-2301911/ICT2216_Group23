@@ -13,6 +13,18 @@
     <div class="layout-3col" style="gap: 0;">
         <!-- Center Feed -->
         <div class="feed-main-col">
+            {% if filtered_post_id %}
+            <div class="filter-indicator" style="background: #fff3f3; border: 2px solid #ff5858; border-radius: 12px; padding: 12px; margin-bottom: 16px; text-align: center;">
+                <span style="color: #ff5858; font-weight: 600;">Showing filtered post</span>
+                <button onclick="clearFilter()" style="background: #ff5858; color: white; border: none; border-radius: 8px; padding: 4px 12px; margin-left: 12px; cursor: pointer; font-size: 0.9em;">Show All</button>
+            </div>
+            {% endif %}
+            {% if filtered_user_id %}
+            <div class="filter-indicator" style="background: #fff3f3; border: 2px solid #ff5858; border-radius: 12px; padding: 12px; margin-bottom: 16px; text-align: center;">
+                <span style="color: #ff5858; font-weight: 600;">Showing posts by {{ filtered_user_name or 'User' }}</span>
+                <button onclick="clearFilter()" style="background: #ff5858; color: white; border: none; border-radius: 8px; padding: 4px 12px; margin-left: 12px; cursor: pointer; font-size: 0.9em;">Show All</button>
+            </div>
+            {% endif %}
             <!-- Post Composer -->
             <div class="social-card post-composer">
                 <form method="post" action="{{ url_for('social_feed.create_post') }}" enctype="multipart/form-data">
@@ -92,11 +104,24 @@
         </div>
         <!-- Right Sidebar -->
         <aside class="feed-sidebar" style="margin-left: 0;">
+            <!-- Search Bar -->
+            <div class="feed-search-bar">
+                <div class="search-bar-container">
+                    <div class="search-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                    </div>
+                    <input type="text" id="userSearchInput" class="search-input" placeholder="Search users..." autocomplete="off">
+                </div>
+                <div id="userSearchResults" class="search-results" style="display: none;"></div>
+            </div>
             <!-- Featured Posts Block -->
             <div class="featured-posts-sidebar">
                 <h3 class="featured-title">Featured</h3>
                 {% for post in featured_posts %}
-                <div class="featured-post-card">
+                <div class="featured-post-card" onclick="filterToPost({{ post.id }})" style="cursor: pointer;">
                     <div class="avatar" style="width:36px;height:36px;font-size:1em;">{{ post.user[0]|upper }}</div>
                     <div class="featured-post-content">
                         <div class="featured-post-title">{{ post.content[:40] }}{% if post.content|length > 40 %}...{% endif %}</div>
@@ -104,6 +129,13 @@
                     </div>
                 </div>
                 {% endfor %}
+                {% if filtered_post_id %}
+                <div class="featured-post-card" onclick="clearFilter()" style="cursor: pointer; background: #f0f0f0; border: 2px solid #ff5858;">
+                    <div class="featured-post-content">
+                        <div class="featured-post-title" style="color: #ff5858; font-weight: 600;">← Show All Posts</div>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </aside>
     </div>
@@ -223,6 +255,90 @@
             modal.style.display = 'none';
         }
     }
+    </script>
+    <script>
+        function filterToPost(postId) {
+            // Navigate to the filtered post view
+            window.location.href = `/feed/post/${postId}`;
+        }
+        
+        function clearFilter() {
+            // Navigate back to the main feed
+            window.location.href = '/feed/';
+        }
+    </script>
+    <script>
+        // User Search Functionality
+        let searchTimeout;
+        const searchInput = document.getElementById('userSearchInput');
+        const searchResults = document.getElementById('userSearchResults');
+        
+        searchInput.addEventListener('input', function() {
+            const query = this.value.trim();
+            
+            // Clear previous timeout
+            clearTimeout(searchTimeout);
+            
+            if (query.length < 2) {
+                searchResults.style.display = 'none';
+                return;
+            }
+            
+            // Debounce the search
+            searchTimeout = setTimeout(() => {
+                searchUsers(query);
+            }, 300);
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.style.display = 'none';
+            }
+        });
+        
+        function searchUsers(query) {
+            fetch(`/feed/search-users?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(users => {
+                    displaySearchResults(users);
+                })
+                .catch(error => {
+                    console.error('Search error:', error);
+                });
+        }
+        
+        function displaySearchResults(users) {
+            if (users.length === 0) {
+                searchResults.style.display = 'none';
+                return;
+            }
+            
+            searchResults.innerHTML = '';
+            
+            users.forEach(user => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'search-result-item';
+                resultItem.onclick = () => selectUser(user);
+                
+                resultItem.innerHTML = `
+                    <div class="user-avatar">${user.name.charAt(0).toUpperCase()}</div>
+                    <div class="user-info">
+                        <div class="user-name">${user.name}</div>
+                        <div class="user-email">${user.email}</div>
+                    </div>
+                `;
+                
+                searchResults.appendChild(resultItem);
+            });
+            
+            searchResults.style.display = 'block';
+        }
+        
+        function selectUser(user) {
+            // Filter posts to show only posts by this user
+            window.location.href = `/feed/user/${user.id}`;
+        }
     </script>
 </body>
 </html>

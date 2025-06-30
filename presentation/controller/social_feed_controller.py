@@ -9,13 +9,16 @@ from flask import (
     render_template,
     request,
     url_for,
+    jsonify,
 )
 from flask_login import login_required, current_user
 
 from domain.control.social_feed_management import (
     get_all_posts_control, get_featured_posts_control, create_post_control,
-    create_comment_control, like_post_control, unlike_post_control
+    create_comment_control, like_post_control, unlike_post_control, get_post_by_id_control,
+    get_posts_by_user_id_control
 )
+from data_source.user_queries import search_users_by_name
 
 social_feed_bp = Blueprint("social_feed", __name__, url_prefix="/feed")
 
@@ -73,3 +76,63 @@ def like_post(post_id):
 def unlike_post(post_id):
     success = unlike_post_control(post_id)
     return {"success": success}
+
+
+@social_feed_bp.route("/post/<int:post_id>", methods=["GET"])
+@login_required
+def view_post(post_id):
+    """Render the social feed page filtered to show only a specific post"""
+    all_posts = get_all_posts_control()
+    featured_posts = get_featured_posts_control()
+    target_post = get_post_by_id_control(post_id)
+    
+    if target_post:
+        # Filter to show only the target post
+        filtered_posts = [post for post in all_posts if post.id == post_id]
+        return render_template("socialfeed/social_feed.html", 
+                             posts=filtered_posts, 
+                             featured_posts=featured_posts,
+                             filtered_post_id=post_id)
+    else:
+        # If post not found, redirect to main feed
+        return redirect(url_for("social_feed.feed"))
+
+
+@social_feed_bp.route("/search-users", methods=["GET"])
+@login_required
+def search_users():
+    """Search for users by name for autocomplete functionality"""
+    search_term = request.args.get("q", "")
+    if len(search_term) < 2:
+        return jsonify([])
+    
+    users = search_users_by_name(search_term, limit=10)
+    # Format users for dropdown
+    user_list = []
+    for user in users:
+        user_list.append({
+            "id": user["id"],
+            "name": user["name"],
+            "email": user["email"]
+        })
+    
+    return jsonify(user_list)
+
+
+@social_feed_bp.route("/user/<int:user_id>", methods=["GET"])
+@login_required
+def view_user_posts(user_id):
+    """Render the social feed page filtered to show only posts by a specific user"""
+    filtered_posts = get_posts_by_user_id_control(user_id)
+    featured_posts = get_featured_posts_control()
+    
+    # Get user name from first post if available
+    user_name = None
+    if filtered_posts:
+        user_name = filtered_posts[0].user
+    
+    return render_template("socialfeed/social_feed.html", 
+                         posts=filtered_posts, 
+                         featured_posts=featured_posts,
+                         filtered_user_id=user_id,
+                         filtered_user_name=user_name)

@@ -158,6 +158,44 @@ def get_posts_by_user(username):
         connection.close()
 
 
+def get_posts_by_user_id(user_id):
+    """
+    Get all posts by a specific user ID
+    Args:
+        user_id (int): The user ID to search for
+    Returns:
+        list: List of posts by the user
+    """
+    connection = get_connection()
+    if connection is None:
+        print("[DB ERROR] Could not connect to database.")
+        return []
+    cursor = connection.cursor(dictionary=True)
+    try:
+        query = """
+            SELECT f.id, f.user_id, f.caption, f.image_path, f.like_count, u.name as user_name
+            FROM feed f
+            JOIN user u ON f.user_id = u.id
+            WHERE f.user_id = %s
+            ORDER BY f.id DESC
+        """
+        cursor.execute(query, (user_id,))
+        posts = cursor.fetchall()
+        for post in posts:
+            post['feed_id'] = post['id']
+            post['user'] = post['user_name']
+            post['content'] = post['caption']
+            post['image_url'] = post['image_path']
+            post['likes'] = post['like_count'] or 0
+        return posts
+    except Exception as e:
+        print(f"[DB ERROR] Error fetching user posts by ID: {e}")
+        return []
+    finally:
+        cursor.close()
+        connection.close()
+
+
 def add_post_to_db(user_id, content, image_file=None):
     image_url = None
     if image_file and image_file.filename:

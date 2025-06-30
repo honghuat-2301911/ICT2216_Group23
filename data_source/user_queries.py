@@ -138,3 +138,36 @@ def update_user_profile_by_id(user_id: int, name: str, password: str) -> bool:
     finally:
         cursor.close()
         connection.close()
+
+
+def search_users_by_name(search_term: str, limit: int = 10):
+    """
+    Search for users by name with partial matching
+
+    Args:
+        search_term (str): The search term to match against user names
+        limit (int): Maximum number of results to return
+
+    Returns:
+        list: List of user dictionaries matching the search term
+    """
+    connection = get_connection()
+    cursor = connection.cursor(dictionary=True)
+    try:
+        query = """
+            SELECT id, name, email 
+            FROM user 
+            WHERE name LIKE %s 
+            ORDER BY name 
+            LIMIT %s
+        """
+        search_pattern = f"%{search_term}%"
+        cursor.execute(query, (search_pattern, limit))
+        users = cursor.fetchall()
+        return users
+    except Exception as e:
+        print(f"Search failed: {e}")
+        return []
+    finally:
+        cursor.close()
+        connection.close()

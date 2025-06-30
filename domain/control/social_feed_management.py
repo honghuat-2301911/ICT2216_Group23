@@ -10,7 +10,8 @@ from werkzeug.utils import secure_filename
 
 from data_source.social_feed_queries import (
     add_comment, add_post, get_all_posts, increment_like, 
-    decrement_like, get_featured_posts, get_post_by_id, update_post, delete_post as ds_delete_post
+    decrement_like, get_featured_posts, get_post_by_id, update_post, delete_post as ds_delete_post,
+    get_posts_by_user_id
 )
 from domain.entity.social_post import Post, Comment
 
@@ -112,6 +113,48 @@ def get_featured_posts_control():
         featured_list.append(post)
     
     return featured_list
+
+
+def get_post_by_id_control(post_id):
+    """Get a specific post by ID
+
+    Args:
+        post_id (int): ID of the post to retrieve
+
+    Returns:
+        Post: Post entity if found, None otherwise
+    """
+    result = get_post_by_id(post_id)
+    if not result:
+        return None
+    
+    # Convert raw DB data to Post entity
+    row = result[0] if isinstance(result, list) else result
+    
+    # Get comments for this post
+    comments = []
+    for comment_data in row.get('comments', []):
+        comment = Comment(
+            id=comment_data['id'],
+            post_id=row['id'],
+            user=comment_data.get('user', ''),
+            content=comment_data.get('content', ''),
+            created_at=""  # No created_at in current schema
+        )
+        comments.append(comment)
+    
+    # Create Post entity using only DB field names
+    post = Post(
+        id=row['id'],
+        user=row.get('user_name', ''),
+        content=row.get('caption', ''),
+        image_url=row.get('image_path', ''),
+        created_at="",  # No created_at in current schema
+        likes=row.get('like_count', 0) or 0,
+        comments=comments
+    )
+    
+    return post
 
 
 def create_post_control(user_id, content, image_file=None):
@@ -236,3 +279,20 @@ def deletePost(userId: int, postId: int) -> bool:
         if os.path.exists(image_path):
             os.remove(image_path)
     return ds_delete_post(postId)
+
+
+def get_posts_by_user_id_control(user_id):
+    """Get all posts by a specific user ID
+
+    Args:
+        user_id (int): ID of the user whose posts to retrieve
+
+    Returns:
+        list: List of Post entities for the user
+    """
+    result = get_posts_by_user_id(user_id)
+    if not result:
+        return []
+    
+    post_list = create_entity_from_row(result)
+    return post_list
