@@ -37,8 +37,6 @@ jobs:
         run: |
           pip install selenium>=4.10.0
           pip install webdriver-manager>=4.0.0
-          pip install mysql-connector-python
-
 
       - name: Run Unit Tests
         run: | 
