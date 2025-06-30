@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Email, EqualTo, Length
 
+
 class RegisterForm(FlaskForm):
     name = StringField(
         'Name',
@@ -31,3 +32,21 @@ class RegisterForm(FlaskForm):
         validators=[DataRequired(message="Please share your sports experience")]
     )
     submit = SubmitField('Register')
+
+
+class LoginForm(FlaskForm):
+    email = StringField(
+        'Email Address',
+        validators=[
+            DataRequired(message="Email is required."),
+            Email(message="Please enter a valid email address.")
+        ]
+    )
+    password = PasswordField(
+        'Password',
+        validators=[
+            DataRequired(message="Password is required.")
+        ]
+    )
+    submit = SubmitField('Sign In')
+
