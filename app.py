@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_login import LoginManager
 from flask_session import Session
+from flask_wtf import CSRFProtect
 from domain.entity.user import User
 from data_source.user_queries import get_user_by_id
 
@@ -23,11 +24,25 @@ def create_app():
     )
     app.config['SECRET_KEY'] = 'ICT2216_Group23'
     app.config['SESSION_TYPE'] = 'filesystem'
+
+    # # Only send cookies over HTTPS
+    # app.config['SESSION_COOKIE_SECURE']   = True
+    # # Prevent JavaScript from reading the cookie
+    # app.config['SESSION_COOKIE_HTTPONLY'] = True
+    # # Control cross-site sending; options: 'Lax', 'Strict', or 'None'
+    # app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+
+    # app.config['REMEMBER_COOKIE_SECURE']   = True
+    # app.config['REMEMBER_COOKIE_HTTPONLY'] = True
+    # app.config['REMEMBER_COOKIE_SAMESITE'] = 'Lax'
+
     Session(app)
 
     login_manager = LoginManager()
     login_manager.login_view = 'login.login'
     login_manager.init_app(app)
+
+    csrf = CSRFProtect(app)
 
     @login_manager.user_loader
     def load_user(user_id):
