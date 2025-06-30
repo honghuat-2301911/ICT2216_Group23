@@ -53,6 +53,8 @@ def get_user_by_email(email: str):
 #             connection.close()
 
 """Insert a new user into the database"""
+
+
 def insert_user(user_data: dict) -> bool:
     try:
         connection = get_connection()
@@ -68,7 +70,7 @@ def insert_user(user_data: dict) -> bool:
                 user_data["password"],
                 user_data["email"],
                 user_data.get("role", "user"),
-                user_data.get("profile_picture", "")
+                user_data.get("profile_picture", ""),
             ),
         )
         connection.commit()
@@ -82,6 +84,7 @@ def insert_user(user_data: dict) -> bool:
         if connection:
             connection.close()
 
+
 def get_user_by_id(user_id: int):
     connection = get_connection()
     cursor = connection.cursor(dictionary=True)
@@ -92,7 +95,9 @@ def get_user_by_id(user_id: int):
     return user_data
 
 
-def update_user_profile_by_id(user_id: int, name: str, password: str, profile_picture: str = None) -> bool:
+def update_user_profile_by_id(
+    user_id: int, name: str, password: str, profile_picture: str = None
+) -> bool:
     connection = get_connection()
     cursor = connection.cursor()
     try:
@@ -135,6 +140,7 @@ def search_users_by_name(search_term: str, limit: int = 10):
     finally:
         cursor.close()
         connection.close()
+
 
 def remove_user_profile_picture(user_id: int) -> bool:
     connection = get_connection()

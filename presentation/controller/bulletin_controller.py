@@ -1,12 +1,11 @@
-from flask import Blueprint, redirect, render_template, session, url_for, request, flash
+from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+from flask_login import current_user, login_required
+
 from domain.control.bulletin_management import *
-from flask_login import login_required, current_user
+
 # Create a blueprint for the bulletin page
 bulletin_bp = Blueprint(
-    "bulletin",
-    __name__,
-    url_prefix="/",
-    template_folder="../templates"
+    "bulletin", __name__, url_prefix="/", template_folder="../templates"
 )
 
 
@@ -27,11 +26,15 @@ def bulletin_page():
         result = search_bulletin(query)
     else:
         result = get_bulletin_listing()
-    if not result:  
-        return render_template("bulletin/bulletin.html", bulletin_list=[], error="No activities found.")
+    if not result:
+        return render_template(
+            "bulletin/bulletin.html", bulletin_list=[], error="No activities found."
+        )
     bulletin_list = get_bulletin_display_data()
-    return render_template("bulletin/bulletin.html", bulletin_list=bulletin_list, query=query)
-        
+    return render_template(
+        "bulletin/bulletin.html", bulletin_list=bulletin_list, query=query
+    )
+
 
 @bulletin_bp.route("/join", methods=["POST"])
 @login_required
@@ -40,9 +43,10 @@ def join_activity():
     user_id = int(current_user.get_id())
     result = join_activity_control(activity_id, user_id)
     if not result:
-        #flash ("Failed to join the activity You Joined Already Please try again.")
+        # flash ("Failed to join the activity You Joined Already Please try again.")
         return redirect(url_for("bulletin.bulletin_page"))
     return redirect(url_for("bulletin.bulletin_page"))
+
 
 @bulletin_bp.route("/host", methods=["POST"])
 @login_required
@@ -55,11 +59,14 @@ def host_activity():
     max_pax = request.form["max_pax"]
     user_id = int(current_user.get_id())
 
-    success = create_activity(activity_name, activity_type, skills_req, date, location, max_pax, user_id)
+    success = create_activity(
+        activity_name, activity_type, skills_req, date, location, max_pax, user_id
+    )
 
     if success:
         return redirect(url_for("bulletin.bulletin_page"))
     return redirect(url_for("bulletin.bulletin_page"))
+
 
 @bulletin_bp.route("/bulletin/filtered", methods=["POST"])
 @login_required
@@ -68,12 +75,18 @@ def filtered_bulletin():
     non_sports_checked = request.form.get("non_sports_checkbox") == "on"
 
     if not sports_checked and not non_sports_checked:
-        return render_template("bulletin/bulletin.html", bulletin_list=[], error="Please select at least one category to filter.")
+        return render_template(
+            "bulletin/bulletin.html",
+            bulletin_list=[],
+            error="Please select at least one category to filter.",
+        )
     result = get_filtered_bulletins(sports_checked, non_sports_checked)
     if not result:
-        return render_template("bulletin/bulletin.html", bulletin_list=[], error="No activities found for the selected categories.")
-    
+        return render_template(
+            "bulletin/bulletin.html",
+            bulletin_list=[],
+            error="No activities found for the selected categories.",
+        )
+
     bulletin_list = get_bulletin_display_data()
     return render_template("bulletin/bulletin.html", bulletin_list=bulletin_list)
-
-

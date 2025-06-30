@@ -1,6 +1,8 @@
 from flask import g
-from domain.entity.sports_activity import SportsActivity
+
 from data_source.bulletin_queries import *
+from domain.entity.sports_activity import SportsActivity
+
 
 def create_entity_from_row(result):
     bulletin_list = []
@@ -21,19 +23,21 @@ def create_entity_from_row(result):
             date=row["date"],  # optionally parse as datetime
             location=row["location"],
             max_pax=row["max_pax"],
-            user_id_list_join=user_id_list
+            user_id_list_join=user_id_list,
         )
         bulletin_list.append(activity)
 
     g.bulletin_list = bulletin_list
     return bulletin_list
 
+
 def get_bulletin_listing():
     result = get_all_bulletin()
     if not result:
         return []
-    bulletin_list =  create_entity_from_row(result)
+    bulletin_list = create_entity_from_row(result)
     return bulletin_list
+
 
 def get_bulletin_display_data():
     bulletin_list = g.get("bulletin_list")
@@ -42,24 +46,28 @@ def get_bulletin_display_data():
 
     display_data = []
     for activity in bulletin_list:
-        display_data.append({
-            "id": activity.get_id(),
-            "activity_name": activity.get_activity_name(),
-            "activity_type": activity.get_activity_type(),
-            "skills_req": activity.get_skills_req(),
-            "date": activity.get_date(),
-            "location": activity.get_location(),
-            "max_pax": activity.get_max_pax(),
-        })
+        display_data.append(
+            {
+                "id": activity.get_id(),
+                "activity_name": activity.get_activity_name(),
+                "activity_type": activity.get_activity_type(),
+                "skills_req": activity.get_skills_req(),
+                "date": activity.get_date(),
+                "location": activity.get_location(),
+                "max_pax": activity.get_max_pax(),
+            }
+        )
 
     return display_data
+
 
 def search_bulletin(query):
     result = get_bulletin_via_name(query)
     if not result:
         return []
-    bulletin_list =  create_entity_from_row(result)
+    bulletin_list = create_entity_from_row(result)
     return bulletin_list
+
 
 def join_activity_control(activity_id, user_id):
     activity_data = get_sports_activity_by_id(activity_id)
@@ -84,12 +92,17 @@ def join_activity_control(activity_id, user_id):
             return False  # Already joined
 
     sports_activity.set_user_id_list_join(user_id)
-    result = update_sports_activity(sports_activity.get_id(), sports_activity.get_user_id_list_join())
+    result = update_sports_activity(
+        sports_activity.get_id(), sports_activity.get_user_id_list_join()
+    )
     if result:
         return True
     return False
 
-def create_activity(activity_name, activity_type, skills_req, date, location, max_pax, user_id):
+
+def create_activity(
+    activity_name, activity_type, skills_req, date, location, max_pax, user_id
+):
     new_data = {
         "user_id": user_id,
         "activity_name": activity_name,
@@ -101,6 +114,7 @@ def create_activity(activity_name, activity_type, skills_req, date, location, ma
     }
     return insert_new_activity(new_data)
 
+
 def get_filtered_bulletins(sports: bool, non_sports: bool):
     types = []
     if sports:
@@ -111,5 +125,5 @@ def get_filtered_bulletins(sports: bool, non_sports: bool):
     result = get_bulletin_by_types(types)
     if not result:
         return None
-    bulletin_list =  create_entity_from_row(result)
+    bulletin_list = create_entity_from_row(result)
     return bulletin_list

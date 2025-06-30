@@ -1,8 +1,9 @@
 """User login management for authentication and session handling"""
 
-from flask import g
-from flask_login import login_user as flask_login_user, logout_user as flask_logout_user
 import bcrypt
+from flask import g
+from flask_login import login_user as flask_login_user
+from flask_login import logout_user as flask_logout_user
 
 from data_source.user_queries import get_user_by_email
 from domain.entity.user import User

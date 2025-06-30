@@ -1,14 +1,13 @@
 import bcrypt
-from flask import Blueprint, redirect, render_template, flash, url_for
-from domain.entity.forms import RegisterForm
-from domain.control.register import register_user
+from flask import Blueprint, flash, redirect, render_template, url_for
 
+from domain.control.register import register_user
+from domain.entity.forms import RegisterForm
 
 register_bp = Blueprint(
-    "register", __name__,
-    url_prefix="/",
-    template_folder="../templates/"
+    "register", __name__, url_prefix="/", template_folder="../templates/"
 )
+
 
 @register_bp.route("/register", methods=["GET", "POST"])
 def register():
@@ -16,8 +15,7 @@ def register():
     if form.validate_on_submit():
         # Prepare user data
         hashed = bcrypt.hashpw(
-            form.password.data.encode("utf-8"),
-            bcrypt.gensalt()
+            form.password.data.encode("utf-8"), bcrypt.gensalt()
         ).decode("utf-8")
 
         user_data = {

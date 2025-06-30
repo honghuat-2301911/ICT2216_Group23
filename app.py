@@ -1,18 +1,19 @@
+import os
+
 from flask import Flask
 from flask_login import LoginManager
 from flask_session import Session
 from flask_wtf import CSRFProtect
-from domain.entity.user import User
-from data_source.user_queries import get_user_by_id
 
+from data_source.user_queries import get_user_by_id
+from domain.entity.user import User
+from presentation.controller.admin_controller import admin_bp
+from presentation.controller.bulletin_controller import bulletin_bp
 from presentation.controller.login_controller import login_bp
-from presentation.controller.register_controller import register_bp
-from presentation.controller.social_feed_controller import social_feed_bp
 from presentation.controller.profile_controller import profile_bp
 from presentation.controller.register_controller import register_bp
-from presentation.controller.bulletin_controller import bulletin_bp
-from presentation.controller.admin_controller import admin_bp
-import os
+from presentation.controller.social_feed_controller import social_feed_bp
+
 # from data_source.login_queries import init_schema
 
 
@@ -23,8 +24,8 @@ def create_app():
         static_folder="presentation/static",
         static_url_path="/static",
     )
-    app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY', '')
-    app.config['SESSION_TYPE'] = 'filesystem'
+    app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET_KEY", "")
+    app.config["SESSION_TYPE"] = "filesystem"
 
     # # Only send cookies over HTTPS
     # app.config['SESSION_COOKIE_SECURE']   = True
@@ -40,7 +41,7 @@ def create_app():
     Session(app)
 
     login_manager = LoginManager()
-    login_manager.login_view = 'login.login'
+    login_manager.login_view = "login.login"
     login_manager.init_app(app)
 
     csrf = CSRFProtect(app)
@@ -55,7 +56,7 @@ def create_app():
                 password=user_data["password"],
                 email=user_data["email"],
                 role=user_data.get("role", "user"),
-                profile_picture=user_data.get('profile_picture', '')
+                profile_picture=user_data.get("profile_picture", ""),
             )
         return None
 
@@ -64,9 +65,8 @@ def create_app():
     app.register_blueprint(social_feed_bp)
     app.register_blueprint(register_bp)
     app.register_blueprint(bulletin_bp)
-    app.register_blueprint(admin_bp) 
+    app.register_blueprint(admin_bp)
     app.register_blueprint(profile_bp)
-
 
     # make sure DB has the required tables
     # init_schema()

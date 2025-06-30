@@ -1,5 +1,6 @@
 from data_source.db_connection import get_connection
 
+
 def delete_sports_activity(activity_id: int):
     connection = get_connection()
     cursor = connection.cursor()
@@ -8,4 +9,4 @@ def delete_sports_activity(activity_id: int):
     success = cursor.rowcount > 0
     cursor.close()
     connection.close()
-    return success    
+    return success
