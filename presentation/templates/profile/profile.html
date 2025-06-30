@@ -84,7 +84,6 @@
                                 <p>Date: {{ activity.date }}</p>
                                 <p>Location: {{ activity.location }}</p>
                                 <p>Max Participants: {{ activity.max_pax }}</p>
-                                <span class="activity-label hosted">Hosted</span>
                             </div>
                             <button class="icon-btn edit-activity-btn" title="Edit Activity" data-activity-id="{{ activity.id }}">
                                 <img src="{{ url_for('static', filename='icons/edit.png') }}" alt="Edit" class="edit-icon">
@@ -112,7 +111,6 @@
                                 <p>Date: {{ activity.date }}</p>
                                 <p>Location: {{ activity.location }}</p>
                                 <p>Max Participants: {{ activity.max_pax }}</p>
-                                <span class="activity-label joined">Joined</span>
                             </div>
                             <!-- Leave Activity Button triggers modal -->
                             <button type="button" class="icon-btn leave-activity-btn" data-activity-id="{{ activity.id }}" title="Leave Activity">

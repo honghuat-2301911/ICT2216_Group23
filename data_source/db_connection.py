@@ -1,5 +1,3 @@
-"""Database for MySQL"""
-
 import os
 
 import mysql.connector
@@ -7,12 +5,6 @@ from mysql.connector import Error
 
 
 def get_connection():
-    """
-    Establish and return a MySQL database connection using env variables
-
-    Return:
-        The database connection if successful, otherwise None
-    """
     try:
         connection = mysql.connector.connect(
             host=os.getenv("DB_HOST", "localhost"),

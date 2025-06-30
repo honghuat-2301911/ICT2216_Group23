@@ -1,20 +1,9 @@
-"""Database queries for user operations"""
-
 import mysql.connector
 
 from data_source.db_connection import get_connection
 
 
 def get_user_by_email(email: str):
-    """
-    Retrieve user data by email
-
-    Args:
-        email (str): The email address of the user
-
-    Returns:
-        dict or None: User data dictionary if found, else None
-    """
     connection = get_connection()
     cursor = connection.cursor(dictionary=True)
     cursor.execute("SELECT * FROM user WHERE email = %s", (email,))
@@ -63,16 +52,9 @@ def get_user_by_email(email: str):
 #         if connection:
 #             connection.close()
 
+"""Insert a new user into the database"""
 def insert_user(user_data: dict) -> bool:
-    """
-    Insert a new user into the database
-
-    Args:
-        user_data (dict): Dictionary containing user information
-
-    Returns:
-        bool: True if insertion is successful, False otherwise
-    """
+    
     connection = get_connection()
     cursor = connection.cursor()
     query = """
@@ -95,15 +77,6 @@ def insert_user(user_data: dict) -> bool:
 
 
 def get_user_by_id(user_id: int):
-    """
-    Retrieve user data by user ID
-
-    Args:
-        user_id (int): The ID of the user
-
-    Returns:
-        dict or None: User data dictionary if found, else None
-    """
     connection = get_connection()
     cursor = connection.cursor(dictionary=True)
     cursor.execute("SELECT * FROM user WHERE id = %s", (user_id,))
@@ -114,17 +87,6 @@ def get_user_by_id(user_id: int):
 
 
 def update_user_profile_by_id(user_id: int, name: str, password: str) -> bool:
-    """
-    Update a user's profile by user ID.
-
-    Args:
-        user_id (int): The ID of the user to update.
-        name (str): The new name for the user.
-        password (str): The new password for the user.
-
-    Returns:
-        bool: True if the update was successful, False otherwise.
-    """
     connection = get_connection()
     cursor = connection.cursor()
     try:
@@ -141,16 +103,6 @@ def update_user_profile_by_id(user_id: int, name: str, password: str) -> bool:
 
 
 def search_users_by_name(search_term: str, limit: int = 10):
-    """
-    Search for users by name with partial matching
-
-    Args:
-        search_term (str): The search term to match against user names
-        limit (int): Maximum number of results to return
-
-    Returns:
-        list: List of user dictionaries matching the search term
-    """
     connection = get_connection()
     cursor = connection.cursor(dictionary=True)
     try:

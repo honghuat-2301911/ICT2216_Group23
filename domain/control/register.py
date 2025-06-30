@@ -1,5 +1,3 @@
-"""User registration control logic and business rules"""
-
 from data_source.user_queries import get_user_by_email, insert_user
 
 

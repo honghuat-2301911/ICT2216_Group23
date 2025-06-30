@@ -65,11 +65,11 @@
                 </div>
                 {% endif %}
                 <div class="post-stats">
-                    <div class="stat-item comment-button" onclick="toggleComments({{ post.id }})">
+                    <div class="stat-item comment-button" onclick="toggleComments('{{ post.id }}')">
                         <span class="comment-icon"></span>
                         <span class="stat-count">{{ post.comments|length }}</span>
                     </div>                
-                    <div class="stat-item like-button" onclick="toggleLike({{ post.id }}, this)">
+                    <div class="stat-item like-button" onclick="toggleLike('{{ post.id }}', this)">
                         <span class="heart-icon"></span>
                         <span class="stat-count">{{ post.likes }}</span>
                     </div>                
@@ -121,7 +121,7 @@
             <div class="featured-posts-sidebar">
                 <h3 class="featured-title">Featured</h3>
                 {% for post in featured_posts %}
-                <div class="featured-post-card" onclick="filterToPost({{ post.id }})" style="cursor: pointer;">
+                <div class="featured-post-card" onclick="filterToPost('{{ post.id }}')" style="cursor: pointer;">
                     <div class="avatar" style="width:36px;height:36px;font-size:1em;">{{ post.user[0]|upper }}</div>
                     <div class="featured-post-content">
                         <div class="featured-post-title">{{ post.content[:40] }}{% if post.content|length > 40 %}...{% endif %}</div>
