@@ -114,3 +114,17 @@ def get_bulletin_by_types(activity_types):
     cursor.close()
     connection.close()
     return data
+
+def update_sports_activity_details(activity_id, activity_name, activity_type, skills_req, date, location, max_pax, user_id_list_join):
+    connection = get_connection()
+    cursor = connection.cursor()
+    query = """
+        UPDATE sports_activity
+        SET activity_name=%s, activity_type=%s, skills_req=%s, date=%s, location=%s, max_pax=%s, user_id_list_join=%s
+        WHERE id=%s
+    """
+    cursor.execute(query, (activity_name, activity_type, skills_req, date, location, max_pax, user_id_list_join, activity_id))
+    connection.commit()
+    cursor.close()
+    connection.close()
+    return True

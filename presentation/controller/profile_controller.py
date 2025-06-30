@@ -5,7 +5,7 @@ from data_source.social_feed_queries import get_posts_by_user
 from data_source.user_queries import get_user_by_id
 from flask_login import login_required, current_user
 import bcrypt
-from data_source.bulletin_queries import get_all_bulletin, get_sports_activity_by_id, update_sports_activity, get_connection
+from data_source.bulletin_queries import get_all_bulletin, get_sports_activity_by_id, update_sports_activity, get_connection, update_sports_activity_details
 from domain.entity.sports_activity import SportsActivity
 from domain.control import social_feed_management 
 from werkzeug.utils import secure_filename
@@ -119,17 +119,8 @@ def edit_activity(activity_id):
     location = request.form['location']
     max_pax = request.form['max_pax']
     user_id_list_join = activity.get('user_id_list_join', '')
-    # Update the activity
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("""
-        UPDATE sports_activity
-        SET activity_name=%s, activity_type=%s, skills_req=%s, date=%s, location=%s, max_pax=%s, user_id_list_join=%s
-        WHERE id=%s
-    """, (activity_name, activity_type, skills_req, date, location, max_pax, user_id_list_join, activity_id))
-    conn.commit()
-    cursor.close()
-    conn.close()
+    # Update the activity using the data source function
+    update_sports_activity_details(activity_id, activity_name, activity_type, skills_req, date, location, max_pax, user_id_list_join)
     flash("Activity updated successfully.", "success")
     return redirect(url_for('profile_bp.fetchProfile') + '#activitiesSection')
 
