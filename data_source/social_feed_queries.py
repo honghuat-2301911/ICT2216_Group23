@@ -13,7 +13,7 @@ def get_all_posts(current_user_id=None):
     cursor = connection.cursor(dictionary=True)
     try:
         query = """
-            SELECT f.id, f.user_id, f.caption, f.image_path, f.like_count, u.name as user_name
+            SELECT f.id, f.user_id, f.caption, f.image_path, f.like_count, u.name as user_name, u.profile_picture
             FROM feed f
             JOIN user u ON f.user_id = u.id
             ORDER BY f.id DESC
@@ -45,6 +45,7 @@ def get_all_posts(current_user_id=None):
             post['content'] = post['caption']
             post['image_url'] = post['image_path']
             post['likes'] = post['like_count'] or 0
+            post['profile_picture'] = post.get('profile_picture', '')
         return posts
     except Exception as e:
         print(f"[DB ERROR] Error fetching posts: {e}")
@@ -245,7 +246,7 @@ def get_featured_posts():
     cursor = connection.cursor(dictionary=True)
     try:
         query = """
-            SELECT f.id, f.user_id, f.caption, f.image_path, f.like_count, u.name as user_name
+            SELECT f.id, f.user_id, f.caption, f.image_path, f.like_count, u.name as user_name, u.profile_picture
             FROM feed f
             JOIN user u ON f.user_id = u.id
             ORDER BY f.like_count DESC, f.id DESC

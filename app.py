@@ -40,6 +40,7 @@ def create_app():
                 password=user_data["password"],
                 email=user_data["email"],
                 role=user_data.get("role", "user"),
+                profile_picture=user_data.get('profile_picture', '')
             )
         return None
 

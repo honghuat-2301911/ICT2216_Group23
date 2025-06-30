@@ -48,6 +48,8 @@ def create_entity_from_row(result):
             likes=row.get('like_count', 0) or 0,
             comments=comments
         )
+        # Attach profile_picture to the post object
+        post.profile_picture = row.get('profile_picture', '')
         post_list.append(post)
     
     g.post_list = post_list
@@ -88,6 +90,8 @@ def get_featured_posts_control():
             likes=row.get('like_count', 0) or 0,
             comments=[]  # Featured posts don't need comments
         )
+        # Attach profile_picture to the post object
+        post.profile_picture = row.get('profile_picture', '')
         featured_list.append(post)
     
     return featured_list
@@ -123,6 +127,8 @@ def get_post_by_id_control(post_id):
         likes=row.get('like_count', 0) or 0,
         comments=comments
     )
+    # Attach profile_picture to the post object
+    post.profile_picture = row.get('profile_picture', '')
     
     return post
 

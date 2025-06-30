@@ -12,6 +12,7 @@ class User:
         password (str): User's password hash
         email (str): User's email address
         role (str): User's role (default: 'user')
+        profile_picture (str): URL or filename of the profile picture
     """
 
     id: int
@@ -19,6 +20,7 @@ class User:
     password: str
     email: str
     role: str = field(default="user")
+    profile_picture: str = field(default="")
 
     # --- Getters ---
     def get_id(self):
@@ -35,6 +37,9 @@ class User:
 
     def get_role(self) -> str:
         return self.role
+
+    def get_profile_picture(self) -> str:
+        return self.profile_picture
 
     @property
     def is_authenticated(self):
@@ -58,6 +63,8 @@ class User:
     def set_email(self, email: str) -> None:
         self.email = email
 
-
     def set_role(self, role: str) -> None:
         self.role = role
+
+    def set_profile_picture(self, profile_picture: str) -> None:
+        self.profile_picture = profile_picture
