@@ -12,6 +12,7 @@ from presentation.controller.profile_controller import profile_bp
 from presentation.controller.register_controller import register_bp
 from presentation.controller.bulletin_controller import bulletin_bp
 from presentation.controller.admin_controller import admin_bp
+import os
 # from data_source.login_queries import init_schema
 
 
