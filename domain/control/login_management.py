@@ -33,8 +33,6 @@ def login_user(email: str, password: str):
         name=result["name"],
         password=result["password"],
         email=result["email"],
-        skill_lvl=result.get("skill_lvl"),
-        sports_exp=result.get("sports_exp"),
         role=result.get("role", "user"),
     )
 
@@ -62,7 +60,5 @@ def get_user_display_data():
         # "id": user.get_id(),  # Uncomment if you want to display user ID
         "name": user.get_name(),
         "email": user.get_email(),
-        "skill_lvl": user.get_skill_lvl(),
-        "sports_exp": user.get_sports_exp(),
         "role": user.get_role(),
     }

@@ -1,14 +1,11 @@
-"""Defines domain entities for social media posts and comments"""
-
 from dataclasses import dataclass, field
 from typing import List
 
 
 @dataclass
 class Comment:
-    """A comment on a social media post"""
 
-    id_: int
+    id: int
     post_id: int
     user: str
     content: str
@@ -17,9 +14,8 @@ class Comment:
 
 @dataclass
 class Post:
-    """A social media post"""
 
-    id_: int
+    id: int
     user: str
     content: str
     image_url: str

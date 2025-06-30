@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bulletin Board</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bulletin.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bulletin.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -84,18 +84,34 @@
         <span class="close" onclick="closeHostModal()">&times;</span>
         <h2>Host New Activity</h2>
         <form method="POST" action="{{ url_for('bulletin.host_activity') }}">
-            <input type="text" name="activity_name" placeholder="Activity Name" required><br><br>
-            
-            <select name="activity_type" required>
-                <option value="" disabled selected>Select Activity Type</option>
-                <option value="Sports">Sports</option>
-                <option value="Non Sports">Non Sports</option>
-            </select><br><br>
-
-            <input type="text" name="skills_req" placeholder="Required Skills" required><br><br>
-            <input type="datetime-local" name="date" required><br><br>
-            <input type="text" name="location" placeholder="Location" required><br><br>
-            <input type="number" name="max_pax" min="1" value="1" required><br><br>
+            <div>
+                <label for="activityNameInput">Activity Name:</label>
+                <input type="text" id="activityNameInput" name="activity_name" placeholder="Activity Name" required>
+            </div>
+            <div>
+                <label for="activityTypeInput">Type:</label>
+                <select id="activityTypeInput" name="activity_type" required>
+                    <option value="" disabled selected>Select Activity Type</option>
+                    <option value="Sports">Sports</option>
+                    <option value="Non Sports">Non Sports</option>
+                </select>
+            </div>
+            <div>
+                <label for="skillsReqInput">Required Skills:</label>
+                <input type="text" id="skillsReqInput" name="skills_req" placeholder="Required Skills" required>
+            </div>
+            <div>
+                <label for="dateInput">Date:</label>
+                <input type="datetime-local" id="dateInput" name="date" required>
+            </div>
+            <div>
+                <label for="locationInput">Location:</label>
+                <input type="text" id="locationInput" name="location" placeholder="Location" required>
+            </div>
+            <div>
+                <label for="maxPaxInput">Max Participants:</label>
+                <input type="number" id="maxPaxInput" name="max_pax" min="1" value="1" required>
+            </div>
             <button type="submit" class="bulletin-btn">Host</button>
         </form>
     </div>

@@ -40,4 +40,3 @@ class SportsActivity:
         if str(user_id) not in ids:
             ids.append(str(user_id))
         self.user_id_list_join = ",".join(filter(None, ids))
-

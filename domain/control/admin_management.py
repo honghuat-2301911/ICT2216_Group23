@@ -4,12 +4,9 @@ from data_source.bulletin_queries import *
 from data_source.admin_queries import *
 from flask_login import current_user
 
-
+"""Deletes an activity from the bulletin board by its ID. Returns True if successful, False otherwise."""
 def remove_sports_activity(activity_id: int):
-    """
-    Deletes an activity from the bulletin board by its ID.
-    Returns True if successful, False otherwise.
-    """
+   
     try:
         # Fetch the current activity to check if it exists
         activity = get_sports_activity_by_id(activity_id)

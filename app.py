@@ -8,7 +8,7 @@ from data_source.user_queries import get_user_by_id
 from presentation.controller.login_controller import login_bp
 from presentation.controller.register_controller import register_bp
 from presentation.controller.social_feed_controller import social_feed_bp
-
+from presentation.controller.profile_controller import profile_bp
 from presentation.controller.register_controller import register_bp
 from presentation.controller.bulletin_controller import bulletin_bp
 from presentation.controller.admin_controller import admin_bp
@@ -53,8 +53,6 @@ def create_app():
                 name=user_data["name"],
                 password=user_data["password"],
                 email=user_data["email"],
-                skill_lvl=user_data.get("skill_lvl"),
-                sports_exp=user_data.get("sports_exp"),
                 role=user_data.get("role", "user"),
             )
         return None
@@ -64,7 +62,9 @@ def create_app():
     app.register_blueprint(social_feed_bp)
     app.register_blueprint(register_bp)
     app.register_blueprint(bulletin_bp)
-    app.register_blueprint(admin_bp)
+    app.register_blueprint(admin_bp) 
+    app.register_blueprint(profile_bp)
+
 
     # make sure DB has the required tables
     # init_schema()

@@ -23,14 +23,6 @@ class RegisterForm(FlaskForm):
             EqualTo('password', message="Passwords must match")
         ]
     )
-    skill_lvl = StringField(
-        'Skill Level',
-        validators=[DataRequired(message="Skill level is required")]
-    )
-    sports_exp = StringField(
-        'Sports Experience',
-        validators=[DataRequired(message="Please share your sports experience")]
-    )
     submit = SubmitField('Register')
 
 

@@ -3,6 +3,9 @@ version: "3.8"
 services:
   web:
     build: .
+    image: your-webapp-image
+    volumes:
+      - ./presentation/static/images:/app/presentation/static/images
     expose:
       - "8000"
     environment:

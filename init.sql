@@ -111,8 +111,6 @@ CREATE TABLE IF NOT EXISTS `mydb`.`user` (
   `name` VARCHAR(45) NOT NULL,
   `password` VARCHAR(225) NOT NULL,
   `email` VARCHAR(225) NOT NULL,
-  `skill_lvl` VARCHAR(45) NULL,
-  `sports_exp` VARCHAR(45) NULL,
   `role` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE

@@ -24,8 +24,8 @@ def register():
             "name": form.name.data,
             "email": form.email.data,
             "password": hashed,
-            "skill_lvl": form.skill_lvl.data,
-            "sports_exp": form.sports_exp.data,
+            # "skill_lvl": form.skill_lvl.data,
+            # "sports_exp": form.sports_exp.data,
             "role": "user",
         }
 

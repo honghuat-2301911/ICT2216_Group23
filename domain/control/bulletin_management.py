@@ -61,8 +61,7 @@ def search_bulletin(query):
     bulletin_list =  create_entity_from_row(result)
     return bulletin_list
 
-def join_activity_control(activity_id):
-    user_id = 1 # Replace with actual user ID from session or context
+def join_activity_control(activity_id, user_id):
     activity_data = get_sports_activity_by_id(activity_id)
     if not activity_data:
         return None
@@ -90,8 +89,7 @@ def join_activity_control(activity_id):
         return True
     return False
 
-def create_activity(activity_name, activity_type, skills_req, date, location, max_pax):
-    user_id = 1  # Should be set in session after login but hardcode for now
+def create_activity(activity_name, activity_type, skills_req, date, location, max_pax, user_id):
     new_data = {
         "user_id": user_id,
         "activity_name": activity_name,
