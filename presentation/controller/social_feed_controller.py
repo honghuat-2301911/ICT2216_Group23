@@ -18,7 +18,7 @@ from domain.control.social_feed_management import (
     create_comment_control, like_post_control, unlike_post_control, get_post_by_id_control,
     get_posts_by_user_id_control
 )
-from data_source.user_queries import search_users_by_name
+from data_source.user_queries import search_users_by_name, get_user_by_id
 
 social_feed_bp = Blueprint("social_feed", __name__, url_prefix="/feed")
 
@@ -108,7 +108,8 @@ def search_users():
         user_list.append({
             "id": user["id"],
             "name": user["name"],
-            "email": user["email"]
+            "email": user["email"],
+            "profile_picture": user.get("profile_picture", "")
         })
     
     return jsonify(user_list)
@@ -120,14 +121,16 @@ def search_users():
 def view_user_posts(user_id):
     filtered_posts = get_posts_by_user_id_control(user_id)
     featured_posts = get_featured_posts_control()
-    
-    # Get user name from first post if available
+    # Get user name and profile picture from DB
     user_name = None
-    if filtered_posts:
-        user_name = filtered_posts[0].user
-    
-    return render_template("socialfeed/social_feed.html", 
-                         posts=filtered_posts, 
+    user_profile_picture = None
+    user_data = get_user_by_id(user_id)
+    if user_data:
+        user_name = user_data.get('name')
+        user_profile_picture = user_data.get('profile_picture', '')
+    return render_template("socialfeed/social_feed.html",
+                         posts=filtered_posts,
                          featured_posts=featured_posts,
                          filtered_user_id=user_id,
-                         filtered_user_name=user_name)
+                         filtered_user_name=user_name,
+                         filtered_user_profile_picture=user_profile_picture)

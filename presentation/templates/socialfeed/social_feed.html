@@ -25,11 +25,20 @@
                 <button onclick="clearFilter()" style="background: #ff5858; color: white; border: none; border-radius: 8px; padding: 4px 12px; margin-left: 12px; cursor: pointer; font-size: 0.9em;">Show All</button>
             </div>
             {% endif %}
+            {% if filtered_user_id %}
+            <div class="searched-user-banner" style="display:flex;align-items:center;gap:16px;margin-bottom:24px;background:#fff;padding:16px 20px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+                <img src="{{ filtered_user_profile_picture or url_for('static', filename='icons/user.png') }}" alt="Profile Picture" style="width:56px;height:56px;border-radius:50%;object-fit:cover;background:#fff;">
+                <div>
+                    <div style="font-size:1.2em;font-weight:600;">{{ filtered_user_name }}</div>
+                    <div style="color:#888;font-size:0.95em;">Viewing posts by this user</div>
+                </div>
+            </div>
+            {% endif %}
             <!-- Post Composer -->
             <div class="social-card post-composer">
                 <form method="post" action="{{ url_for('social_feed.create_post') }}" enctype="multipart/form-data">
                     <div class="post-header">
-                        <div class="avatar">{{ current_user.get_name()[0]|upper if current_user.is_authenticated else 'U' }}</div>
+                        <img src="{{ current_user.profile_picture or url_for('static', filename='icons/user.png') }}" class="avatar" style="width:40px;height:40px;border-radius:50%;object-fit:cover;background:#fff;" alt="Profile Picture">
                         <textarea name="content" placeholder="Share something with your buddies..." required></textarea>
                     </div>
                     <div id="image-preview-container" class="image-preview-container" style="display:none;">
@@ -52,7 +61,7 @@
             {% for post in posts %}
             <div class="social-card post">
                 <div class="post-header">
-                    <div class="avatar">{{ post.user[0]|upper }}</div>
+                    <img src="{{ post.profile_picture or url_for('static', filename='icons/user.png') }}" class="avatar" style="width:40px;height:40px;border-radius:50%;object-fit:cover;background:#fff;" alt="Profile Picture">
                     <div class="user-info">
                         <span class="username">{{ post.user }}</span>
                         <!-- No post time -->
@@ -93,7 +102,7 @@
                     <!-- Add Comment Form -->
                     <form method="post" action="{{ url_for('social_feed.create_comment', post_id=post.id) }}" class="comment-form">
                         <div class="comment-input-container">
-                            <div class="comment-avatar">{{ current_user.get_name()[0]|upper if current_user.is_authenticated else 'U' }}</div>
+                            <img src="{{ current_user.profile_picture or url_for('static', filename='icons/user.png') }}" class="comment-avatar" style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:#fff;" alt="Profile Picture">
                             <input type="text" name="comment" placeholder="Write a comment..." required class="comment-input">
                             <button type="submit" class="comment-submit">Post</button>
                         </div>
@@ -122,7 +131,7 @@
                 <h3 class="featured-title">Featured</h3>
                 {% for post in featured_posts %}
                 <div class="featured-post-card" onclick="filterToPost('{{ post.id }}')" style="cursor: pointer;">
-                    <div class="avatar" style="width:36px;height:36px;font-size:1em;">{{ post.user[0]|upper }}</div>
+                    <img src="{{ post.profile_picture or url_for('static', filename='icons/user.png') }}" class="avatar" style="width:36px;height:36px;border-radius:50%;object-fit:cover;font-size:1em;background:#fff;" alt="Profile Picture">
                     <div class="featured-post-content">
                         <div class="featured-post-title">{{ post.content[:40] }}{% if post.content|length > 40 %}...{% endif %}</div>
                         <div class="featured-post-meta">by {{ post.user }} · {{ post.likes }} likes</div>
@@ -322,16 +331,14 @@
                 resultItem.onclick = () => selectUser(user);
                 
                 resultItem.innerHTML = `
-                    <div class="user-avatar">${user.name.charAt(0).toUpperCase()}</div>
-                    <div class="user-info">
+                    <img src="${user.profile_picture || '/static/icons/user.png'}" alt="Profile" style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:#fff;vertical-align:middle;margin-right:8px;">
+                    <div class="user-info" style="display:inline-block;vertical-align:middle;">
                         <div class="user-name">${user.name}</div>
-                        <div class="user-email">${user.email}</div>
+                        <div class="user-email" style="color:#888;font-size:0.9em;">${user.email}</div>
                     </div>
                 `;
-                
                 searchResults.appendChild(resultItem);
             });
-            
             searchResults.style.display = 'block';
         }
         

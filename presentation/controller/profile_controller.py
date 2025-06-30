@@ -33,7 +33,8 @@ def fetchProfile():
             str(user_data.get('name')) if user_data.get('name') is not None else '',
             str(user_data.get('password')) if user_data.get('password') is not None else '',
             str(user_data.get('email')) if user_data.get('email') is not None else '',
-            str(user_data.get('role', 'user'))
+            str(user_data.get('role', 'user')),
+            str(user_data.get('profile_picture', ''))
         )
     user_posts = get_posts_by_user(user.get_name()) if user else []
     user_id_str = str(user.get_id()) if user else ''
@@ -74,15 +75,32 @@ def editProfile():
     name = request.form['name']
     password = request.form['password']
     profile_manager = ProfileManagement()
+    profile_picture_url = None
+    remove_picture = request.form.get('remove_profile_picture') == 'on'
+    # Handle file upload
+    if 'profile_picture' in request.files and request.files['profile_picture'].filename != '':
+        file = request.files['profile_picture']
+        filename = secure_filename(file.filename)
+        image_path = os.path.join('presentation', 'static', 'images', 'profile', filename)
+        os.makedirs(os.path.dirname(image_path), exist_ok=True)
+        file.save(image_path)
+        profile_picture_url = f'/static/images/profile/{filename}'
+    elif remove_picture:
+        profile_picture_url = ''
+    # Password logic
     if password:
-        # Hash the new password before saving
         hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-        result = profile_manager.updateProfile(user_id, name, hashed_password)
+        if profile_picture_url is not None:
+            result = profile_manager.updateProfile(user_id, name, hashed_password, profile_picture_url)
+        else:
+            result = profile_manager.updateProfile(user_id, name, hashed_password)
     else:
-        # Fetch current password from DB
         user_data = get_user_by_id(user_id)
         current_password = user_data['password'] if isinstance(user_data, dict) and 'password' in user_data else ''
-        result = profile_manager.updateProfile(user_id, name, current_password)
+        if profile_picture_url is not None:
+            result = profile_manager.updateProfile(user_id, name, current_password, profile_picture_url)
+        else:
+            result = profile_manager.updateProfile(user_id, name, current_password)
     return redirect(url_for('profile_bp.fetchProfile'))
 
 @profile_bp.route('/leave_activity/<int:activity_id>', methods=['POST'])
@@ -147,3 +165,4 @@ def delete_post(post_id):
     else:
         flash('Failed to delete post.', 'danger')
     return redirect(url_for('profile_bp.fetchProfile') + '#feedSection')
+

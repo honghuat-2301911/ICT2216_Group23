@@ -58,8 +58,8 @@ def insert_user(user_data: dict) -> bool:
         connection = get_connection()
         cursor = connection.cursor()
         query = """
-            INSERT INTO user (name, password, email, role)
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO user (name, password, email, role, profile_picture)
+            VALUES (%s, %s, %s, %s, %s)
         """
         cursor.execute(
             query,
@@ -68,6 +68,7 @@ def insert_user(user_data: dict) -> bool:
                 user_data["password"],
                 user_data["email"],
                 user_data.get("role", "user"),
+                user_data.get("profile_picture", "")
             ),
         )
         connection.commit()
@@ -91,20 +92,26 @@ def get_user_by_id(user_id: int):
     return user_data
 
 
-def update_user_profile_by_id(user_id: int, name: str, password: str) -> bool:
+def update_user_profile_by_id(user_id: int, name: str, password: str, profile_picture: str = None) -> bool:
     connection = get_connection()
     cursor = connection.cursor()
     try:
-        query = "UPDATE user SET name = %s, password = %s WHERE id = %s"
-        cursor.execute(query, (name, password, user_id))
+        if profile_picture is not None:
+            query = "UPDATE user SET name = %s, password = %s, profile_picture = %s WHERE id = %s"
+            cursor.execute(query, (name, password, profile_picture, user_id))
+        else:
+            query = "UPDATE user SET name = %s, password = %s WHERE id = %s"
+            cursor.execute(query, (name, password, user_id))
         connection.commit()
         return cursor.rowcount > 0
     except Exception as e:
         print("Update failed:", e)
         return False
     finally:
-        cursor.close()
-        connection.close()
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
 
 
 def search_users_by_name(search_term: str, limit: int = 10):
@@ -112,7 +119,7 @@ def search_users_by_name(search_term: str, limit: int = 10):
     cursor = connection.cursor(dictionary=True)
     try:
         query = """
-            SELECT id, name, email 
+            SELECT id, name, email, profile_picture
             FROM user 
             WHERE name LIKE %s 
             ORDER BY name 
@@ -128,3 +135,23 @@ def search_users_by_name(search_term: str, limit: int = 10):
     finally:
         cursor.close()
         connection.close()
+
+def remove_user_profile_picture(user_id: int) -> bool:
+    connection = get_connection()
+    if connection is None:
+        print("[DB ERROR] Connection failed in remove_user_profile_picture")
+        return False
+    cursor = connection.cursor()
+    try:
+        query = "UPDATE user SET profile_picture = '' WHERE id = %s"
+        cursor.execute(query, (user_id,))
+        connection.commit()
+        return cursor.rowcount > 0
+    except Exception as e:
+        print("Remove profile picture failed:", e)
+        return False
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()

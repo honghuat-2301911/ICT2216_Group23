@@ -112,6 +112,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`user` (
   `password` VARCHAR(225) NOT NULL,
   `email` VARCHAR(225) NOT NULL,
   `role` VARCHAR(45) NOT NULL,
+  `profile_picture` VARCHAR(255) NULL, 
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE
 ) ENGINE = InnoDB;
