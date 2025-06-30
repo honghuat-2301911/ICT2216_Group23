@@ -1,6 +1,10 @@
 name: Pylint check
 
-on: push
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
   pylint-typecheck:

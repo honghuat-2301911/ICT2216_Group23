@@ -1,6 +1,10 @@
 name: Format check using black,isort
 
-on: push
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
   Format-typecheck:

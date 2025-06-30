@@ -22,7 +22,7 @@ def create_app():
         static_folder="presentation/static",
         static_url_path="/static",
     )
-    app.config['SECRET_KEY'] = 'ICT2216_Group23'
+    app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY', '')
     app.config['SESSION_TYPE'] = 'filesystem'
 
     # # Only send cookies over HTTPS
