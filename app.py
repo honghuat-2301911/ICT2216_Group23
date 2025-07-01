@@ -1,4 +1,6 @@
 import os
+import logging
+from logging.handlers import RotatingFileHandler
 
 from flask import Flask
 from flask_login import LoginManager
@@ -16,6 +18,10 @@ from presentation.controller.social_feed_controller import social_feed_bp
 
 # from data_source.login_queries import init_schema
 
+# Set up logging to a file
+log_dir = '/app/logs'
+os.makedirs(log_dir, exist_ok=True)
+
 
 def create_app():
     app = Flask(
@@ -24,6 +30,22 @@ def create_app():
         static_folder="presentation/static",
         static_url_path="/static",
     )
+
+    # Configuration for log format and handling
+    log_file = os.path.join(log_dir, 'app.log')
+    file_handler = RotatingFileHandler(
+        filename=log_file,
+        maxBytes=10 * 1024 * 1024,
+        backupCount=200,              
+        encoding='utf-8'
+    )
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(logging.Formatter(
+        '[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
+    ))
+    app.logger.addHandler(file_handler)
+    app.logger.setLevel(logging.INFO)
+
     app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET_KEY", "")
     app.config["SESSION_TYPE"] = "filesystem"
 

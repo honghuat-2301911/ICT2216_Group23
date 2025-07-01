@@ -1,6 +1,34 @@
 import mysql.connector
 
 from data_source.db_connection import get_connection
+from datetime import datetime
+from flask import current_app
+
+def update_user_lockout(
+    user_id: int,
+    failed_attempts: int,
+    last_failed_login: datetime = None,
+    locked_until: datetime = None
+):
+    connection = get_connection()
+    cursor = connection.cursor()
+    try:
+        sql = """
+        UPDATE user SET failed_attempts = %s, last_failed_login = %s,locked_until = %s WHERE id = %s"""
+
+        cursor.execute(sql, (
+            failed_attempts,
+            last_failed_login,
+            locked_until,
+            user_id
+        ))
+        connection.commit()
+    except Exception as e:
+        current_app.logger.error(f"Failed to update lockout fields: {e}")
+        raise
+    finally:
+        cursor.close()
+        connection.close()
 
 
 def get_user_by_email(email: str):
@@ -16,7 +44,6 @@ def get_user_by_email(email: str):
 # def insert_user(user_data: dict) -> bool:
 #     """
 #     Insert a new user into the database
-
 #     Args:
 #         user_data (dict): Dictionary containing user information
 

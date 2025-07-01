@@ -105,6 +105,12 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET utf8 ;
 USE `mydb` ;
 
+-- Set global timezone to UTC +8
+SET GLOBAL time_zone = '+08:00';
+
+-- Set session timezone to UTC +8
+SET time_zone = '+08:00';
+
 -- USER TABLE
 CREATE TABLE IF NOT EXISTS `mydb`.`user` (
   `id` INT NOT NULL AUTO_INCREMENT,
@@ -112,9 +118,13 @@ CREATE TABLE IF NOT EXISTS `mydb`.`user` (
   `password` VARCHAR(225) NOT NULL,
   `email` VARCHAR(225) NOT NULL,
   `role` VARCHAR(45) NOT NULL,
-  `profile_picture` VARCHAR(255) NULL, 
+  `profile_picture` VARCHAR(255) NULL,
+  `failed_attempts` INT NOT NULL DEFAULT 0,
+  `last_failed_login` DATETIME NULL,
+  `locked_until` DATETIME NULL,
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE
+  UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
+  UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE
 ) ENGINE = InnoDB;
 
 -- SPORTS ACTIVITY
