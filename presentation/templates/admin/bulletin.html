@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bulletin Board</title>
+    <title>Admin • Bulletin</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bulletin.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    {% include 'navbar.html' %}
+    {% include 'admin_navbar.html' %}
 
     <div class="bulletin-container">
         {% if error %}
@@ -22,27 +22,13 @@
             </div>
         {% endif %}
         <div class="search-bar" style="text-align: center; margin-bottom: 20px;">
-            <form method="post" action="{{ url_for('bulletin.bulletin_page') }}">
+            <form method="post" action="{{ url_for('admin.bulletin_page') }}">
                 <input type="text" name="query" placeholder="Search activities...">
                 <button type="submit">Search</button>
             </form>
         </div>
-        <div class="filter-bar" style="text-align: center; margin-bottom: 20px;">
-        <form method="POST" action="{{ url_for('bulletin.filtered_bulletin') }}">
-            <label>
-                <input type="checkbox" name="sports_checkbox" checked> Sports
-            </label>
-            <label>
-                <input type="checkbox" name="non_sports_checkbox" checked> Non Sports
-            </label>
-            <button type="submit">Filter</button>
-        </form>
-        </div>
 
 
-        <div class="host-activity-container" style="text-align: center; margin-bottom: 20px;">
-            <button onclick="openHostModal()" class="bulletin-btn">Host Activity</button>
-        </div>
         <div class="grid-container">
             {% for b in bulletin_list %}
                 <div class="card" onclick="openModal('{{ loop.index0 }}')">

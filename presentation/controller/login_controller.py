@@ -1,11 +1,6 @@
-from flask import Blueprint, redirect, render_template, url_for
-from flask_login import current_user, login_required
-
-from domain.control.login_management import (
-    get_user_display_data,
-    login_user,
-    logout_user,
-)
+from flask import Blueprint, redirect, render_template, url_for, session
+from flask_login import login_required, current_user
+from domain.control.login_management import get_user_display_data, login_user, logout_user
 from domain.entity.forms import LoginForm
 
 login_bp = Blueprint(
@@ -42,4 +37,5 @@ def login():
 @login_required
 def logout():
     logout_user()
+    session.pop('_flashes', None)
     return redirect(url_for("login.login"))

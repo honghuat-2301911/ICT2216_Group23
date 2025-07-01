@@ -3,22 +3,39 @@
 Handles displaying the feed, creating posts, and adding comments
 """
 
-from flask import Blueprint, jsonify, redirect, render_template, request, url_for
-from flask_login import current_user, login_required
+from flask import (
+    Blueprint,
+    redirect,
+    render_template,
+    request,
+    url_for,
+    jsonify,
+    flash
+)
+from flask_login import login_required, current_user
 
-from data_source.user_queries import get_user_by_id, search_users_by_name
 from domain.control.social_feed_management import (
-    create_comment_control,
-    create_post_control,
-    get_all_posts_control,
-    get_featured_posts_control,
-    get_post_by_id_control,
-    get_posts_by_user_id_control,
-    like_post_control,
-    unlike_post_control,
+    get_all_posts_control, get_featured_posts_control, create_post_control,
+    create_comment_control, like_post_control, unlike_post_control, get_post_by_id_control,
+    get_posts_by_user_id_control
 )
 
+from data_source.user_queries import search_users_by_name, get_user_by_id
+import functools
+
 social_feed_bp = Blueprint("social_feed", __name__, url_prefix="/feed")
+
+def user_required(func):
+    """
+    Decorator to ensure the current_user is logged in AND has role 'user'.
+    Admins (or anyone else) will be redirected away.Add commentMore actions
+    """
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if current_user.role != 'user':
+            return redirect(url_for("admin.bulletin_page"))
+        return func(*args, **kwargs)
+    return wrapper
 
 
 """Render the main social feed page with all posts"""
@@ -26,6 +43,7 @@ social_feed_bp = Blueprint("social_feed", __name__, url_prefix="/feed")
 
 @social_feed_bp.route("/", methods=["GET"])
 @login_required
+@user_required
 def feed():
     posts = get_all_posts_control()
     featured_posts = get_featured_posts_control()
@@ -39,6 +57,7 @@ def feed():
 
 @social_feed_bp.route("/create", methods=["POST"])
 @login_required
+@user_required
 def create_post():
     if not current_user.is_authenticated:
         return redirect(url_for("login.login"))
@@ -56,6 +75,7 @@ def create_post():
 
 @social_feed_bp.route("/comment/<int:post_id>", methods=["POST"])
 @login_required
+@user_required
 def create_comment(post_id):
     if not current_user.is_authenticated:
         return redirect(url_for("login.login"))
@@ -68,6 +88,7 @@ def create_comment(post_id):
 
 @social_feed_bp.route("/like/<int:post_id>", methods=["POST"])
 @login_required
+@user_required
 def like_post(post_id):
     success = like_post_control(post_id)
     return {"success": success}
@@ -75,6 +96,7 @@ def like_post(post_id):
 
 @social_feed_bp.route("/unlike/<int:post_id>", methods=["POST"])
 @login_required
+@user_required
 def unlike_post(post_id):
     success = unlike_post_control(post_id)
     return {"success": success}
@@ -85,6 +107,7 @@ def unlike_post(post_id):
 
 @social_feed_bp.route("/post/<int:post_id>", methods=["GET"])
 @login_required
+@user_required
 def view_post(post_id):
     all_posts = get_all_posts_control()
     featured_posts = get_featured_posts_control()
@@ -109,6 +132,7 @@ def view_post(post_id):
 
 @social_feed_bp.route("/search-users", methods=["GET"])
 @login_required
+@user_required
 def search_users():
     search_term = request.args.get("q", "")
     if len(search_term) < 2:
@@ -135,6 +159,7 @@ def search_users():
 
 @social_feed_bp.route("/user/<int:user_id>", methods=["GET"])
 @login_required
+@user_required
 def view_user_posts(user_id):
     filtered_posts = get_posts_by_user_id_control(user_id)
     featured_posts = get_featured_posts_control()

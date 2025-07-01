@@ -1,10 +1,9 @@
-import functools  # Import functools
-
-from flask import Blueprint, flash, redirect, render_template, request, session, url_for
-from flask_login import current_user, login_required
-
-from domain.control.admin_management import *
+from flask import Blueprint, redirect, render_template, session, url_for, request, flash
 from domain.control.bulletin_management import *
+from domain.control.admin_management import *
+from domain.control.social_feed_management import *
+from flask_login import login_required, current_user
+import functools
 
 # Create a blueprint for the admin page
 admin_bp = Blueprint(
@@ -21,7 +20,7 @@ def admin_required(func):
     @functools.wraps(func)
     def admin_check(*args, **kwargs):
         # Check if the user is logged in and is an admin
-        if not current_user.is_authenticated or current_user.role != "admin":
+        if current_user.role != 'admin':
             # Redirect to a different page if not admin
             return redirect(url_for("bulletin.bulletin_page"))
         return func(
@@ -57,9 +56,7 @@ def delete_activity():
         flash("Activity ID is required.", "error")
         return redirect(url_for("admin.bulletin_page"))
 
-    success = remove_sports_activity(
-        activity_id
-    )  # <-- Double-check which delete_activity this refers to
+    success = remove_sports_activity(activity_id)
     if success:
         flash("Activity deleted successfully.", "success")
     else:
@@ -69,3 +66,28 @@ def delete_activity():
         )
 
     return redirect(url_for("admin.bulletin_page"))
+
+
+@admin_bp.route("/feed", methods=["GET", "POST"])
+@login_required
+@admin_required
+def feed_page():
+    posts = get_all_posts_control()
+    return render_template("admin/social_feed.html", posts=posts)
+
+
+@admin_bp.route("/delete_post", methods=["POST"])
+@login_required
+@admin_required
+def delete_post():
+    post_id = request.form.get("post_id", type=int)
+    success = remove_social_post(post_id)
+    if success:
+        flash("Post deleted successfully.", "success")
+    else:
+        flash("Failed to delete the post. It may not exist or you may not have permission.", "error")
+    return redirect(url_for("admin.feed_page"))
+
+
+
+
