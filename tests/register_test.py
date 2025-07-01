@@ -32,10 +32,6 @@ class RegisterPageTest(unittest.TestCase):
         self.driver.find_element(By.NAME, "confirm_password").send_keys(
             "securepassword"
         )
-        self.driver.find_element(By.NAME, "skill_lvl").send_keys("Intermediate")
-        self.driver.find_element(By.NAME, "sports_exp").send_keys(
-            "Played soccer for 3 years"
-        )
         self.driver.find_element(By.CLASS_NAME, "register-btn").click()
         time.sleep(2)
 
