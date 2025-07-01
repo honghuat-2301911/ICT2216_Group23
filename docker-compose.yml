@@ -6,6 +6,7 @@ services:
     image: your-webapp-image
     volumes:
       - ./presentation/static/images:/app/presentation/static/images
+      - ./logs:/app/logs
     expose:
       - "8000"
     environment:

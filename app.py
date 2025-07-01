@@ -18,10 +18,6 @@ from presentation.controller.social_feed_controller import social_feed_bp
 
 # from data_source.login_queries import init_schema
 
-# Set up logging to a file
-log_dir = '/app/logs'
-os.makedirs(log_dir, exist_ok=True)
-
 
 def create_app():
     app = Flask(
@@ -31,7 +27,12 @@ def create_app():
         static_url_path="/static",
     )
 
+
     # Configuration for log format and handling
+
+    log_dir = '/app/logs'
+    os.makedirs(log_dir, exist_ok=True)
+    
     log_file = os.path.join(log_dir, 'app.log')
     file_handler = RotatingFileHandler(
         filename=log_file,
