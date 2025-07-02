@@ -35,7 +35,7 @@ services:
     volumes: 
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
-    command: certonly --webroot -w /var/www/certbot --keep-until-expiring --email 2301875@sit.singaporetech.edu.sg -d buddiesfinders.hopto.org --agree-tos
+    command: certonly --webroot -w /var/www/certbot --keep-until-expiring --email ${CERTBOT_EMAIL} -d buddiesfinders.hopto.org --agree-tos
 
   mysqldb:
     image: mysql:8.0

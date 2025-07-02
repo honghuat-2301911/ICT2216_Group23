@@ -22,6 +22,7 @@ jobs:
           echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
           echo "SQL_ROOT_PASSWORD=${{ secrets.SQL_ROOT_PASSWORD }}" >> .env
           echo "FLASK_SECRET_KEY=${{ secrets.FLASK_SECRET_KEY }}" >> .env
+          echo "CERTBOT_EMAIL=${{ secrets.CERTBOT_EMAIL }}" >> .env
 
       - name: Start Docker
         run: docker compose up --build -d
