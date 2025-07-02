@@ -2,6 +2,7 @@ from data_source.user_queries import (
     remove_user_profile_picture,
     update_user_profile_by_id,
 )
+from data_source.bulletin_queries import get_joined_user_names_by_activity_id
 
 
 class ProfileManagement:
@@ -13,3 +14,6 @@ class ProfileManagement:
 
     def removeProfilePicture(self, user_id):
         return remove_user_profile_picture(user_id)
+
+    def get_joined_user_names(self, activity_id):
+        return get_joined_user_names_by_activity_id(activity_id)

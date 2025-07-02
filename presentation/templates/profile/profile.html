@@ -88,6 +88,9 @@
                             <button class="icon-btn edit-activity-btn" title="Edit Activity" data-activity-id="{{ activity.id }}">
                                 <img src="{{ url_for('static', filename='icons/edit.png') }}" alt="Edit" class="edit-icon">
                             </button>
+                            <button type="button" class="icon-btn view-list-btn" title="View Joined Users" data-activity-id="{{ activity.id }}">
+                                <img src="{{ url_for('static', filename='icons/view.png') }}" alt="View" class="edit-icon">
+                            </button>
                         </div>
                     {% endfor %}
                 {% else %}
@@ -248,6 +251,16 @@
     <div id="profilePicModal" class="modal" style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.8);align-items:center;justify-content:center;">
         <span class="close-modal" onclick="closeProfilePicModal()" style="position:absolute;top:32px;right:48px;font-size:2.5em;color:#fff;cursor:pointer;z-index:10001;">&times;</span>
         <img id="profilePicModalImg" src="" alt="Profile Picture" style="max-width:90vw;max-height:80vh;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.4);background:#fff;">
+    </div>
+    <!-- Modal for viewing joined users -->
+    <div id="viewListModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeViewListModalBtn">&times;</span>
+            <h3>Users Joined</h3>
+            <ul id="joinedUsersList">
+                <!-- User list will be dynamically inserted here -->
+            </ul>
+        </div>
     </div>
     <script>
         // Tab switching logic
@@ -436,6 +449,39 @@
         document.getElementById('profilePicModal').onclick = function(e) {
             if (e.target === this) closeProfilePicModal();
         };
+
+        // View List Modal Logic
+        const viewListModal = document.getElementById('viewListModal');
+        const closeViewListModalBtn = document.getElementById('closeViewListModalBtn');
+        let currentViewListActivityId = null;
+        document.querySelectorAll('.view-list-btn').forEach(btn => {
+            btn.onclick = function() {
+                currentViewListActivityId = this.getAttribute('data-activity-id');
+                fetchJoinedUsers(currentViewListActivityId);
+                viewListModal.style.display = 'block';
+            };
+        });
+        if (closeViewListModalBtn) {
+            closeViewListModalBtn.onclick = function() {
+                viewListModal.style.display = 'none';
+            };
+        }
+        function fetchJoinedUsers(activityId) {
+            const joinedUsersList = document.getElementById('joinedUsersList');
+            joinedUsersList.innerHTML = '<li>Loading...</li>';
+            fetch(`/profile/joined_users/${activityId}`)
+                .then(response => response.json())
+                .then(users => {
+                    if (users.length === 0) {
+                        joinedUsersList.innerHTML = '<li>No users have joined this activity yet.</li>';
+                    } else {
+                        joinedUsersList.innerHTML = users.map(user => `<li>${user.name}</li>`).join('');
+                    }
+                })
+                .catch(() => {
+                    joinedUsersList.innerHTML = '<li>Error loading users.</li>';
+                });
+        }
     </script>
 </body>
 </html> 

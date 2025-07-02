@@ -133,3 +133,28 @@ def update_sports_activity_details(
     cursor.close()
     connection.close()
     return True
+
+
+def get_joined_user_names_by_activity_id(activity_id: int):
+    connection = get_connection()
+    cursor = connection.cursor(dictionary=True)
+    # Get the user_id_list_join for the activity
+    cursor.execute("SELECT user_id_list_join FROM sports_activity WHERE id = %s", (activity_id,))
+    result = cursor.fetchone()
+    if not result or not result.get("user_id_list_join"):
+        cursor.close()
+        connection.close()
+        return []
+    user_id_list = [uid.strip() for uid in result["user_id_list_join"].split(",") if uid.strip()]
+    if not user_id_list:
+        cursor.close()
+        connection.close()
+        return []
+    # Fetch user names for these IDs
+    format_strings = ','.join(['%s'] * len(user_id_list))
+    query = f"SELECT id, name FROM user WHERE id IN ({format_strings})"
+    cursor.execute(query, tuple(user_id_list))
+    users = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return users

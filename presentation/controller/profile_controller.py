@@ -1,7 +1,7 @@
 import os
 
 import bcrypt
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for, jsonify
 from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
 
@@ -223,3 +223,11 @@ def delete_post(post_id):
     else:
         flash("Failed to delete post.", "danger")
     return redirect(url_for("profile_bp.fetchProfile") + "#feedSection")
+
+
+@profile_bp.route("/joined_users/<int:activity_id>", methods=["GET"])
+@login_required
+def get_joined_users(activity_id):
+    profile_manager = ProfileManagement()
+    users = profile_manager.get_joined_user_names(activity_id)
+    return jsonify(users)

@@ -504,3 +504,72 @@ body {
     outline: none;
     background: #fff;
 }
+
+/* View List Modal*/
+#viewListModal.modal {
+
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: auto;
+    background: rgba(0,0,0,0.4);
+    align-items: center;
+    justify-content: center;
+}
+#viewListModal.modal.show {
+    display: flex;
+}
+#viewListModal .modal-content {
+    background: #fff;
+    margin: auto;
+    padding: 40px 32px 32px 32px;
+    border-radius: 18px;
+    max-width: 400px;
+    width: 90vw;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+
+}
+#viewListModal .close-modal {
+    position: absolute;
+    top: 14px;
+    right: 20px;
+    font-size: 1.7em;
+    color: #b91c1c;
+    cursor: pointer;
+    font-weight: bold;
+    transition: color 0.2s;
+}
+#viewListModal .close-modal:hover {
+    color: #ff5858;
+}
+#viewListModal h3 {
+    margin-top: 0;
+    margin-bottom: 18px;
+    font-size: 1.3em;
+    text-align: center;
+    color: #222;
+}
+#joinedUsersList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 260px;
+    overflow-y: auto;
+}
+#joinedUsersList li {
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 1.08em;
+    color: #333;
+    text-align: left;
+}
+#joinedUsersList li:last-child {
+    border-bottom: none;
+}
