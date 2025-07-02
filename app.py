@@ -2,7 +2,7 @@ import logging
 import os
 from logging.handlers import RotatingFileHandler
 
-from flask import Flask
+from flask import Flask, render_template
 from flask_login import LoginManager
 from flask_session import Session
 from flask_wtf import CSRFProtect
@@ -86,6 +86,14 @@ def create_app():
     app.register_blueprint(bulletin_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(profile_bp)
+
+    @app.errorhandler(404)
+    def not_found(e):
+        return render_template('error/error.html'), 404
+
+    @app.errorhandler(500)
+    def internal_error(e):
+        return render_template('error/error.html'), 500
 
     # make sure DB has the required tables
     # init_schema()
