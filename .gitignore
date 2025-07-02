@@ -13,3 +13,7 @@ __pycache__/
 
 # Ignore Docker logs (if generated)
 *.log
+
+
+# Ignore certbot
+certbot/

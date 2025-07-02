@@ -1,12 +1,13 @@
-import os
+# profile.py
 
+import os
+import uuid
 import bcrypt
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for, jsonify, current_app
 from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
 
-from flask import jsonify, current_app, request
-
+from domain.entity.forms import DeleteForm, ProfileEditForm, ActivityEditForm, PostEditForm
 from data_source.bulletin_queries import (
     get_all_bulletin,
     get_connection,
@@ -30,8 +31,7 @@ profile_bp = Blueprint(
     url_prefix="/profile",
 )
 
-
-@profile_bp.route("/", methods=["GET"])
+@profile_bp.route("/", methods=["GET", "POST"])
 @login_required
 def fetchProfile():
     user_id = int(current_user.get_id())
@@ -56,19 +56,17 @@ def fetchProfile():
             str(user_data.get("email")) if user_data.get("email") is not None else "",
             str(user_data.get("role", "user")),
             str(user_data.get("profile_picture", "")),
-            user_data.get("otp_secret"),  # <-- Add this
+            user_data.get("otp_secret"),
             bool(int(user_data.get("otp_enabled", 0)))
         )
     user_posts = get_posts_by_user(user.get_name()) if user else []
     user_id_str = str(user.get_id()) if user else ""
-
-    # Fetch all activities and filter for hosted/joined
     all_activities = get_all_bulletin()
     hosted_activities = []
     joined_only_activities = []
     if all_activities:
         for row in all_activities:
-            row = dict(row)  # Ensure row is a dict
+            row = dict(row)
             activity = SportsActivity(
                 id=int(row.get("id", 0)),
                 user_id=int(row.get("user_id", 0)),
@@ -80,10 +78,8 @@ def fetchProfile():
                 max_pax=int(row.get("max_pax", 0)),
                 user_id_list_join=row.get("user_id_list_join", None),
             )
-            # Hosted: user_id matches current user
             if activity.user_id == user_id:
                 hosted_activities.append(activity)
-            # Joined: user_id is in join list, but not the host
             else:
                 joined_ids = [
                     uid.strip()
@@ -92,65 +88,112 @@ def fetchProfile():
                 ]
                 if str(user_id) in joined_ids:
                     joined_only_activities.append(activity)
+    # --- Flask-WTF: Instantiate form, fill with user data
+    form = ProfileEditForm(obj=user)
+    if request.method == 'POST' and form.validate_on_submit():
+        name = form.name.data
+        password = form.password.data
+        profile_manager = ProfileManagement()
+        profile_picture_url = None
+        remove_picture = form.remove_profile_picture.data
+        # Handle file upload
+
+        if form.profile_picture.data:
+            file = form.profile_picture.data
+            # Get extension
+            ext = os.path.splitext(secure_filename(file.filename))[1]
+            unique_filename = f"{uuid.uuid4().hex}{ext}"
+            image_path = os.path.join(
+                "presentation", "static", "images", "profile", unique_filename
+            )
+            os.makedirs(os.path.dirname(image_path), exist_ok=True)
+            file.save(image_path)
+            profile_picture_url = f"/static/images/profile/{unique_filename}"
+        elif remove_picture:
+            profile_picture_url = ""
+        # Password logic
+        if password:
+            hashed_password = bcrypt.hashpw(
+                password.encode("utf-8"), bcrypt.gensalt()
+            ).decode("utf-8")
+            if profile_picture_url is not None:
+                result = profile_manager.updateProfile(
+                    user_id, name, hashed_password, profile_picture_url
+                )
+            else:
+                result = profile_manager.updateProfile(user_id, name, hashed_password)
+        else:
+            user_data = get_user_by_id(user_id)
+            current_password = (
+                user_data["password"]
+                if isinstance(user_data, dict) and "password" in user_data
+                else ""
+            )
+            if profile_picture_url is not None:
+                result = profile_manager.updateProfile(
+                    user_id, name, current_password, profile_picture_url
+                )
+            else:
+                result = profile_manager.updateProfile(user_id, name, current_password)
+        flash('Profile updated successfully.', 'success')
+        return redirect(url_for("profile_bp.fetchProfile"))
+    # On GET or validation error, render profile with form
     return render_template(
         "profile/profile.html",
         user=user,
         posts=user_posts,
         hosted_activities=hosted_activities,
         joined_only_activities=joined_only_activities,
+        profile_form=form,
+        activity_form=ActivityEditForm(),
+        post_form=PostEditForm(),
+        delete_form=DeleteForm()
     )
 
-
-@profile_bp.route("/", methods=["POST"])
+# Activity edit (uses Flask-WTF)
+@profile_bp.route("/edit_activity/<int:activity_id>", methods=["POST"])
 @login_required
-def editProfile():
+def edit_activity(activity_id):
     user_id = int(current_user.get_id())
-    name = request.form["name"]
-    password = request.form["password"]
-    profile_manager = ProfileManagement()
-    profile_picture_url = None
-    remove_picture = request.form.get("remove_profile_picture") == "on"
-    # Handle file upload
-    if (
-        "profile_picture" in request.files
-        and request.files["profile_picture"].filename != ""
-    ):
-        file = request.files["profile_picture"]
-        filename = secure_filename(file.filename)
-        image_path = os.path.join(
-            "presentation", "static", "images", "profile", filename
+    activity = get_sports_activity_by_id(activity_id)
+    form = ActivityEditForm()
+    if not activity or int(activity["user_id"]) != user_id:
+        flash("You are not authorized to edit this activity.", "danger")
+        return redirect(url_for("profile_bp.fetchProfile"))
+    if form.validate_on_submit():
+        update_sports_activity_details(
+            activity_id,
+            form.activity_name.data,
+            form.activity_type.data,
+            form.skills_req.data,
+            form.date.data.strftime('%Y-%m-%d %H:%M:%S'),
+            form.location.data,
+            form.max_pax.data,
+            activity.get("user_id_list_join", ""),
         )
-        os.makedirs(os.path.dirname(image_path), exist_ok=True)
-        file.save(image_path)
-        profile_picture_url = f"/static/images/profile/{filename}"
-    elif remove_picture:
-        profile_picture_url = ""
-    # Password logic
-    if password:
-        hashed_password = bcrypt.hashpw(
-            password.encode("utf-8"), bcrypt.gensalt()
-        ).decode("utf-8")
-        if profile_picture_url is not None:
-            result = profile_manager.updateProfile(
-                user_id, name, hashed_password, profile_picture_url
-            )
-        else:
-            result = profile_manager.updateProfile(user_id, name, hashed_password)
-    else:
-        user_data = get_user_by_id(user_id)
-        current_password = (
-            user_data["password"]
-            if isinstance(user_data, dict) and "password" in user_data
-            else ""
-        )
-        if profile_picture_url is not None:
-            result = profile_manager.updateProfile(
-                user_id, name, current_password, profile_picture_url
-            )
-        else:
-            result = profile_manager.updateProfile(user_id, name, current_password)
-    return redirect(url_for("profile_bp.fetchProfile"))
+        flash("Activity updated successfully.", "success")
+        return redirect(url_for("profile_bp.fetchProfile") + "#activitiesSection")
+    # On error, reload profile with form errors
+    flash("Failed to update activity. Check the fields.", "danger")
+    return redirect(url_for("profile_bp.fetchProfile") + "#activitiesSection")
 
+# Post edit (uses Flask-WTF)
+@profile_bp.route("/edit_post/<int:post_id>", methods=["POST"])
+@login_required
+def edit_post(post_id):
+    user_id = int(current_user.get_id())
+    form = PostEditForm()
+    if form.validate_on_submit():
+        updated_content = form.content.data
+        remove_image = form.remove_image.data
+        success = editPost(user_id, post_id, updated_content, remove_image)
+        if success:
+            flash("Post updated successfully.", "success")
+        else:
+            flash("Failed to update post.", "danger")
+        return redirect(url_for("profile_bp.fetchProfile") + "#feedSection")
+    flash("Failed to update post. Please check the fields.", "danger")
+    return redirect(url_for("profile_bp.fetchProfile") + "#feedSection")
 
 @profile_bp.route("/leave_activity/<int:activity_id>", methods=["POST"])
 @login_required
@@ -172,52 +215,6 @@ def leave_activity(activity_id):
         flash("You are not a participant in this activity.", "warning")
     return redirect(url_for("profile_bp.fetchProfile") + "#activitiesSection")
 
-
-@profile_bp.route("/edit_activity/<int:activity_id>", methods=["POST"])
-@login_required
-def edit_activity(activity_id):
-    user_id = int(current_user.get_id())
-    activity = get_sports_activity_by_id(activity_id)
-    if not activity or int(activity["user_id"]) != user_id:
-        flash("You are not authorized to edit this activity.", "danger")
-        return redirect(url_for("profile_bp.fetchProfile"))
-    # Get new details from form
-    activity_name = request.form["activity_name"]
-    activity_type = request.form["activity_type"]
-    skills_req = request.form["skills_req"]
-    date = request.form["date"]
-    location = request.form["location"]
-    max_pax = request.form["max_pax"]
-    user_id_list_join = activity.get("user_id_list_join", "")
-    # Update the activity using the data source function
-    update_sports_activity_details(
-        activity_id,
-        activity_name,
-        activity_type,
-        skills_req,
-        date,
-        location,
-        max_pax,
-        user_id_list_join,
-    )
-    flash("Activity updated successfully.", "success")
-    return redirect(url_for("profile_bp.fetchProfile") + "#activitiesSection")
-
-
-@profile_bp.route("/edit_post/<int:post_id>", methods=["POST"])
-@login_required
-def edit_post(post_id):
-    user_id = int(current_user.get_id())
-    updated_content = request.form["content"]
-    remove_image = request.form.get("remove_image") == "on"
-    success = editPost(user_id, post_id, updated_content, remove_image)
-    if success:
-        flash("Post updated successfully.", "success")
-    else:
-        flash("Failed to update post.", "danger")
-    return redirect(url_for("profile_bp.fetchProfile") + "#feedSection")
-
-
 @profile_bp.route("/delete_post/<int:post_id>", methods=["POST"])
 @login_required
 def delete_post(post_id):
@@ -228,7 +225,6 @@ def delete_post(post_id):
     else:
         flash("Failed to delete post.", "danger")
     return redirect(url_for("profile_bp.fetchProfile") + "#feedSection")
-
 
 @profile_bp.route("/joined_users/<int:activity_id>", methods=["GET"])
 @login_required

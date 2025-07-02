@@ -1,19 +1,24 @@
-from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+# controller.py
+from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 
-from domain.control.bulletin_management import *
+from domain.control.bulletin_management import (
+    get_bulletin_listing,
+    search_bulletin,
+    get_bulletin_display_data,
+    get_filtered_bulletins,
+    join_activity_control,
+    get_host_name,
+    create_activity,
+)
+from domain.entity.forms import SearchForm, FilterForm, HostForm, JoinForm
 import functools
 
-# Create a blueprint for the bulletin page
 bulletin_bp = Blueprint(
     "bulletin", __name__, url_prefix="/", template_folder="../templates"
 )
 
 def user_required(func):
-    """
-    Decorator to ensure the current_user is logged in AND has role 'user'.
-    Admins (or anyone else) will be redirected away.Add commentMore actions
-    """
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         if current_user.role != 'user':
@@ -26,22 +31,39 @@ def user_required(func):
 @login_required
 @user_required
 def bulletin_page():
-    """Render the bulletin board page if the user is logged in.
+    search_form = SearchForm()
+    filter_form = FilterForm()
 
-    Redirects to the login page if the user is not authenticated.
-    """
-    query = request.form.get("query") if request.method == "POST" else None
-    if query:
+    query = None
+    if search_form.validate_on_submit():
+        query = search_form.query.data
         result = search_bulletin(query)
     else:
         result = get_bulletin_listing()
-    if not result:
+
+    # No results or validation error on search?
+    if not result and (query or search_form.errors):
+        error = search_form.errors.get('query', ["No activities found."])[0]
         return render_template(
-            "bulletin/bulletin.html", bulletin_list=[], error="No activities found."
+            "bulletin/bulletin.html",
+            bulletin_list=[],
+            error=error,
+            query=query,
+            search_form=search_form,
+            filter_form=filter_form,
+            host_form=HostForm(),
+            join_form=JoinForm()
         )
+
     bulletin_list = get_bulletin_display_data()
     return render_template(
-        "bulletin/bulletin.html", bulletin_list=bulletin_list
+        "bulletin/bulletin.html",
+        bulletin_list=bulletin_list,
+        query=query,
+        search_form=search_form,
+        filter_form=filter_form,
+        host_form=HostForm(),
+        join_form=JoinForm()
     )
 
 
@@ -49,14 +71,19 @@ def bulletin_page():
 @login_required
 @user_required
 def join_activity():
-    activity_id = request.form.get("activity_id")
+    join_form = JoinForm()
+    if not join_form.validate_on_submit():
+        flash("Invalid request to join.", "error")
+        return redirect(url_for("bulletin.bulletin_page"))
+
+    activity_id = join_form.activity_id.data
     if get_host_name(activity_id):
         return redirect(url_for("bulletin.bulletin_page"))
+
     user_id = int(current_user.get_id())
-    result = join_activity_control(activity_id, user_id)
-    if not result:
-        # flash ("Failed to join the activity You Joined Already Please try again.")
-        return redirect(url_for("bulletin.bulletin_page"))
+    if not join_activity_control(activity_id, user_id):
+        flash("Failed to join the activity. You may have already joined.", "error")
+
     return redirect(url_for("bulletin.bulletin_page"))
 
 
@@ -64,20 +91,25 @@ def join_activity():
 @login_required
 @user_required
 def host_activity():
-    activity_name = request.form["activity_name"]
-    activity_type = request.form["activity_type"]
-    skills_req = request.form["skills_req"]
-    date = request.form["date"]
-    location = request.form["location"]
-    max_pax = request.form["max_pax"]
-    user_id = int(current_user.get_id())
+    host_form = HostForm()
+    if not host_form.validate_on_submit():
+        # grab first error message
+        msg = next(iter(host_form.errors.values()))[0]
+        flash(f"Host form error: {msg}", "error")
+        return redirect(url_for("bulletin.bulletin_page"))
 
     success = create_activity(
-        activity_name, activity_type, skills_req, date, location, max_pax, user_id
+        host_form.activity_name.data,
+        host_form.activity_type.data,
+        host_form.skills_req.data,
+        host_form.date.data,
+        host_form.location.data,
+        host_form.max_pax.data,
+        int(current_user.get_id())
     )
 
-    if success:
-        return redirect(url_for("bulletin.bulletin_page"))
+    if not success:
+        flash("Could not create activity. Please try again.", "error")
     return redirect(url_for("bulletin.bulletin_page"))
 
 
@@ -85,22 +117,43 @@ def host_activity():
 @login_required
 @user_required
 def filtered_bulletin():
-    sports_checked = request.form.get("sports_checkbox") == "on"
-    non_sports_checked = request.form.get("non_sports_checkbox") == "on"
+    filter_form = FilterForm()
+    if not filter_form.validate_on_submit():
+        flash("Invalid filter submission.", "error")
+        return redirect(url_for("bulletin.bulletin_page"))
 
-    if not sports_checked and not non_sports_checked:
+    s = filter_form.sports_checkbox.data
+    ns = filter_form.non_sports_checkbox.data
+
+    if not s and not ns:
         return render_template(
             "bulletin/bulletin.html",
             bulletin_list=[],
             error="Please select at least one category to filter.",
+            search_form=SearchForm(),
+            filter_form=filter_form,
+            host_form=HostForm(),
+            join_form=JoinForm()
         )
-    result = get_filtered_bulletins(sports_checked, non_sports_checked)
+
+    result = get_filtered_bulletins(s, ns)
     if not result:
         return render_template(
             "bulletin/bulletin.html",
             bulletin_list=[],
             error="No activities found for the selected categories.",
+            search_form=SearchForm(),
+            filter_form=filter_form,
+            host_form=HostForm(),
+            join_form=JoinForm()
         )
 
     bulletin_list = get_bulletin_display_data()
-    return render_template("bulletin/bulletin.html", bulletin_list=bulletin_list)
+    return render_template(
+        "bulletin/bulletin.html",
+        bulletin_list=bulletin_list,
+        search_form=SearchForm(),
+        filter_form=filter_form,
+        host_form=HostForm(),
+        join_form=JoinForm()
+    )

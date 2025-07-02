@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Profile</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
@@ -61,7 +62,9 @@
             <h3>My Social Feed</h3>
             {% if posts and posts|length > 0 %}
                 {% for post in posts %}
-                    <form id="deletePostForm-{{ post.id }}" action="{{ url_for('profile_bp.delete_post', post_id=post.id) }}" method="POST" style="display:none;"></form>
+                    <form id="deletePostForm-{{ post.id }}" action="{{ url_for('profile_bp.delete_post', post_id=post.id) }}" method="POST" style="display:none;">
+                        {{ delete_form.csrf_token }}
+                    </form>
                     <div class="profile-feed-item" data-post-id="{{ post.id }}">
                         <img src="{{ user.profile_picture or url_for('static', filename='icons/user.png') }}" class="feed-avatar" alt="Avatar">
                         <div class="feed-content">
@@ -152,29 +155,30 @@
         <div class="modal-content">
             <span class="close-modal" id="closeModalBtn">&times;</span>
             <h3>Edit Profile</h3>
-            <form class="profile-edit-form" id="profileEditForm" method="POST" action="{{ url_for('profile_bp.editProfile') }}" enctype="multipart/form-data">
+            <form class="profile-edit-form" id="profileEditForm" method="POST" action="{{ url_for('profile_bp.fetchProfile') }}" enctype="multipart/form-data">
+                {{ profile_form.hidden_tag() }}
                 <div>
-                    <label for="name">Name:</label>
-                    <input type="text" id="name" name="name" value="{{ user.name }}" required>
+                    {{ profile_form.name.label }}<br>
+                    {{ profile_form.name(size=32) }}
+                    {% for error in profile_form.name.errors %}<span style="color:red">{{ error }}</span>{% endfor %}
                 </div>
                 <div>
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" value="{{ user.email}}" required disabled>
+                    {{ profile_form.email.label }}<br>
+                    {{ profile_form.email(size=32, readonly=True) }}
                 </div>
                 <div>
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" name="password" placeholder="Enter new password">
+                    {{ profile_form.password.label }}<br>
+                    {{ profile_form.password(size=32) }}
+                    {% for error in profile_form.password.errors %}<span style="color:red">{{ error }}</span>{% endfor %}
                 </div>
                 <div>
-                    <label for="profile_picture">Profile Picture:</label><br>
-                    {% if user.profile_picture %}
-                        <img src="{{ user.profile_picture }}" alt="Current Profile Picture" style="max-width: 100px; border-radius: 8px; margin-bottom: 8px;" />
-                    {% endif %}
-                    <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
-                    <br>
-                    <label><input type="checkbox" name="remove_profile_picture"> Remove current profile picture</label>
+                    {{ profile_form.profile_picture.label }}<br>
+                    {{ profile_form.profile_picture() }}
                 </div>
-                <button type="submit">Save Changes</button>
+                <div>
+                    {{ profile_form.remove_profile_picture() }} {{ profile_form.remove_profile_picture.label }}
+                </div>
+                <button type="submit">{{ profile_form.submit.label }}</button>
             </form>
         </div>
     </div>
@@ -205,18 +209,20 @@
             <span class="close-modal" id="closeEditPostModalBtn">&times;</span>
             <h3>Edit Post</h3>
             <form id="editPostForm" method="POST" enctype="multipart/form-data">
-                <input type="hidden" id="editPostId" name="post_id">
+                {{ post_form.hidden_tag() }}
+                {{ post_form.post_id(id='editPostId') }}
                 <div>
                     <label for="editPostContent">Content:</label>
-                    <textarea id="editPostContent" name="content" rows="4" style="width:100%;"></textarea>
+                    {{ post_form.content(id='editPostContent', rows=4, style="width:100%;") }}
+                    {% for error in post_form.content.errors %}
+                        <span style="color:red">{{ error }}</span>
+                    {% endfor %}
                 </div>
                 <div id="editPostImageSection" style="display:none; margin-top:10px;">
                     <div id="currentPostImageContainer"></div>
-                    <label>
-                        <input type="checkbox" id="removeImageCheckbox" name="remove_image"> Remove image from post
-                    </label>
+                    {{ post_form.remove_image(id='removeImageCheckbox') }} {{ post_form.remove_image.label }}
                 </div>
-                <button type="submit">Save Changes</button>
+                <button type="submit">{{ post_form.submit.label }}</button>
             </form>
         </div>
     </div>
@@ -238,40 +244,35 @@
             <span class="close-modal" id="closeEditActivityModalBtn">&times;</span>
             <h3>Edit Activity</h3>
             <form id="editActivityForm" method="POST">
-                <input type="hidden" id="editActivityId" name="activity_id">
+                {{ activity_form.hidden_tag() }}
+                {{ activity_form.activity_id(id="editActivityId") }}
                 <div>
-                    <label for="editActivityName">Activity Name:</label>
-                    <input type="text" id="editActivityName" name="activity_name" style="width:100%;" required>
+                    {{ activity_form.activity_name(id="editActivityName") }}
                 </div>
                 <div>
-                    <label for="editActivityType">Type:</label>
-                    <select id="editActivityType" name="activity_type" class="profile-input" style="width:100%;" required>
-                        <option value="Sports">Sports</option>
-                        <option value="Non Sports">Non Sports</option>
-                    </select>
+                    {{ activity_form.activity_type(id="editActivityType") }}
                 </div>
                 <div>
-                    <label for="editSkillsReq">Skills Required:</label>
-                    <input type="text" id="editSkillsReq" name="skills_req" style="width:100%;" required>
+                    {{ activity_form.skills_req(id="editSkillsReq") }}
                 </div>
                 <div>
-                    <label for="editActivityDate">Date:</label>
-                    <input type="datetime-local" id="editActivityDate" name="date" class="profile-input" style="width:100%;" required>
+                    {{ activity_form.date(id="editActivityDate") }}
                 </div>
                 <div>
-                    <label for="editActivityLocation">Location:</label>
-                    <input type="text" id="editActivityLocation" name="location" style="width:100%;" required>
+                    {{ activity_form.location(id="editActivityLocation") }}
                 </div>
                 <div>
-                    <label for="editActivityMaxPax">Max Participants:</label>
-                    <input type="number" id="editActivityMaxPax" name="max_pax" style="width:100%;" required>
+                    {{ activity_form.max_pax(id="editActivityMaxPax") }}
                 </div>
-                <button type="submit" class="delete-confirm-btn" style="margin-top:18px;">Save Changes</button>
+                <button type="submit">{{ activity_form.submit.label }}</button>
             </form>
+
         </div>
     </div>
     <!-- Hidden Leave Activity Form -->
-    <form id="leaveActivityForm" method="POST" style="display:none;"></form>
+    <form id="leaveActivityForm" method="POST" style="display:none;">
+        {{ delete_form.csrf_token }}
+    </form>
     <!-- Leave Activity Modal -->
     <div id="leaveActivityModal" class="modal">
         <div class="modal-content">
@@ -300,6 +301,10 @@
         </div>
     </div>
     <script>
+        function getCSRFToken() {
+            return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        }
+
         // Tab switching logic
         document.getElementById('profileTab').onclick = function() {
             showSection('profileSection', this);
@@ -397,7 +402,7 @@
                 success2faSection.style.display = 'none';
                 done2faBtn.style.display = 'none';
                 otpErrorMsg.style.display = 'none';
-                fetch('/profile/generate_otp', {method: 'POST'})
+                fetch('/profile/generate_otp', {method: 'POST', headers: {'X-CSRF-Token': getCSRFToken()}})
                     .then(response => response.json())
                     .then(data => {
                         if (data.status === 'success') {
@@ -426,7 +431,7 @@
             }
             fetch('/profile/verify_otp', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: {'Content-Type': 'application/json', 'X-CSRF-Token': getCSRFToken()},
                 body: JSON.stringify({otp_code: otpCode})
             })
             .then(response => response.json())

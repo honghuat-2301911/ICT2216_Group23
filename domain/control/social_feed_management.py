@@ -2,6 +2,7 @@ import os
 
 from flask import current_app, g
 from werkzeug.utils import secure_filename
+import uuid
 
 from data_source.social_feed_queries import add_comment, add_post, decrement_like
 from data_source.social_feed_queries import delete_post as ds_delete_post
@@ -156,14 +157,17 @@ def create_post_control(user_id, content, image_file=None):
 
     if image_file and image_file.filename:
         if allowed_file(image_file.filename):
-            filename = secure_filename(image_file.filename)
+            # Get the original file extension
+            _, ext = os.path.splitext(secure_filename(image_file.filename))
+            # Generate a unique filename with uuid4
+            unique_filename = f"{uuid.uuid4().hex}{ext}"
             upload_folder = current_app.config.get(
                 "UPLOAD_FOLDER", "presentation/static/images/social"
             )
             os.makedirs(upload_folder, exist_ok=True)
-            filepath = os.path.join(upload_folder, filename)
+            filepath = os.path.join(upload_folder, unique_filename)
             image_file.save(filepath)
-            image_url = f"/static/images/social/{filename}"
+            image_url = f"/static/images/social/{unique_filename}"
 
     return add_post(user_id, content, image_url)
 
