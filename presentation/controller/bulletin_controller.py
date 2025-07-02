@@ -2,27 +2,12 @@ from flask import Blueprint, flash, redirect, render_template, request, session,
 from flask_login import current_user, login_required
 
 from domain.control.bulletin_management import *
-from flask_login import login_required, current_user
 import functools
 
 # Create a blueprint for the bulletin page
 bulletin_bp = Blueprint(
     "bulletin", __name__, url_prefix="/", template_folder="../templates"
 )
-
-
-def user_required(func):
-    """
-    Decorator to ensure the current_user is logged in AND has role 'user'.
-    Admins (or anyone else) will be redirected away.Add commentMore actions
-    """
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        if current_user.role != 'user':
-            return redirect(url_for("admin.bulletin_page"))
-        return func(*args, **kwargs)
-    return wrapper
-
 
 def user_required(func):
     """
@@ -56,7 +41,7 @@ def bulletin_page():
         )
     bulletin_list = get_bulletin_display_data()
     return render_template(
-        "bulletin/bulletin.html", bulletin_list=bulletin_list, query=query
+        "bulletin/bulletin.html", bulletin_list=bulletin_list
     )
 
 
@@ -65,6 +50,8 @@ def bulletin_page():
 @user_required
 def join_activity():
     activity_id = request.form.get("activity_id")
+    if get_host_name(activity_id):
+        return redirect(url_for("bulletin.bulletin_page"))
     user_id = int(current_user.get_id())
     result = join_activity_control(activity_id, user_id)
     if not result:

@@ -57,6 +57,10 @@
                     <p><strong>Date:</strong> {{ b.date }}</p>
                     <p><strong>Required Skills:</strong> {{ b.skills_req }}</p>
                     <p><strong>Max Participants:</strong> {{ b.max_pax }}</p>
+                    <p><strong>Slots left:</strong> {{ b.count }}</p>
+                    <!-- {% if b.who_joined %}
+                        <p><strong>Who Joined:</strong> {{ b.who_joined }}</p>
+                    {% endif %} -->
                 </div>
             {% endfor %}
 
@@ -68,10 +72,6 @@
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
             <div id="modalBody"></div>
-            <!-- <form id="joinForm" method="POST" action="{{ url_for('bulletin.join_activity') }}">
-                <input type="hidden" name="activity_id" id="activityIdInput">
-                <button type="submit" class="bulletin-btn" style="margin-top: 20px;">Join</button>
-            </form> -->
             <form id="joinForm" method="POST" action="{{ url_for('bulletin.join_activity') }}">
                 <input type="hidden" name="activity_id" id="activityIdInput">
                 <button type="submit" class="bulletin-btn" style="margin-top: 20px;">Join</button>
