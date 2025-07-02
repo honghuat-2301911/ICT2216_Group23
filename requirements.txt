@@ -6,3 +6,6 @@ flask-login
 flask-session
 Flask-WTF
 email-validator
+pyotp
+pyqrcode
+pypng

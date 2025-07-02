@@ -1,16 +1,19 @@
 """User login management for authentication and session handling"""
 
 import bcrypt
+import pyotp
 from flask import g, current_app
 from flask_login import login_user as flask_login_user
 from flask_login import logout_user as flask_logout_user
 from datetime import datetime, timezone, timedelta
 
-from data_source.user_queries import get_user_by_email, update_user_lockout
+from data_source.user_queries import get_user_by_email, record_failed_login, get_user_failed_attempts_count, clear_failed_logins, update_user_lockout
+
+
 from domain.entity.user import User
 
-MAX_FAILED_ATTEMPTS = 5
-LOCKOUT_MINUTES = 10
+FAILED_ATTEMPT_LIMIT = 10
+LOCKOUT_MINUTES = 15
 
 
 def login_user(email: str, password: str):
@@ -27,12 +30,12 @@ def login_user(email: str, password: str):
     result = get_user_by_email(email)
     if not result:
         return None
-    
 
-    # Check if account is locked
+    # Get current time
     utc_plus_8 = timezone(timedelta(hours=8))
     now = datetime.now(utc_plus_8)
 
+    # Check if account is locked
     if result.get("locked_until"):
         db_locked_until = result["locked_until"].replace(tzinfo=utc_plus_8)
         if db_locked_until > now:
@@ -46,37 +49,26 @@ def login_user(email: str, password: str):
     stored_hash = result["password"]
     password_valid = bcrypt.checkpw(password.encode("utf-8"), stored_hash.encode("utf-8"))
 
+    # If password doesn't match, log failed attempt into DB
     if not password_valid:
-        # Update failed attempt count
-        new_attempts = result.get("failed_attempts", 0) + 1
+        record_failed_login(result["id"]) 
+        # Check failed attempts in past 10 minutes
+        recent_failures = get_user_failed_attempts_count(result["id"], window_minutes=10)
         locked_until = None
-        
-        # Lock account if threshold reached
-        if new_attempts >= MAX_FAILED_ATTEMPTS:
+        if recent_failures >= FAILED_ATTEMPT_LIMIT:
             locked_until = now + timedelta(minutes=LOCKOUT_MINUTES)
+            update_user_lockout(result["id"], locked_until.replace(tzinfo=None))
             current_app.logger.warning(
-                f"Account locked: {email} after {new_attempts} failed attempts"
+                f"Account locked: {email} after {recent_failures} failed attempts in 10 minutes"
             )
-        
-        # Update database
-        update_user_lockout(
-            user_id=result["id"],
-            failed_attempts=new_attempts,
-            last_failed_login=now.replace(tzinfo=None),
-            locked_until=locked_until.replace(tzinfo=None) if locked_until else None
-        )
-        
         current_app.logger.warning(
-            f"Failed login for {email} (attempt {new_attempts}/{MAX_FAILED_ATTEMPTS})"
+            f"Failed login for {email} (attempt {recent_failures}/{FAILED_ATTEMPT_LIMIT})"
         )
         return None
-
-    # Reset lockout after successful login
-    update_user_lockout(
-        user_id=result["id"],
-        failed_attempts=0,
-        locked_until=None
-    )
+    
+    # On successful login, clear failed logins and unlock account
+    clear_failed_logins(result["id"])
+    update_user_lockout(result["id"], None)
 
     user = User(
         id=result["id"],
@@ -84,10 +76,27 @@ def login_user(email: str, password: str):
         password=result["password"],
         email=result["email"],
         role=result.get("role", "user"),
+        profile_picture=result.get("profile_picture", ""),
+        otp_secret=result.get("otp_secret"),
+        otp_enabled=bool(int(result.get("otp_enabled", 0)))
     )
-
-    flask_login_user(user)
+    # flask_login_user(user)
     return user
+
+# Get generate OTP
+def verify_user_otp(user, otp_code):
+    """
+    Verifies the OTP code for the user.
+    Args:
+        user (User): The user object
+        otp_code (str): The OTP code entered by the user
+    Returns:
+        bool: True if valid, False otherwise
+    """
+    if not user.otp_secret:
+        return False
+    totp = pyotp.TOTP(user.otp_secret)
+    return totp.verify(otp_code)
 
 
 def logout_user():

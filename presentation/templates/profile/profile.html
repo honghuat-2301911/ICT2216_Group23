@@ -38,6 +38,22 @@
                     <img src="{{ url_for('static', filename='icons/edit.png') }}" alt="Edit" class="edit-icon">
                 </button>
             </div>
+            <!-- 2FA Status Section -->
+            <div class="profile-feed-item">
+                <div class="feed-content">
+                    <p>
+                        <strong>2FA Status:</strong>
+                        {% if user.otp_enabled %}
+                            <span style="color: green; font-weight: bold;">Enabled</span>
+                        {% else %}
+                            <span style="color: red; font-weight: bold;">Disabled</span>
+                        {% endif %}
+                    </p>
+                    {% if not user.otp_enabled %}
+                        <button id="enable2faBtn" class="btn btn-primary">Enable 2FA</button>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
     <div id="feedSection" class="profile-section" style="display:none;">
@@ -162,6 +178,27 @@
             </form>
         </div>
     </div>
+    <!-- Modal for enabling 2FA -->
+    <div id="enable2faModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close2faModalBtn">&times;</span>
+            <h3>Enable Two-Factor Authentication</h3>
+            <div id="qr2faSection">
+                <p>Scan this QR code with Google Authenticator:</p>
+                <img id="qr2faImg" src="" alt="2FA QR Code" style="margin: 16px auto; display: block; max-width: 200px;">
+                <p id="otpSecretText" style="font-size: small; color: #888;"></p>
+                <input type="text" id="otpCodeInput" placeholder="Enter code from app" />
+                <button id="verify2faBtn" class="btn btn-success">Verify</button>
+                <p id="otpErrorMsg" style="color: red; display: none;"></p>
+            </div>
+            <div id="success2faSection" style="display:none; text-align:center;">
+                <p style="color:green; font-weight:bold;">✅ 2FA Enabled Successfully!</p>
+                <p>You can now log in with your authenticator app</p>
+            </div>
+            <button id="done2faBtn" style="display:none; margin-top: 16px;">Done</button>
+        </div>
+    </div>
+
     <!-- Edit Post Modal -->
     <div id="editPostModal" class="modal">
         <div class="modal-content">
@@ -252,7 +289,7 @@
         <span class="close-modal" onclick="closeProfilePicModal()" style="position:absolute;top:32px;right:48px;font-size:2.5em;color:#fff;cursor:pointer;z-index:10001;">&times;</span>
         <img id="profilePicModalImg" src="" alt="Profile Picture" style="max-width:90vw;max-height:80vh;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.4);background:#fff;">
     </div>
-    <!-- Modal for viewing joined users -->
+        <!-- Modal for viewing joined users -->
     <div id="viewListModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" id="closeViewListModalBtn">&times;</span>
@@ -339,6 +376,82 @@
                 modal.style.display = 'none';
             }
         }
+
+        // 2FA modal logic
+        const enable2faBtn = document.getElementById('enable2faBtn');
+        const enable2faModal = document.getElementById('enable2faModal');
+        const close2faModalBtn = document.getElementById('close2faModalBtn');
+        const qr2faImg = document.getElementById('qr2faImg');
+        const otpSecretText = document.getElementById('otpSecretText');
+        const otpCodeInput = document.getElementById('otpCodeInput');
+        const verify2faBtn = document.getElementById('verify2faBtn');
+        const otpErrorMsg = document.getElementById('otpErrorMsg');
+        const qr2faSection = document.getElementById('qr2faSection');
+        const success2faSection = document.getElementById('success2faSection');
+        const done2faBtn = document.getElementById('done2faBtn');
+
+        if (enable2faBtn) {
+            enable2faBtn.onclick = function() {
+                enable2faModal.style.display = 'block';
+                qr2faSection.style.display = 'block';
+                success2faSection.style.display = 'none';
+                done2faBtn.style.display = 'none';
+                otpErrorMsg.style.display = 'none';
+                fetch('/profile/generate_otp', {method: 'POST'})
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            qr2faImg.src = data.qr;
+                            otpSecretText.textContent = "Secret: " + data.secret;
+                        } else {
+                            otpSecretText.textContent = data.message || "Failed to generate OTP";
+                            qr2faImg.src = "";
+                        }
+                    });
+            };
+        }
+
+        if (close2faModalBtn) {
+            close2faModalBtn.onclick = function() {
+                enable2faModal.style.display = 'none';
+            };
+        }
+
+        verify2faBtn.onclick = function() {
+            const otpCode = otpCodeInput.value.trim();
+            if (!otpCode) {
+                otpErrorMsg.textContent = "Please enter the code from your app.";
+                otpErrorMsg.style.display = 'block';
+                return;
+            }
+            fetch('/profile/verify_otp', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({otp_code: otpCode})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    qr2faSection.style.display = 'none';
+                    success2faSection.style.display = 'block';
+                    done2faBtn.style.display = 'inline-block';
+                } else {
+                    otpErrorMsg.textContent = data.message || "Verification failed.";
+                    otpErrorMsg.style.display = 'block';
+                }
+            });
+        };
+
+        done2faBtn.onclick = function() {
+            enable2faModal.style.display = 'none';
+            window.location.reload();
+        }; 
+
+        // Done button handler
+        document.getElementById('done2faBtn').onclick = function() {
+            enable2faModal.style.display = 'none';
+            window.location.reload();
+        };
 
         // Delete Post Modal logic
         const deletePostModal = document.getElementById('deletePostModal');
@@ -449,7 +562,7 @@
         document.getElementById('profilePicModal').onclick = function(e) {
             if (e.target === this) closeProfilePicModal();
         };
-
+        
         // View List Modal Logic
         const viewListModal = document.getElementById('viewListModal');
         const closeViewListModalBtn = document.getElementById('closeViewListModalBtn');
