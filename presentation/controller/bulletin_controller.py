@@ -1,29 +1,32 @@
 # controller.py
+import functools
+
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 
 from domain.control.bulletin_management import (
-    get_bulletin_listing,
-    search_bulletin,
-    get_bulletin_display_data,
-    get_filtered_bulletins,
-    join_activity_control,
-    get_host_name,
     create_activity,
+    get_bulletin_display_data,
+    get_bulletin_listing,
+    get_filtered_bulletins,
+    get_host_name,
+    join_activity_control,
+    search_bulletin,
 )
-from domain.entity.forms import SearchForm, FilterForm, HostForm, JoinForm
-import functools
+from domain.entity.forms import FilterForm, HostForm, JoinForm, SearchForm
 
 bulletin_bp = Blueprint(
     "bulletin", __name__, url_prefix="/", template_folder="../templates"
 )
 
+
 def user_required(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        if current_user.role != 'user':
+        if current_user.role != "user":
             return redirect(url_for("admin.bulletin_page"))
         return func(*args, **kwargs)
+
     return wrapper
 
 
@@ -43,7 +46,7 @@ def bulletin_page():
 
     # No results or validation error on search?
     if not result and (query or search_form.errors):
-        error = search_form.errors.get('query', ["No activities found."])[0]
+        error = search_form.errors.get("query", ["No activities found."])[0]
         return render_template(
             "bulletin/bulletin.html",
             bulletin_list=[],
@@ -52,7 +55,7 @@ def bulletin_page():
             search_form=search_form,
             filter_form=filter_form,
             host_form=HostForm(),
-            join_form=JoinForm()
+            join_form=JoinForm(),
         )
 
     bulletin_list = get_bulletin_display_data()
@@ -63,7 +66,7 @@ def bulletin_page():
         search_form=search_form,
         filter_form=filter_form,
         host_form=HostForm(),
-        join_form=JoinForm()
+        join_form=JoinForm(),
     )
 
 
@@ -105,7 +108,7 @@ def host_activity():
         host_form.date.data,
         host_form.location.data,
         host_form.max_pax.data,
-        int(current_user.get_id())
+        int(current_user.get_id()),
     )
 
     if not success:
@@ -133,7 +136,7 @@ def filtered_bulletin():
             search_form=SearchForm(),
             filter_form=filter_form,
             host_form=HostForm(),
-            join_form=JoinForm()
+            join_form=JoinForm(),
         )
 
     result = get_filtered_bulletins(s, ns)
@@ -145,7 +148,7 @@ def filtered_bulletin():
             search_form=SearchForm(),
             filter_form=filter_form,
             host_form=HostForm(),
-            join_form=JoinForm()
+            join_form=JoinForm(),
         )
 
     bulletin_list = get_bulletin_display_data()
@@ -155,5 +158,5 @@ def filtered_bulletin():
         search_form=SearchForm(),
         filter_form=filter_form,
         host_form=HostForm(),
-        join_form=JoinForm()
+        join_form=JoinForm(),
     )

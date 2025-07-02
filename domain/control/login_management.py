@@ -1,15 +1,20 @@
 """User login management for authentication and session handling"""
 
+from datetime import datetime, timedelta, timezone
+
 import bcrypt
 import pyotp
-from flask import g, current_app
+from flask import current_app, g
 from flask_login import login_user as flask_login_user
 from flask_login import logout_user as flask_logout_user
-from datetime import datetime, timezone, timedelta
 
-from data_source.user_queries import get_user_by_email, record_failed_login, get_user_failed_attempts_count, clear_failed_logins, update_user_lockout
-
-
+from data_source.user_queries import (
+    clear_failed_logins,
+    get_user_by_email,
+    get_user_failed_attempts_count,
+    record_failed_login,
+    update_user_lockout,
+)
 from domain.entity.user import User
 
 FAILED_ATTEMPT_LIMIT = 10
@@ -47,13 +52,17 @@ def login_user(email: str, password: str):
 
     # Check password hash
     stored_hash = result["password"]
-    password_valid = bcrypt.checkpw(password.encode("utf-8"), stored_hash.encode("utf-8"))
+    password_valid = bcrypt.checkpw(
+        password.encode("utf-8"), stored_hash.encode("utf-8")
+    )
 
     # If password doesn't match, log failed attempt into DB
     if not password_valid:
-        record_failed_login(result["id"]) 
+        record_failed_login(result["id"])
         # Check failed attempts in past 10 minutes
-        recent_failures = get_user_failed_attempts_count(result["id"], window_minutes=10)
+        recent_failures = get_user_failed_attempts_count(
+            result["id"], window_minutes=10
+        )
         locked_until = None
         if recent_failures >= FAILED_ATTEMPT_LIMIT:
             locked_until = now + timedelta(minutes=LOCKOUT_MINUTES)
@@ -65,7 +74,7 @@ def login_user(email: str, password: str):
             f"Failed login for {email} (attempt {recent_failures}/{FAILED_ATTEMPT_LIMIT})"
         )
         return None
-    
+
     # On successful login, clear failed logins and unlock account
     clear_failed_logins(result["id"])
     update_user_lockout(result["id"], None)
@@ -78,10 +87,11 @@ def login_user(email: str, password: str):
         role=result.get("role", "user"),
         profile_picture=result.get("profile_picture", ""),
         otp_secret=result.get("otp_secret"),
-        otp_enabled=bool(int(result.get("otp_enabled", 0)))
+        otp_enabled=bool(int(result.get("otp_enabled", 0))),
     )
     # flask_login_user(user)
     return user
+
 
 # Get generate OTP
 def verify_user_otp(user, otp_code):

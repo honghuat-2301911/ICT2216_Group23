@@ -1,27 +1,34 @@
 # presentation/controller/social_feed_controller.py
-from flask import (
-    Blueprint, redirect, render_template, request, url_for, jsonify, flash
-)
-from flask_login import login_required, current_user
-from domain.control.social_feed_management import (
-    get_all_posts_control, get_featured_posts_control,
-    create_post_control, create_comment_control,
-    like_post_control, unlike_post_control,
-    get_post_by_id_control, get_posts_by_user_id_control
-)
-from data_source.user_queries import search_users_by_name, get_user_by_id
-from domain.entity.forms import PostForm, CommentForm
 import functools
 
+from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
+from flask_login import current_user, login_required
+
+from data_source.user_queries import get_user_by_id, search_users_by_name
+from domain.control.social_feed_management import (
+    create_comment_control,
+    create_post_control,
+    get_all_posts_control,
+    get_featured_posts_control,
+    get_post_by_id_control,
+    get_posts_by_user_id_control,
+    like_post_control,
+    unlike_post_control,
+)
+from domain.entity.forms import CommentForm, PostForm
+
 social_feed_bp = Blueprint("social_feed", __name__, url_prefix="/feed")
+
 
 def user_required(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        if current_user.role != 'user':
+        if current_user.role != "user":
             return redirect(url_for("admin.bulletin_page"))
         return func(*args, **kwargs)
+
     return wrapper
+
 
 @social_feed_bp.route("/", methods=["GET"])
 @login_required
@@ -36,8 +43,9 @@ def feed():
         posts=posts,
         featured_posts=featured_posts,
         post_form=post_form,
-        comment_form=comment_form
+        comment_form=comment_form,
     )
+
 
 @social_feed_bp.route("/create", methods=["POST"])
 @login_required
@@ -54,6 +62,7 @@ def create_post():
     create_post_control(user_id, content, image_file)
     return redirect(url_for("social_feed.feed"))
 
+
 @social_feed_bp.route("/comment/<int:post_id>", methods=["POST"])
 @login_required
 @user_required
@@ -68,6 +77,7 @@ def create_comment(post_id):
     create_comment_control(post_id, user_id, content)
     return redirect(url_for("social_feed.feed"))
 
+
 @social_feed_bp.route("/like/<int:post_id>", methods=["POST"])
 @login_required
 @user_required
@@ -75,12 +85,14 @@ def like_post(post_id):
     success = like_post_control(post_id)
     return {"success": success}
 
+
 @social_feed_bp.route("/unlike/<int:post_id>", methods=["POST"])
 @login_required
 @user_required
 def unlike_post(post_id):
     success = unlike_post_control(post_id)
     return {"success": success}
+
 
 @social_feed_bp.route("/post/<int:post_id>", methods=["GET"])
 @login_required
@@ -99,8 +111,9 @@ def view_post(post_id):
         featured_posts=featured_posts,
         filtered_post_id=post_id,
         post_form=PostForm(),
-        comment_form=CommentForm()
+        comment_form=CommentForm(),
     )
+
 
 @social_feed_bp.route("/search-users", methods=["GET"])
 @login_required
@@ -110,14 +123,18 @@ def search_users():
     if len(term) < 2:
         return jsonify([])
     users = search_users_by_name(term, limit=10)
-    return jsonify([
-        {
-            "id": u["id"],
-            "name": u["name"],
-            "email": u["email"],
-            "profile_picture": u.get("profile_picture", "")
-        } for u in users
-    ])
+    return jsonify(
+        [
+            {
+                "id": u["id"],
+                "name": u["name"],
+                "email": u["email"],
+                "profile_picture": u.get("profile_picture", ""),
+            }
+            for u in users
+        ]
+    )
+
 
 @social_feed_bp.route("/user/<int:user_id>", methods=["GET"])
 @login_required
@@ -134,5 +151,5 @@ def view_user_posts(user_id):
         filtered_user_name=user_data.get("name"),
         filtered_user_profile_picture=user_data.get("profile_picture"),
         post_form=PostForm(),
-        comment_form=CommentForm()
+        comment_form=CommentForm(),
     )

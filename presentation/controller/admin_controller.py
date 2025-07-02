@@ -1,10 +1,12 @@
-from flask import Blueprint, redirect, render_template, session, url_for, request, flash
-from domain.control.bulletin_management import *
-from domain.control.admin_management import *
-from domain.control.social_feed_management import *
-from flask_login import login_required, current_user
-from domain.entity.forms import SearchForm, DeleteActivityForm, DeletePostForm
 import functools
+
+from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+from flask_login import current_user, login_required
+
+from domain.control.admin_management import *
+from domain.control.bulletin_management import *
+from domain.control.social_feed_management import *
+from domain.entity.forms import DeleteActivityForm, DeletePostForm, SearchForm
 
 # Create a blueprint for the admin page
 admin_bp = Blueprint(
@@ -21,7 +23,7 @@ def admin_required(func):
     @functools.wraps(func)
     def admin_check(*args, **kwargs):
         # Check if the user is logged in and is an admin
-        if current_user.role != 'admin':
+        if current_user.role != "admin":
             # Redirect to a different page if not admin
             return redirect(url_for("bulletin.bulletin_page"))
         return func(
@@ -47,14 +49,14 @@ def bulletin_page():
 
     # No results or validation error on search?
     if not result and (query or search_form.errors):
-        error = search_form.errors.get('query', ["No activities found."])[0]
+        error = search_form.errors.get("query", ["No activities found."])[0]
         return render_template(
             "admin/bulletin.html",
             bulletin_list=[],
             error=error,
             query=query,
             search_form=search_form,
-            delete_activity_form=delete_activity_form
+            delete_activity_form=delete_activity_form,
         )
 
     bulletin_list = get_bulletin_display_data()
@@ -63,7 +65,7 @@ def bulletin_page():
         bulletin_list=bulletin_list,
         query=query,
         search_form=search_form,
-        delete_activity_form=delete_activity_form
+        delete_activity_form=delete_activity_form,
     )
 
 
@@ -85,7 +87,10 @@ def delete_activity():
     if success:
         flash("Activity deleted successfully.", "success")
     else:
-        flash("Failed to delete the activity. It may not exist or you may not have permission.", "error")
+        flash(
+            "Failed to delete the activity. It may not exist or you may not have permission.",
+            "error",
+        )
     return redirect(url_for("admin.bulletin_page"))
 
 
@@ -95,7 +100,9 @@ def delete_activity():
 def feed_page():
     posts = get_all_posts_control()
     delete_forms = {post.id: DeletePostForm(post_id=post.id) for post in posts}
-    return render_template("admin/social_feed.html", posts=posts, delete_forms=delete_forms)
+    return render_template(
+        "admin/social_feed.html", posts=posts, delete_forms=delete_forms
+    )
 
 
 @admin_bp.route("/delete_post", methods=["POST"])
@@ -112,8 +119,8 @@ def delete_post():
     if success:
         flash("Post deleted successfully.", "success")
     else:
-        flash("Failed to delete the post. It may not exist or you may not have permission.", "error")
+        flash(
+            "Failed to delete the post. It may not exist or you may not have permission.",
+            "error",
+        )
     return redirect(url_for("admin.feed_page"))
-
-
-

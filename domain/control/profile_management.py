@@ -1,8 +1,8 @@
+from data_source.bulletin_queries import get_joined_user_names_by_activity_id
 from data_source.user_queries import (
     remove_user_profile_picture,
     update_user_profile_by_id,
 )
-from data_source.bulletin_queries import get_joined_user_names_by_activity_id
 
 
 class ProfileManagement:

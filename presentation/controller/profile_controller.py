@@ -2,12 +2,21 @@
 
 import os
 import uuid
+
 import bcrypt
-from flask import Blueprint, flash, redirect, render_template, request, url_for, jsonify, current_app
+from flask import (
+    Blueprint,
+    current_app,
+    flash,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
 
-from domain.entity.forms import DeleteForm, ProfileEditForm, ActivityEditForm, PostEditForm
 from data_source.bulletin_queries import (
     get_all_bulletin,
     get_connection,
@@ -18,11 +27,17 @@ from data_source.bulletin_queries import (
 from data_source.social_feed_queries import get_posts_by_user
 from data_source.user_queries import get_user_by_id
 from domain.control import social_feed_management
+from domain.control.otp_management import generate_otp_for_user, verify_and_enable_otp
 from domain.control.profile_management import ProfileManagement
 from domain.control.social_feed_management import deletePost, editPost
+from domain.entity.forms import (
+    ActivityEditForm,
+    DeleteForm,
+    PostEditForm,
+    ProfileEditForm,
+)
 from domain.entity.sports_activity import SportsActivity
 from domain.entity.user import User
-from domain.control.otp_management import generate_otp_for_user, verify_and_enable_otp
 
 profile_bp = Blueprint(
     "profile_bp",
@@ -30,6 +45,7 @@ profile_bp = Blueprint(
     template_folder="../templates/profile",
     url_prefix="/profile",
 )
+
 
 @profile_bp.route("/", methods=["GET", "POST"])
 @login_required
@@ -57,7 +73,7 @@ def fetchProfile():
             str(user_data.get("role", "user")),
             str(user_data.get("profile_picture", "")),
             user_data.get("otp_secret"),
-            bool(int(user_data.get("otp_enabled", 0)))
+            bool(int(user_data.get("otp_enabled", 0))),
         )
     user_posts = get_posts_by_user(user.get_name()) if user else []
     user_id_str = str(user.get_id()) if user else ""
@@ -90,7 +106,7 @@ def fetchProfile():
                     joined_only_activities.append(activity)
     # --- Flask-WTF: Instantiate form, fill with user data
     form = ProfileEditForm(obj=user)
-    if request.method == 'POST' and form.validate_on_submit():
+    if request.method == "POST" and form.validate_on_submit():
         name = form.name.data
         password = form.password.data
         profile_manager = ProfileManagement()
@@ -135,7 +151,7 @@ def fetchProfile():
                 )
             else:
                 result = profile_manager.updateProfile(user_id, name, current_password)
-        flash('Profile updated successfully.', 'success')
+        flash("Profile updated successfully.", "success")
         return redirect(url_for("profile_bp.fetchProfile"))
     # On GET or validation error, render profile with form
     return render_template(
@@ -147,8 +163,9 @@ def fetchProfile():
         profile_form=form,
         activity_form=ActivityEditForm(),
         post_form=PostEditForm(),
-        delete_form=DeleteForm()
+        delete_form=DeleteForm(),
     )
+
 
 # Activity edit (uses Flask-WTF)
 @profile_bp.route("/edit_activity/<int:activity_id>", methods=["POST"])
@@ -166,7 +183,7 @@ def edit_activity(activity_id):
             form.activity_name.data,
             form.activity_type.data,
             form.skills_req.data,
-            form.date.data.strftime('%Y-%m-%d %H:%M:%S'),
+            form.date.data.strftime("%Y-%m-%d %H:%M:%S"),
             form.location.data,
             form.max_pax.data,
             activity.get("user_id_list_join", ""),
@@ -176,6 +193,7 @@ def edit_activity(activity_id):
     # On error, reload profile with form errors
     flash("Failed to update activity. Check the fields.", "danger")
     return redirect(url_for("profile_bp.fetchProfile") + "#activitiesSection")
+
 
 # Post edit (uses Flask-WTF)
 @profile_bp.route("/edit_post/<int:post_id>", methods=["POST"])
@@ -194,6 +212,7 @@ def edit_post(post_id):
         return redirect(url_for("profile_bp.fetchProfile") + "#feedSection")
     flash("Failed to update post. Please check the fields.", "danger")
     return redirect(url_for("profile_bp.fetchProfile") + "#feedSection")
+
 
 @profile_bp.route("/leave_activity/<int:activity_id>", methods=["POST"])
 @login_required
@@ -215,6 +234,7 @@ def leave_activity(activity_id):
         flash("You are not a participant in this activity.", "warning")
     return redirect(url_for("profile_bp.fetchProfile") + "#activitiesSection")
 
+
 @profile_bp.route("/delete_post/<int:post_id>", methods=["POST"])
 @login_required
 def delete_post(post_id):
@@ -226,12 +246,14 @@ def delete_post(post_id):
         flash("Failed to delete post.", "danger")
     return redirect(url_for("profile_bp.fetchProfile") + "#feedSection")
 
+
 @profile_bp.route("/joined_users/<int:activity_id>", methods=["GET"])
 @login_required
 def get_joined_users(activity_id):
     profile_manager = ProfileManagement()
     users = profile_manager.get_joined_user_names(activity_id)
     return jsonify(users)
+
 
 @profile_bp.route("/generate_otp", methods=["POST"])
 @login_required
@@ -240,11 +262,17 @@ def generate_otp():
         user_id = int(current_user.get_id())
         otp_data, error = generate_otp_for_user(user_id)
         if error:
-            return jsonify({'status': 'error', 'message': error}), 400
-        return jsonify({'status': 'success', 'qr': otp_data["qr"], 'secret': otp_data["secret"]})
+            return jsonify({"status": "error", "message": error}), 400
+        return jsonify(
+            {"status": "success", "qr": otp_data["qr"], "secret": otp_data["secret"]}
+        )
     except Exception as e:
         current_app.logger.error(f"OTP generation error: {str(e)}")
-        return jsonify({'status': 'error', 'message': 'Failed to generate OTP setup'}), 500
+        return (
+            jsonify({"status": "error", "message": "Failed to generate OTP setup"}),
+            500,
+        )
+
 
 @profile_bp.route("/verify_otp", methods=["POST"])
 @login_required
@@ -254,12 +282,13 @@ def verify_otp():
         otp_code = request.json.get("otp_code")
         success, error = verify_and_enable_otp(user_id, otp_code)
         if success:
-            return jsonify({'status': 'success'})
+            return jsonify({"status": "success"})
         else:
-            return jsonify({'status': 'error', 'message': error}), 400
+            return jsonify({"status": "error", "message": error}), 400
     except Exception as e:
         current_app.logger.error(f"OTP verification error: {str(e)}")
-        return jsonify({'status': 'error', 'message': 'Failed to verify OTP'}), 500
+        return jsonify({"status": "error", "message": "Failed to verify OTP"}), 500
+
 
 @profile_bp.route("/check_otp_status")
 @login_required
@@ -267,4 +296,4 @@ def check_otp_status():
     user_id = int(current_user.get_id())
     user_data = get_user_by_id(user_id)
     otp_enabled = user_data.get("otp_enabled", False) if user_data else False
-    return jsonify({'otp_enabled': bool(otp_enabled)})
+    return jsonify({"otp_enabled": bool(otp_enabled)})

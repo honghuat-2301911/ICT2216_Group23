@@ -1,5 +1,5 @@
-import os
 import logging
+import os
 from logging.handlers import RotatingFileHandler
 
 from flask import Flask
@@ -27,23 +27,19 @@ def create_app():
         static_url_path="/static",
     )
 
-
     # Configuration for log format and handling
 
-    log_dir = '/app/logs'
+    log_dir = "/app/logs"
     os.makedirs(log_dir, exist_ok=True)
-    
-    log_file = os.path.join(log_dir, 'app.log')
+
+    log_file = os.path.join(log_dir, "app.log")
     file_handler = RotatingFileHandler(
-        filename=log_file,
-        maxBytes=10 * 1024 * 1024,
-        backupCount=200,              
-        encoding='utf-8'
+        filename=log_file, maxBytes=10 * 1024 * 1024, backupCount=200, encoding="utf-8"
     )
     file_handler.setLevel(logging.INFO)
-    file_handler.setFormatter(logging.Formatter(
-        '[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
-    ))
+    file_handler.setFormatter(
+        logging.Formatter("[%(asctime)s] %(levelname)s in %(module)s: %(message)s")
+    )
     app.logger.addHandler(file_handler)
     app.logger.setLevel(logging.INFO)
 

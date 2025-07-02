@@ -1,8 +1,8 @@
 import os
+import uuid
 
 from flask import current_app, g
 from werkzeug.utils import secure_filename
-import uuid
 
 from data_source.social_feed_queries import add_comment, add_post, decrement_like
 from data_source.social_feed_queries import delete_post as ds_delete_post

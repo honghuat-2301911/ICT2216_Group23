@@ -1,11 +1,26 @@
 from flask_wtf import FlaskForm
-from wtforms import (
-    StringField, PasswordField, SubmitField, TextAreaField, FileField,
-    BooleanField, SelectField, DateTimeLocalField, IntegerField, HiddenField
-)
-from wtforms.validators import DataRequired, Email, EqualTo, Length, Optional, NumberRange
-
 from flask_wtf.file import FileAllowed
+from wtforms import (
+    BooleanField,
+    DateTimeLocalField,
+    FileField,
+    HiddenField,
+    IntegerField,
+    PasswordField,
+    SelectField,
+    StringField,
+    SubmitField,
+    TextAreaField,
+)
+from wtforms.validators import (
+    DataRequired,
+    Email,
+    EqualTo,
+    Length,
+    NumberRange,
+    Optional,
+)
+
 
 class RegisterForm(FlaskForm):
     name = StringField(
@@ -65,13 +80,21 @@ class HostForm(FlaskForm):
     activity_name = StringField("Activity Name", validators=[DataRequired()])
     activity_type = SelectField(
         "Type",
-        choices=[("", "Select Activity Type"), ("Sports", "Sports"), ("Non Sports", "Non Sports")],
-        validators=[DataRequired()]
+        choices=[
+            ("", "Select Activity Type"),
+            ("Sports", "Sports"),
+            ("Non Sports", "Non Sports"),
+        ],
+        validators=[DataRequired()],
     )
     skills_req = StringField("Required Skills", validators=[DataRequired()])
-    date = DateTimeLocalField("Date", format="%Y-%m-%dT%H:%M", validators=[DataRequired()])
+    date = DateTimeLocalField(
+        "Date", format="%Y-%m-%dT%H:%M", validators=[DataRequired()]
+    )
     location = StringField("Location", validators=[DataRequired()])
-    max_pax = IntegerField("Max Participants", validators=[DataRequired(), NumberRange(min=1)])
+    max_pax = IntegerField(
+        "Max Participants", validators=[DataRequired(), NumberRange(min=1)]
+    )
     submit = SubmitField("Host")
 
 
@@ -81,7 +104,9 @@ class JoinForm(FlaskForm):
 
 
 class PostForm(FlaskForm):
-    content = TextAreaField("Share something with your buddies…", validators=[DataRequired()])
+    content = TextAreaField(
+        "Share something with your buddies…", validators=[DataRequired()]
+    )
     image = FileField("Image (optional)")
     submit = SubmitField("Post")
 
@@ -94,56 +119,62 @@ class CommentForm(FlaskForm):
 # forms.py
 from flask_wtf import FlaskForm
 from wtforms import (
-    StringField, PasswordField, BooleanField, FileField,
-    SubmitField, IntegerField, TextAreaField, SelectField, DateTimeLocalField, HiddenField
+    BooleanField,
+    DateTimeLocalField,
+    FileField,
+    HiddenField,
+    IntegerField,
+    PasswordField,
+    SelectField,
+    StringField,
+    SubmitField,
+    TextAreaField,
 )
-from wtforms.validators import DataRequired, Email, Optional, Length
+from wtforms.validators import DataRequired, Email, Length, Optional
 
 
 class ProfileEditForm(FlaskForm):
-    name = StringField('Name', validators=[DataRequired()])
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[Optional(), Length(min=6)])
-    profile_picture = FileField('Profile Picture')
-    remove_profile_picture = BooleanField('Remove current profile picture')
-    submit = SubmitField('Save Changes')
+    name = StringField("Name", validators=[DataRequired()])
+    email = StringField("Email", validators=[DataRequired(), Email()])
+    password = PasswordField("Password", validators=[Optional(), Length(min=6)])
+    profile_picture = FileField("Profile Picture")
+    remove_profile_picture = BooleanField("Remove current profile picture")
+    submit = SubmitField("Save Changes")
 
 
 class ActivityEditForm(FlaskForm):
     activity_id = HiddenField()
-    activity_name = StringField('Activity Name', validators=[DataRequired()])
+    activity_name = StringField("Activity Name", validators=[DataRequired()])
     activity_type = SelectField(
-        'Type', 
-        choices=[('Sports', 'Sports'), ('Non Sports', 'Non Sports')],
-        validators=[DataRequired()]
+        "Type",
+        choices=[("Sports", "Sports"), ("Non Sports", "Non Sports")],
+        validators=[DataRequired()],
     )
-    skills_req = StringField('Skills Required', validators=[DataRequired()])
-    date = DateTimeLocalField('Date', validators=[DataRequired()], format='%Y-%m-%dT%H:%M')
-    location = StringField('Location', validators=[DataRequired()])
-    max_pax = IntegerField('Max Participants', validators=[DataRequired()])
-    submit = SubmitField('Save Changes')
+    skills_req = StringField("Skills Required", validators=[DataRequired()])
+    date = DateTimeLocalField(
+        "Date", validators=[DataRequired()], format="%Y-%m-%dT%H:%M"
+    )
+    location = StringField("Location", validators=[DataRequired()])
+    max_pax = IntegerField("Max Participants", validators=[DataRequired()])
+    submit = SubmitField("Save Changes")
 
 
 class PostEditForm(FlaskForm):
     post_id = HiddenField()
-    content = TextAreaField('Content', validators=[DataRequired()])
-    remove_image = BooleanField('Remove image from post')
-    submit = SubmitField('Save Changes')
+    content = TextAreaField("Content", validators=[DataRequired()])
+    remove_image = BooleanField("Remove image from post")
+    submit = SubmitField("Save Changes")
 
 
 class DeleteForm(FlaskForm):
-    submit = SubmitField('Delete')
+    submit = SubmitField("Delete")
 
 
 class DeleteActivityForm(FlaskForm):
-    activity_id = HiddenField('Activity ID', validators=[DataRequired()])
-    submit = SubmitField('Delete Activity')
+    activity_id = HiddenField("Activity ID", validators=[DataRequired()])
+    submit = SubmitField("Delete Activity")
 
 
 class DeletePostForm(FlaskForm):
     post_id = HiddenField(validators=[DataRequired()])
-    submit = SubmitField('Delete Post')
-
-
-
-
+    submit = SubmitField("Delete Post")

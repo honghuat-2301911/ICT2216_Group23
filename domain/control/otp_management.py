@@ -1,8 +1,11 @@
+import base64
+import io
+
 import pyotp
 import pyqrcode
-import io
-import base64
-from data_source.user_queries import set_otp_secret, get_user_by_id, enable_2fa
+
+from data_source.user_queries import enable_2fa, get_user_by_id, set_otp_secret
+
 
 def generate_otp_for_user(user_id):
     user = get_user_by_id(user_id)
@@ -14,8 +17,7 @@ def generate_otp_for_user(user_id):
         return None, "Failed to update user with OTP secret"
 
     uri = pyotp.totp.TOTP(otp_secret).provisioning_uri(
-        name=user["email"],
-        issuer_name="BuddiesFinders"
+        name=user["email"], issuer_name="BuddiesFinders"
     )
     qr = pyqrcode.create(uri)
     buffer = io.BytesIO()
@@ -24,6 +26,7 @@ def generate_otp_for_user(user_id):
     qr_data_url = f"data:image/png;base64,{qr_b64}"
 
     return {"qr": qr_data_url, "secret": otp_secret}, None
+
 
 def verify_and_enable_otp(user_id, otp_code):
     user = get_user_by_id(user_id)

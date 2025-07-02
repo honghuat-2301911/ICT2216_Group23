@@ -1,10 +1,17 @@
-from flask import Blueprint, redirect, render_template, url_for, session, flash, request
-from flask_login import login_required, current_user, login_user as flask_login_user, logout_user as flask_logout_user
-from domain.control.login_management import get_user_display_data, login_user, logout_user, verify_user_otp
+from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+from flask_login import current_user, login_required
+from flask_login import login_user as flask_login_user
+from flask_login import logout_user as flask_logout_user
+
+from data_source.user_queries import get_user_by_email
+from domain.control.login_management import (
+    get_user_display_data,
+    login_user,
+    logout_user,
+    verify_user_otp,
+)
 from domain.entity.forms import LoginForm
 from domain.entity.user import User
-from data_source.user_queries import get_user_by_email
-
 
 login_bp = Blueprint(
     "login", __name__, url_prefix="/", template_folder="../templates/login"
@@ -28,8 +35,8 @@ def login():
         if user:
             # If 2FA is enabled, redirect to OTP verification page
             if getattr(user, "otp_enabled", False):
-                session['pre_2fa_user_id'] = user.id
-                session['pre_2fa_user_email'] = user.email
+                session["pre_2fa_user_id"] = user.id
+                session["pre_2fa_user_email"] = user.email
                 return redirect(url_for("login.otp_verify"))
             # Else perform normal login
             flask_login_user(user)
@@ -47,14 +54,14 @@ def login():
 @login_required
 def logout():
     logout_user()
-    session.pop('_flashes', None)
+    session.pop("_flashes", None)
     return redirect(url_for("login.login"))
 
 
 @login_bp.route("/otp_verify", methods=["GET", "POST"])
 def otp_verify():
-    user_id = session.get('pre_2fa_user_id')
-    user_email = session.get('pre_2fa_user_email')
+    user_id = session.get("pre_2fa_user_id")
+    user_email = session.get("pre_2fa_user_email")
     if not user_id or not user_email:
         return redirect(url_for("login.login"))
     user_data = get_user_by_email(user_email)
@@ -66,6 +73,7 @@ def otp_verify():
         otp_code = request.form.get("otp_code")
         # Delegate OTP verification to login_management
         from domain.entity.user import User
+
         user = User(
             id=user_data["id"],
             name=user_data["name"],
@@ -74,13 +82,13 @@ def otp_verify():
             role=user_data.get("role", "user"),
             profile_picture=user_data.get("profile_picture", ""),
             otp_secret=user_data.get("otp_secret"),
-            otp_enabled=bool(int(user_data.get("otp_enabled", 0)))
+            otp_enabled=bool(int(user_data.get("otp_enabled", 0))),
         )
         verified = verify_user_otp(user, otp_code)
         if verified:
             flask_login_user(user)
-            session.pop('pre_2fa_user_id', None)
-            session.pop('pre_2fa_user_email', None)
+            session.pop("pre_2fa_user_id", None)
+            session.pop("pre_2fa_user_email", None)
             if user.role == "admin":
                 return redirect(url_for("admin.bulletin_page"))
             else:
