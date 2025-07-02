@@ -87,13 +87,19 @@ def create_app():
     app.register_blueprint(admin_bp)
     app.register_blueprint(profile_bp)
 
-    @app.errorhandler(404)
-    def not_found(e):
-        return render_template('error/error.html'), 404
+    @app.errorhandler(Exception)
+    def handle_exception(e):
+        # Default values
+        code = 500
+        message = "An unexpected error occurred."
 
-    @app.errorhandler(500)
-    def internal_error(e):
-        return render_template('error/error.html'), 500
+        # If the exception is an HTTPException, extract details
+        if hasattr(e, 'code'):
+            code = e.code
+        if hasattr(e, 'description'):
+            message = e.description
+
+        return render_template("error/error.html", error_code=code, error_message=message), code
 
     # make sure DB has the required tables
     # init_schema()
