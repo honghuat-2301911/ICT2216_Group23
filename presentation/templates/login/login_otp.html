@@ -10,9 +10,15 @@
 <body>
     <h2>Two-Factor Authentication</h2>
     <form method="POST">
-        <label for="otp_code">Enter the 6-digit code from your authenticator app:</label><br>
-        <input type="text" id="otp_code" name="otp_code" maxlength="6" required>
-        <button type="submit">Verify</button>
+        {{ form.hidden_tag() }}
+        <label for="{{ form.otp_code.id }}">Enter the 6-digit code from your authenticator app:</label><br>
+        {{ form.otp_code(size=6, id="otp_code") }}
+        {% if form.otp_code.errors %}
+            <div class="error-message">
+                {{ form.otp_code.errors[0] }}
+            </div>
+        {% endif %}
+        {{ form.submit() }}
     </form>
     {% with messages = get_flashed_messages() %}
       {% if messages %}
