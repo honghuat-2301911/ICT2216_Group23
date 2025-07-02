@@ -21,7 +21,7 @@ class RegisterPageTest(unittest.TestCase):
             service=Service(ChromeDriverManager().install()), options=options
         )
         cls.driver.implicitly_wait(10)
-        cls.base_url = "http://localhost"
+        cls.base_url = "https://localhost"
         cls.test_email = "testuser@example.com"  # Same email to test duplicate
 
     def fill_registration_form(self, email):
