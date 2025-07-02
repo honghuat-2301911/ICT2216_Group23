@@ -178,3 +178,13 @@ class DeleteActivityForm(FlaskForm):
 class DeletePostForm(FlaskForm):
     post_id = HiddenField(validators=[DataRequired()])
     submit = SubmitField("Delete Post")
+
+
+class OTPForm(FlaskForm):
+    otp_code = StringField(
+        "OTP Code",
+        validators=[DataRequired(), Length(min=6, max=6, message="Enter the 6-digit code.")],
+        render_kw={"maxlength": 6, "autocomplete": "one-time-code"},
+    )
+    submit = SubmitField("Verify")
+

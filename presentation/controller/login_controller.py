@@ -2,6 +2,7 @@ from flask import Blueprint, flash, redirect, render_template, request, session,
 from flask_login import current_user, login_required
 from flask_login import login_user as flask_login_user
 from flask_login import logout_user as flask_logout_user
+from domain.entity.forms import OTPForm 
 
 from data_source.user_queries import get_user_by_email
 from domain.control.login_management import (
@@ -69,11 +70,10 @@ def otp_verify():
         flash("OTP setup not found. Please login again.")
         return redirect(url_for("login.login"))
 
-    if request.method == "POST":
-        otp_code = request.form.get("otp_code")
-        # Delegate OTP verification to login_management
+    form = OTPForm()
+    if form.validate_on_submit():
+        otp_code = form.otp_code.data
         from domain.entity.user import User
-
         user = User(
             id=user_data["id"],
             name=user_data["name"],
@@ -95,4 +95,4 @@ def otp_verify():
                 return redirect(url_for("bulletin.bulletin_page"))
         else:
             flash("Invalid OTP code. Please try again.")
-    return render_template("login/login_otp.html")
+    return render_template("login/login_otp.html", form=form)
