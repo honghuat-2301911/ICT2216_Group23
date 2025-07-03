@@ -36,12 +36,20 @@ class RegisterPageTest(unittest.TestCase):
         time.sleep(2)
 
     def test_register_duplicate_email(self):
-        self.fill_registration_form(email=self.test_email)
-        self.assertIn("Registration successful", self.driver.page_source)
-        self.fill_registration_form(email=self.test_email)
-        self.assertIn(
-            "Something went wrong. Please try again.", self.driver.page_source
-        )
+        try:
+            self.fill_registration_form(email=self.test_email)
+            self.assertIn("Registration successful", self.driver.page_source)
+            self.fill_registration_form(email=self.test_email)
+            self.assertIn(
+                "Something went wrong. Please try again.", self.driver.page_source
+            )
+            
+        except Exception as e:
+            os.makedirs("artifacts", exist_ok=True)
+            self.driver.save_screenshot("artifacts/screenshot.png")
+            with open("artifacts/debug.html", "w", encoding="utf-8") as f:
+                f.write(self.driver.page_source)
+            raise  # Re-raise so the test still fails
 
     @classmethod
     def tearDownClass(cls):
