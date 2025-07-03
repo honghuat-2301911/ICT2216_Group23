@@ -26,15 +26,15 @@ jobs:
 
       - name: Generate dummy SSL certs
         run: |
-          sudo mkdir -p /etc/letsencrypt/live/buddiesfinders.hopto.org
-          sudo openssl req -x509 -nodes -days 1 \
-            -newkey rsa:2048 \
-            -keyout /etc/letsencrypt/live/buddiesfinders.hopto.org/privkey.pem \
-            -out /etc/letsencrypt/live/buddiesfinders.hopto.org/fullchain.pem \
+          mkdir -p ./certbot/conf/live/buddiesfinders.hopto.org
+
+          openssl req -x509 -nodes -newkey rsa:2048 -days 1 \
+            -keyout ./certbot/conf/live/buddiesfinders.hopto.org/privkey.pem \
+            -out ./certbot/conf/live/buddiesfinders.hopto.org/fullchain.pem \
             -subj "/CN=localhost"
       
-      - name: Start Docker
-        run: docker compose up --build -d
+      - name: Build and start services (without certbot)
+        run: docker compose -f docker-compose.yml -f docker-compose.override.yml up --build -d
 
       - name: Install Chrome
         run: |
