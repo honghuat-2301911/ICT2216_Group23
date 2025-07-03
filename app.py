@@ -1,8 +1,9 @@
 import logging
 import os
 from logging.handlers import RotatingFileHandler
+from datetime import timedelta, datetime
 
-from flask import Flask, render_template
+from flask import Flask, render_template, session, redirect, url_for, flash, request
 from flask_login import LoginManager
 from flask_session import Session
 from flask_wtf import CSRFProtect
@@ -45,6 +46,10 @@ def create_app():
 
     app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET_KEY", "")
     app.config["SESSION_TYPE"] = "filesystem"
+    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1)  # Browser cookie timeout
+    app.config['SESSION_COOKIE_SECURE'] = True
+    app.config['SESSION_COOKIE_HTTPONLY'] = True
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
     # # Only send cookies over HTTPS
     # app.config['SESSION_COOKIE_SECURE']   = True
@@ -86,6 +91,35 @@ def create_app():
     app.register_blueprint(bulletin_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(profile_bp)
+
+    # --- SESSION TIMEOUT HANDLER ---
+    IDLE_TIMEOUT = timedelta(seconds= 60 * 30)  # 30 minutes
+    ABSOLUTE_TIMEOUT = timedelta(seconds= 60 * 60)  # 1 hour
+
+    @app.before_request
+    def enforce_session_timeouts():
+        if not session.get('created_at'):
+            return  # Not logged in or session not set yet
+        now = datetime.utcnow()
+        created_at = session.get('created_at')
+        last_activity = session.get('last_activity')
+        # Convert from string if needed
+        if isinstance(created_at, str):
+            created_at = datetime.fromisoformat(created_at)
+        if isinstance(last_activity, str):
+            last_activity = datetime.fromisoformat(last_activity)
+        # Absolute timeout
+        if now - created_at > ABSOLUTE_TIMEOUT:
+            session.clear()   # Clear session
+            flash('Session expired. Please log in again.', 'warning')
+            return redirect(url_for('login.login'))
+        # Idle timeout
+        if now - last_activity > IDLE_TIMEOUT:
+            session.clear()   # Clear session
+            flash('Session expired due to inactivity. Please log in again.', 'warning')
+            return redirect(url_for('login.login'))
+        # Update last activity
+        session['last_activity'] = now.isoformat()
 
     @app.errorhandler(Exception)
     def handle_exception(e):

@@ -3,6 +3,8 @@ from flask_login import current_user, login_required
 from flask_login import login_user as flask_login_user
 from flask_login import logout_user as flask_logout_user
 from domain.entity.forms import OTPForm 
+from datetime import datetime
+import os
 
 from data_source.user_queries import get_user_by_email
 from domain.control.login_management import (
@@ -40,7 +42,11 @@ def login():
                 session["pre_2fa_user_email"] = user.email
                 return redirect(url_for("login.otp_verify"))
             # Else perform normal login
+            session.clear()  # Force new session on login
+            session['init'] = os.urandom(16).hex()  # Force new session file/ID
             flask_login_user(user)
+            session['created_at'] = datetime.utcnow().isoformat()   # After user authenticated, time stamp is set
+            session['last_activity'] = datetime.utcnow().isoformat() 
             if user.role == "admin":
                 return redirect(url_for("admin.bulletin_page"))
             else:
@@ -55,7 +61,7 @@ def login():
 @login_required
 def logout():
     logout_user()
-    session.pop("_flashes", None)
+    session.clear()
     return redirect(url_for("login.login"))
 
 
@@ -86,9 +92,13 @@ def otp_verify():
         )
         verified = verify_user_otp(user, otp_code)
         if verified:
+            session.clear()  # Force new session after 2FA so that hackers cannot use the same session ID even in 2FA fails
+            session['init'] = os.urandom(16).hex()  # Force new session file/ID
             flask_login_user(user)
             session.pop("pre_2fa_user_id", None)
             session.pop("pre_2fa_user_email", None)
+            session['created_at'] = datetime.utcnow().isoformat()
+            session['last_activity'] = datetime.utcnow().isoformat()
             if user.role == "admin":
                 return redirect(url_for("admin.bulletin_page"))
             else:

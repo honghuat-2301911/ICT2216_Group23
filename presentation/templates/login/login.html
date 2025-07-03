@@ -58,5 +58,9 @@
             </div>
         </div>
     </div>
+    <script>
+      // Clear session timer on login page load
+      localStorage.removeItem('myapp_login_time');  // Clear session timer so that it resets next time user logs in
+    </script>
 </body>
 </html>
