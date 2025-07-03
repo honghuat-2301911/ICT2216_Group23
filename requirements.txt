@@ -9,3 +9,4 @@ email-validator
 pyotp
 pyqrcode
 pypng
+pillow

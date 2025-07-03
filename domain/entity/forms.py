@@ -107,7 +107,10 @@ class PostForm(FlaskForm):
     content = TextAreaField(
         "Share something with your buddies…", validators=[DataRequired()]
     )
-    image = FileField("Image (optional)")
+    image = FileField(
+        "Image (optional)", 
+        validators=[FileAllowed(['jpg', 'jpeg', 'png'], 'Images only!')]
+    )
     submit = SubmitField("Post")
 
 
@@ -116,28 +119,14 @@ class CommentForm(FlaskForm):
     submit = SubmitField("Post")
 
 
-# forms.py
-from flask_wtf import FlaskForm
-from wtforms import (
-    BooleanField,
-    DateTimeLocalField,
-    FileField,
-    HiddenField,
-    IntegerField,
-    PasswordField,
-    SelectField,
-    StringField,
-    SubmitField,
-    TextAreaField,
-)
-from wtforms.validators import DataRequired, Email, Length, Optional
-
-
 class ProfileEditForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     email = StringField("Email", validators=[DataRequired(), Email()])
     password = PasswordField("Password", validators=[Optional(), Length(min=6)])
-    profile_picture = FileField("Profile Picture")
+    profile_picture = FileField(
+        "Profile Picture", 
+        validators=[FileAllowed(['jpg', 'jpeg', 'png'], 'Images only!')]
+    )
     remove_profile_picture = BooleanField("Remove current profile picture")
     submit = SubmitField("Save Changes")
 
