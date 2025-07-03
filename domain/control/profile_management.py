@@ -10,12 +10,14 @@ from data_source.user_queries import (
     update_user_profile_by_id,
     get_user_by_id,
 )
+
 from data_source.social_feed_queries import get_posts_by_user_id
 from domain.entity.user import User
 from domain.entity.sports_activity import SportsActivity
 import os
 import uuid
 import bcrypt
+from PIL import Image, UnidentifiedImageError
 from werkzeug.utils import secure_filename
 from domain.control.otp_management import generate_otp_for_user, verify_and_enable_otp
 from domain.control.social_feed_management import deletePost, editPost
@@ -105,9 +107,19 @@ class ProfileManagement:
         password = form.password.data
         profile_picture_url = None
         remove_picture = form.remove_profile_picture.data
+
         # Handle file upload
         if form.profile_picture.data:
             file = form.profile_picture.data
+            try:
+                file.seek(0)
+                image = Image.open(file)
+                image.verify()  # Raises if not a valid image
+                file.seek(0)    # Reset pointer for saving
+            except (UnidentifiedImageError, Exception):
+                flash("Uploaded profile picture is not a valid image.", "error")
+                return False
+
             ext = os.path.splitext(secure_filename(file.filename))[1]
             unique_filename = f"{uuid.uuid4().hex}{ext}"
             image_path = os.path.join(
