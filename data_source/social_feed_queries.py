@@ -26,7 +26,7 @@ def get_all_posts(current_user_id=None):
             # Get comments for each post (no created_at)
             comment_cursor = connection.cursor(dictionary=True)
             comment_query = """
-                SELECT c.id, c.comments, u.name as user_name
+                SELECT c.id, c.comments, u.name as user_name, u.profile_picture
                 FROM comments c
                 JOIN user u ON c.user_id = u.id
                 WHERE c.feed_id = %s
@@ -35,7 +35,7 @@ def get_all_posts(current_user_id=None):
             comment_cursor.execute(comment_query, (post["id"],))
             comments = comment_cursor.fetchall()
             post["comments"] = [
-                {"id": c["id"], "user": c["user_name"], "content": c["comments"]}
+                {"id": c["id"], "user": c["user_name"], "content": c["comments"], "profile_picture": c.get("profile_picture", "")}
                 for c in comments
             ]
             comment_cursor.close()

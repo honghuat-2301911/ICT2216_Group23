@@ -47,6 +47,7 @@ def create_entity_from_row(result):
                 user=comment_data.get("user", ""),
                 content=comment_data.get("content", ""),
                 created_at="",  # No created_at in current schema
+                profile_picture=comment_data.get("profile_picture", ""),
             )
             comments.append(comment)
 
@@ -131,6 +132,7 @@ def get_post_by_id_control(post_id):
             user=comment_data.get("user", ""),
             content=comment_data.get("content", ""),
             created_at="",  # No created_at in current schema
+            profile_picture=comment_data.get("profile_picture", ""),
         )
         comments.append(comment)
 

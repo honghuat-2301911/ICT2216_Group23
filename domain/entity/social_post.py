@@ -10,6 +10,7 @@ class Comment:
     user: str
     content: str
     created_at: str
+    profile_picture: str = ""
 
 
 @dataclass

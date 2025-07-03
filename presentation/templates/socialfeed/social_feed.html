@@ -103,7 +103,10 @@
           <div class="comments-list">
             {% for comment in post.comments %}
             <div class="comment">
-              <div class="comment-avatar">{{ comment.user[0]|upper }}</div>
+              <img src="{{ comment.profile_picture or url_for('static', filename='icons/user.png') }}"
+                   class="comment-avatar"
+                   style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:#fff;"
+                   alt="Profile Picture">
               <div class="comment-content">
                 <div class="comment-header">
                   <span class="comment-username">{{ comment.user }}</span>
