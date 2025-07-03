@@ -24,6 +24,15 @@ jobs:
           echo "FLASK_SECRET_KEY=${{ secrets.FLASK_SECRET_KEY }}" >> .env
           echo "CERTBOT_EMAIL=${{ secrets.CERTBOT_EMAIL }}" >> .env
 
+      - name: Generate dummy SSL certs
+        run: |
+          mkdir -p /etc/letsencrypt/live/buddiesfinders.hopto.org
+          openssl req -x509 -nodes -days 1 \
+            -newkey rsa:2048 \
+            -keyout /etc/letsencrypt/live/buddiesfinders.hopto.org/privkey.pem \
+            -out /etc/letsencrypt/live/buddiesfinders.hopto.org/fullchain.pem \
+            -subj "/CN=localhost"
+      
       - name: Start Docker
         run: docker compose up --build -d
 
