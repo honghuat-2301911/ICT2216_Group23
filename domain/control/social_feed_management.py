@@ -1,5 +1,6 @@
 import os
 import uuid
+from PIL import Image, UnidentifiedImageError
 
 from flask import current_app, g
 from werkzeug.utils import secure_filename
@@ -156,18 +157,25 @@ def create_post_control(user_id, content, image_file=None):
     image_url = None
 
     if image_file and image_file.filename:
-        if allowed_file(image_file.filename):
-            # Get the original file extension
-            _, ext = os.path.splitext(secure_filename(image_file.filename))
-            # Generate a unique filename with uuid4
-            unique_filename = f"{uuid.uuid4().hex}{ext}"
-            upload_folder = current_app.config.get(
-                "UPLOAD_FOLDER", "presentation/static/images/social"
-            )
-            os.makedirs(upload_folder, exist_ok=True)
-            filepath = os.path.join(upload_folder, unique_filename)
-            image_file.save(filepath)
-            image_url = f"/static/images/social/{unique_filename}"
+        try:
+            image_file.seek(0)
+            image = Image.open(image_file)
+            image.verify() 
+            image_file.seek(0)  
+        except (UnidentifiedImageError, Exception):
+            return False
+
+        # Get the original file extension
+        _, ext = os.path.splitext(secure_filename(image_file.filename))
+        # Generate a unique filename with uuid4
+        unique_filename = f"{uuid.uuid4().hex}{ext}"
+        upload_folder = current_app.config.get(
+            "UPLOAD_FOLDER", "presentation/static/images/social"
+        )
+        os.makedirs(upload_folder, exist_ok=True)
+        filepath = os.path.join(upload_folder, unique_filename)
+        image_file.save(filepath)
+        image_url = f"/static/images/social/{unique_filename}"
 
     return add_post(user_id, content, image_url)
 

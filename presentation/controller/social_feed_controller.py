@@ -1,7 +1,7 @@
 # presentation/controller/social_feed_controller.py
 import functools
 
-from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
+from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for, session
 from flask_login import current_user, login_required
 
 from data_source.user_queries import get_user_by_id, search_users_by_name
@@ -38,12 +38,14 @@ def feed():
     featured_posts = get_featured_posts_control()
     post_form = PostForm()
     comment_form = CommentForm()
+    liked_posts = session.get('liked_posts', [])
     return render_template(
         "socialfeed/social_feed.html",
         posts=posts,
         featured_posts=featured_posts,
         post_form=post_form,
         comment_form=comment_form,
+        liked_posts=liked_posts,
     )
 
 
@@ -82,16 +84,28 @@ def create_comment(post_id):
 @login_required
 @user_required
 def like_post(post_id):
-    success = like_post_control(post_id)
-    return {"success": success}
+    liked_posts = session.get('liked_posts', [])
+    if post_id not in liked_posts:
+        success = like_post_control(post_id)
+        if success:
+            liked_posts.append(post_id)
+            session['liked_posts'] = liked_posts
+        return jsonify(success=success)
+    return jsonify(success=False)
 
 
 @social_feed_bp.route("/unlike/<int:post_id>", methods=["POST"])
 @login_required
 @user_required
 def unlike_post(post_id):
-    success = unlike_post_control(post_id)
-    return {"success": success}
+    liked_posts = session.get('liked_posts', [])
+    if post_id in liked_posts:
+        success = unlike_post_control(post_id)
+        if success:
+            liked_posts.remove(post_id)
+            session['liked_posts'] = liked_posts
+        return jsonify(success=success)
+    return jsonify(success=False)
 
 
 @social_feed_bp.route("/post/<int:post_id>", methods=["GET"])
