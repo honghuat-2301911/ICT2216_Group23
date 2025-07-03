@@ -26,8 +26,8 @@ jobs:
 
       - name: Generate dummy SSL certs
         run: |
-          mkdir -p /etc/letsencrypt/live/buddiesfinders.hopto.org
-          openssl req -x509 -nodes -days 1 \
+          sudo mkdir -p /etc/letsencrypt/live/buddiesfinders.hopto.org
+          sudo openssl req -x509 -nodes -days 1 \
             -newkey rsa:2048 \
             -keyout /etc/letsencrypt/live/buddiesfinders.hopto.org/privkey.pem \
             -out /etc/letsencrypt/live/buddiesfinders.hopto.org/fullchain.pem \
