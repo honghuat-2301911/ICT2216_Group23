@@ -14,7 +14,9 @@ class RegisterPageTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         options = Options()
-        options.add_argument("--headless")
+        options.add_argument('--ignore-certificate-errors')  # <-- key line
+        options.add_argument('--allow-insecure-localhost')   # optional, but useful
+        options.add_argument('--headless')                   # for CI
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
         cls.driver = webdriver.Chrome(
@@ -43,7 +45,7 @@ class RegisterPageTest(unittest.TestCase):
             self.assertIn(
                 "Something went wrong. Please try again.", self.driver.page_source
             )
-            
+
         except Exception as e:
             os.makedirs("artifacts", exist_ok=True)
             self.driver.save_screenshot("artifacts/screenshot.png")
