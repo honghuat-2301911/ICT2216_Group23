@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Optional
+from datetime import datetime
 
 
 @dataclass
@@ -21,9 +22,11 @@ class User:
     email: str
     role: str = field(default="user")
     profile_picture: str = field(default="")
+    locked_until: Optional[datetime] = field(default=None)
     otp_secret: Optional[str] = field(default=None)
     otp_enabled: bool = field(default=False)
     current_session_token: Optional[str] = field(default=None)
+    email_verified: bool = field(default=False)
 
     # --- Getters ---
     def get_id(self):

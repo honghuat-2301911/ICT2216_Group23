@@ -86,8 +86,11 @@ def login_user(email: str, password: str):
         email=result["email"],
         role=result.get("role", "user"),
         profile_picture=result.get("profile_picture", ""),
+        locked_until=result.get("locked_until"),
         otp_secret=result.get("otp_secret"),
-        otp_enabled=bool(int(result.get("otp_enabled", 0))),
+        otp_enabled=bool(result.get("otp_enabled", False)),
+        current_session_token=result.get("current_session_token"),
+        email_verified=bool(result.get("email_verified", False)),
     )
     # flask_login_user(user)
     return user

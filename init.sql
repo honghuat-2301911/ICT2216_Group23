@@ -123,10 +123,12 @@ CREATE TABLE IF NOT EXISTS `mydb`.`user` (
   `otp_secret` VARCHAR(32) NULL,
   `otp_enabled` BOOLEAN NOT NULL DEFAULT FALSE,
   `current_session_token` VARCHAR(64) NULL,
+  `email_verified` BOOLEAN NOT NULL DEFAULT FALSE,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
   UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE
 ) ENGINE = InnoDB;
+
 
 -- USER FAILED LOGIN TABLE
 CREATE TABLE IF NOT EXISTS `mydb`.`user_failed_login` (
