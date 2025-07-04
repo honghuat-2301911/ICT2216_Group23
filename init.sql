@@ -168,7 +168,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`feed` (
   `user_id` INT NOT NULL,
   `image_path` VARCHAR(255) NULL,  
   `caption` VARCHAR(255) NULL,
-  `like_count` INT NULL,
+  `like_user_ids` TEXT NULL,
   PRIMARY KEY (`id`),
   INDEX `idx_feed_user_id` (`user_id`),
   CONSTRAINT `fk_feed_user`

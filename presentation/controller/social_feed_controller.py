@@ -16,6 +16,7 @@ from domain.control.social_feed_management import (
     unlike_post_control,
 )
 from domain.entity.forms import CommentForm, PostForm
+from data_source.social_feed_queries import get_like_count
 
 social_feed_bp = Blueprint("social_feed", __name__, url_prefix="/feed")
 
@@ -84,28 +85,28 @@ def create_comment(post_id):
 @login_required
 @user_required
 def like_post(post_id):
-    liked_posts = session.get('liked_posts', [])
-    if post_id not in liked_posts:
-        success = like_post_control(post_id)
-        if success:
-            liked_posts.append(post_id)
-            session['liked_posts'] = liked_posts
-        return jsonify(success=success)
-    return jsonify(success=False)
+    try:
+        user_id = int(current_user.get_id())
+        success = like_post_control(post_id, user_id)
+        like_count = get_like_count(post_id)
+        return jsonify(success=success, like_count=like_count)
+    except Exception as e:
+        print(f"[LIKE ERROR] {e}")
+        return jsonify(success=False, error=str(e)), 500
 
 
 @social_feed_bp.route("/unlike/<int:post_id>", methods=["POST"])
 @login_required
 @user_required
 def unlike_post(post_id):
-    liked_posts = session.get('liked_posts', [])
-    if post_id in liked_posts:
-        success = unlike_post_control(post_id)
-        if success:
-            liked_posts.remove(post_id)
-            session['liked_posts'] = liked_posts
-        return jsonify(success=success)
-    return jsonify(success=False)
+    try:
+        user_id = int(current_user.get_id())
+        success = unlike_post_control(post_id, user_id)
+        like_count = get_like_count(post_id)
+        return jsonify(success=success, like_count=like_count)
+    except Exception as e:
+        print(f"[UNLIKE ERROR] {e}")
+        return jsonify(success=False, error=str(e)), 500
 
 
 @social_feed_bp.route("/post/<int:post_id>", methods=["GET"])

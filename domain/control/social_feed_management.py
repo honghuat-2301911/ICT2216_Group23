@@ -5,7 +5,7 @@ from PIL import Image, UnidentifiedImageError
 from flask import current_app, g
 from werkzeug.utils import secure_filename
 
-from data_source.social_feed_queries import add_comment, add_post, decrement_like
+from data_source.social_feed_queries import add_comment, add_post, decrement_like, add_like, remove_like
 from data_source.social_feed_queries import delete_post as ds_delete_post
 from data_source.social_feed_queries import (
     get_all_posts,
@@ -14,6 +14,7 @@ from data_source.social_feed_queries import (
     get_posts_by_user_id,
     increment_like,
     update_post,
+    get_like_count,
 )
 from domain.entity.social_post import Comment, Post
 
@@ -58,7 +59,7 @@ def create_entity_from_row(result):
             content=row.get("caption", ""),
             image_url=row.get("image_path", ""),
             created_at="",  # No created_at in current schema
-            likes=row.get("like_count", 0) or 0,
+            likes=get_like_count(row["id"]),
             comments=comments,
         )
         # Attach profile_picture to the post object
@@ -102,7 +103,7 @@ def get_featured_posts_control():
             content=row.get("caption", ""),
             image_url=row.get("image_path", ""),
             created_at="",  # No created_at in current schema
-            likes=row.get("like_count", 0) or 0,
+            likes=get_like_count(row["id"]),
             comments=[],  # Featured posts don't need comments
         )
         # Attach profile_picture to the post object
@@ -143,7 +144,7 @@ def get_post_by_id_control(post_id):
         content=row.get("caption", ""),
         image_url=row.get("image_path", ""),
         created_at="",  # No created_at in current schema
-        likes=row.get("like_count", 0) or 0,
+        likes=get_like_count(row["id"]),
         comments=comments,
     )
     # Attach profile_picture to the post object
@@ -190,12 +191,12 @@ def create_comment_control(post_id, user_id, content):
     return add_comment(post_id, user_id, content)
 
 
-def like_post_control(post_id):
-    return increment_like(post_id)
+def like_post_control(post_id, user_id):
+    return add_like(post_id, user_id)
 
 
-def unlike_post_control(post_id):
-    return decrement_like(post_id)
+def unlike_post_control(post_id, user_id):
+    return remove_like(post_id, user_id)
 
 
 """Get formatted display data for posts"""

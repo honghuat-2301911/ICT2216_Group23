@@ -97,7 +97,7 @@
             <span class="stat-count">{{ post.comments|length }}</span>
           </div>
           <div class="stat-item like-button" onclick="toggleLike('{{ post.id }}', this)">
-            <span class="heart-icon"></span>
+            <span class="heart-icon {% if current_user.id|string in (post.like_user_ids or '').split(',') %}liked{% endif %}"></span>
             <span class="stat-count">{{ post.likes }}</span>
           </div>
         </div>
@@ -199,33 +199,16 @@
     function toggleLike(postId, el) {
       const heart = el.querySelector('.heart-icon');
       const countSpan = el.querySelector('.stat-count');
-      let count = parseInt(countSpan.textContent, 10);
-      let likedPosts = getLikedPosts();
-      if (!heart.classList.contains('liked')) {
-        fetch(`/feed/like/${postId}`, { method: 'POST' })
-          .then(res => res.json())
-          .then(data => {
-            if (data.success) {
-              heart.classList.add('liked');
-              countSpan.textContent = count + 1;
-              if (!likedPosts.includes(postId)) {
-                likedPosts.push(postId);
-                setLikedPosts(likedPosts);
-              }
-            }
-          });
-      } else {
-        fetch(`/feed/unlike/${postId}`, { method: 'POST' })
-          .then(res => res.json())
-          .then(data => {
-            if (data.success) {
-              heart.classList.remove('liked');
-              countSpan.textContent = Math.max(count - 1, 0);
-              likedPosts = likedPosts.filter(id => id !== postId);
-              setLikedPosts(likedPosts);
-            }
-          });
-      }
+      const isLiked = heart.classList.contains('liked');
+      const url = isLiked ? `/feed/unlike/${postId}` : `/feed/like/${postId}`;
+      fetch(url, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            heart.classList.toggle('liked');
+            countSpan.textContent = data.like_count;
+          }
+        });
     }
     // Initialize liked state on load
     document.addEventListener('DOMContentLoaded', () => {

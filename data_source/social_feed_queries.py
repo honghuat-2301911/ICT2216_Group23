@@ -15,7 +15,7 @@ def get_all_posts(current_user_id=None):
     cursor = connection.cursor(dictionary=True)
     try:
         query = """
-            SELECT f.id, f.user_id, f.caption, f.image_path, f.like_count, u.name as user_name, u.profile_picture
+            SELECT f.id, f.user_id, f.caption, f.image_path, f.like_user_ids, u.name as user_name, u.profile_picture
             FROM feed f
             JOIN user u ON f.user_id = u.id
             ORDER BY f.id DESC
@@ -43,7 +43,7 @@ def get_all_posts(current_user_id=None):
             post["user"] = post["user_name"]
             post["content"] = post["caption"]
             post["image_url"] = post["image_path"]
-            post["likes"] = post["like_count"] or 0
+            post["likes"] = get_like_count(post["id"])
             post["profile_picture"] = post.get("profile_picture", "")
         return posts
     except Exception as e:
@@ -62,8 +62,8 @@ def add_post(user_id, content, image_url=None):
     cursor = connection.cursor()
     try:
         query = """
-            INSERT INTO feed (user_id, caption, image_path, like_count)
-            VALUES (%s, %s, %s, 0)
+            INSERT INTO feed (user_id, caption, image_path, like_user_ids)
+            VALUES (%s, %s, %s, '')
         """
         cursor.execute(query, (user_id, content, image_url))
         connection.commit()
@@ -106,7 +106,7 @@ def get_posts_by_user(username):
     cursor = connection.cursor(dictionary=True)
     try:
         query = """
-            SELECT f.id, f.user_id, f.caption, f.image_path, f.like_count, u.name as user_name
+            SELECT f.id, f.user_id, f.caption, f.image_path, f.like_user_ids, u.name as user_name
             FROM feed f
             JOIN user u ON f.user_id = u.id
             WHERE u.name = %s
@@ -119,7 +119,7 @@ def get_posts_by_user(username):
             post["user"] = post["user_name"]
             post["content"] = post["caption"]
             post["image_url"] = post["image_path"]
-            post["likes"] = post["like_count"] or 0
+            post["likes"] = get_like_count(post["id"])
         return posts
     except Exception as e:
         print(f"[DB ERROR] Error fetching user posts: {e}")
@@ -137,7 +137,7 @@ def get_posts_by_user_id(user_id):
     cursor = connection.cursor(dictionary=True)
     try:
         query = """
-            SELECT f.id, f.user_id, f.caption, f.image_path, f.like_count, u.name as user_name, u.profile_picture
+            SELECT f.id, f.user_id, f.caption, f.image_path, f.like_user_ids, u.name as user_name, u.profile_picture
             FROM feed f
             JOIN user u ON f.user_id = u.id
             WHERE f.user_id = %s
@@ -150,7 +150,7 @@ def get_posts_by_user_id(user_id):
             post["user"] = post["user_name"]
             post["content"] = post["caption"]
             post["image_url"] = post["image_path"]
-            post["likes"] = post["like_count"] or 0
+            post["likes"] = get_like_count(post["id"])
             post["profile_picture"] = post.get("profile_picture", "")
         return posts
     except Exception as e:
@@ -182,57 +182,13 @@ def increment_like(post_id):
     cursor = connection.cursor()
     try:
         cursor.execute(
-            "UPDATE feed SET like_count = like_count + 1 WHERE id = %s", (post_id,)
+            "UPDATE feed SET like_user_ids = CONCAT(like_user_ids, %s) WHERE id = %s", (str(post_id), post_id)
         )
         connection.commit()
         return True
     except Exception as e:
         print(f"[DB ERROR] Error incrementing like: {e}")
         return False
-    finally:
-        cursor.close()
-        connection.close()
-
-
-def toggle_like(post_id, user_id):
-    connection = get_connection()
-    if connection is None:
-        print("[DB ERROR] Could not connect to database.")
-        return None
-    cursor = connection.cursor()
-    try:
-        # Check if user already liked
-        cursor.execute(
-            "SELECT 1 FROM post_likes WHERE user_id = %s AND post_id = %s",
-            (user_id, post_id),
-        )
-        already_liked = cursor.fetchone() is not None
-        if already_liked:
-            # Unlike: remove from post_likes and decrement like_count
-            cursor.execute(
-                "DELETE FROM post_likes WHERE user_id = %s AND post_id = %s",
-                (user_id, post_id),
-            )
-            cursor.execute(
-                "UPDATE feed SET like_count = GREATEST(like_count - 1, 0) WHERE id = %s",
-                (post_id,),
-            )
-            connection.commit()
-            return False  # Now unliked
-        else:
-            # Like: insert into post_likes and increment like_count
-            cursor.execute(
-                "INSERT INTO post_likes (user_id, post_id) VALUES (%s, %s)",
-                (user_id, post_id),
-            )
-            cursor.execute(
-                "UPDATE feed SET like_count = like_count + 1 WHERE id = %s", (post_id,)
-            )
-            connection.commit()
-            return True  # Now liked
-    except Exception as e:
-        print(f"[DB ERROR] Error toggling like: {e}")
-        return None
     finally:
         cursor.close()
         connection.close()
@@ -246,8 +202,7 @@ def decrement_like(post_id):
     cursor = connection.cursor()
     try:
         cursor.execute(
-            "UPDATE feed SET like_count = GREATEST(like_count - 1, 0) WHERE id = %s",
-            (post_id,),
+            "UPDATE feed SET like_user_ids = REPLACE(like_user_ids, %s, '') WHERE id = %s", (str(post_id), post_id)
         )
         connection.commit()
         return True
@@ -267,10 +222,10 @@ def get_featured_posts():
     cursor = connection.cursor(dictionary=True)
     try:
         query = """
-            SELECT f.id, f.user_id, f.caption, f.image_path, f.like_count, u.name as user_name, u.profile_picture
+            SELECT f.id, f.user_id, f.caption, f.image_path, f.like_user_ids, u.name as user_name, u.profile_picture
             FROM feed f
             JOIN user u ON f.user_id = u.id
-            ORDER BY f.like_count DESC, f.id DESC
+            ORDER BY f.like_user_ids DESC, f.id DESC
             LIMIT 5
         """
         cursor.execute(query)
@@ -291,7 +246,7 @@ def get_post_by_id(post_id):
     cursor = connection.cursor(dictionary=True)
     try:
         query = """
-            SELECT f.id, f.user_id, f.caption, f.image_path, f.like_count, u.name as user_name
+            SELECT f.id, f.user_id, f.caption, f.image_path, f.like_user_ids, u.name as user_name
             FROM feed f
             JOIN user u ON f.user_id = u.id
             WHERE f.id = %s
@@ -303,7 +258,7 @@ def get_post_by_id(post_id):
             post["user"] = post["user_name"]
             post["content"] = post["caption"]
             post["image_url"] = post["image_path"]
-            post["likes"] = post["like_count"] or 0
+            post["likes"] = get_like_count(post["id"])
         return post
     except Exception as e:
         print(f"[DB ERROR] Error fetching post by id: {e}")
@@ -346,6 +301,80 @@ def delete_post(post_id):
     except Exception as e:
         print(f"[DB ERROR] Error deleting post: {e}")
         return False
+    finally:
+        cursor.close()
+        connection.close()
+
+
+def add_like(post_id, user_id):
+    connection = get_connection()
+    if connection is None:
+        print("[DB ERROR] Could not connect to database.")
+        return False
+    cursor = connection.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT like_user_ids FROM feed WHERE id = %s", (post_id,))
+        row = cursor.fetchone()
+        if row is None:
+            return False
+        user_ids = set(row['like_user_ids'].split(',')) if row['like_user_ids'] else set()
+        if str(user_id) not in user_ids:
+            user_ids.add(str(user_id))
+            new_ids = ','.join(user_ids)
+            cursor.execute("UPDATE feed SET like_user_ids = %s WHERE id = %s", (new_ids, post_id))
+            connection.commit()
+            return True
+        return False
+    except Exception as e:
+        print(f"[DB ERROR] Error adding like: {e}")
+        return False
+    finally:
+        cursor.close()
+        connection.close()
+
+
+def remove_like(post_id, user_id):
+    connection = get_connection()
+    if connection is None:
+        print("[DB ERROR] Could not connect to database.")
+        return False
+    cursor = connection.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT like_user_ids FROM feed WHERE id = %s", (post_id,))
+        row = cursor.fetchone()
+        if row is None or not row['like_user_ids']:
+            return False
+        user_ids = set(row['like_user_ids'].split(','))
+        if str(user_id) in user_ids:
+            user_ids.remove(str(user_id))
+            new_ids = ','.join(user_ids)
+            cursor.execute("UPDATE feed SET like_user_ids = %s WHERE id = %s", (new_ids, post_id))
+            connection.commit()
+            return True
+        return False
+    except Exception as e:
+        print(f"[DB ERROR] Error removing like: {e}")
+        return False
+    finally:
+        cursor.close()
+        connection.close()
+
+
+def get_like_count(post_id):
+    connection = get_connection()
+    if connection is None:
+        print("[DB ERROR] Could not connect to database.")
+        return 0
+    cursor = connection.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT like_user_ids FROM feed WHERE id = %s", (post_id,))
+        row = cursor.fetchone()
+        if row and row['like_user_ids']:
+            return len(set(row['like_user_ids'].split(',')))
+        return 0
+    except Exception as e:
+        print(f"[DB ERROR] Error getting like count: {e}")
+        return 0
     finally:
         cursor.close()
         connection.close()
