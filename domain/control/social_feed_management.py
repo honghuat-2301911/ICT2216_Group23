@@ -214,14 +214,14 @@ def get_posts_display_data():
     for post in post_list:
         display_data.append(
             {
-                "id": post.id,
-                "user": post.user,
-                "content": post.content,
-                "image_url": post.image_url,
-                "likes": post.likes,
+                "id": post.get_id(),
+                "user": post.get_user(),
+                "content": post.get_content(),
+                "image_url": post.get_image_url(),
+                "likes": post.get_likes(),
                 "comments": [
-                    {"id": comment.id, "user": comment.user, "content": comment.content}
-                    for comment in post.comments
+                    {"id": comment.get_id(), "user": comment.get_user(), "content": comment.get_content()}
+                    for comment in post.get_comments()
                 ],
             }
         )

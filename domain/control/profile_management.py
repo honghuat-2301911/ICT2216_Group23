@@ -21,6 +21,7 @@ from PIL import Image, UnidentifiedImageError
 from werkzeug.utils import secure_filename
 from domain.control.otp_management import generate_otp_for_user, verify_and_enable_otp
 from domain.control.social_feed_management import deletePost, editPost
+from domain.entity.social_post import Post, Comment
 
 class ProfileManagement:
     def updateProfile(self, user_id, name, password, profile_picture=None):
@@ -62,7 +63,37 @@ class ProfileManagement:
         )
 
     def get_user_posts(self, user_id):
-        return get_posts_by_user_id(user_id)
+        posts = get_posts_by_user_id(user_id)
+        post_objs = []
+        for post in posts:
+            comments = [
+                Comment(
+                    id=int(c.get('id', 0) or 0),
+                    post_id=int(post.get('id', 0) or 0),
+                    user=str(c.get('user', '')),
+                    content=str(c.get('content', '')),
+                    created_at=str(c.get('created_at', '')),
+                    profile_picture=str(c.get('profile_picture', '')),
+                ) for c in post.get('comments', [])
+            ]
+            # Handle likes being None or empty string
+            likes_val = post.get('likes', 0)
+            if likes_val in (None, ''):
+                likes_val = 0
+            else:
+                likes_val = int(likes_val)
+            post_obj = Post(
+                id=int(post.get('id', 0) or 0),
+                user=str(post.get('user', '')),
+                content=str(post.get('content', '')),
+                image_url=str(post.get('image_url', '')),
+                created_at=str(post.get('created_at', '')),
+                likes=likes_val,
+                comments=comments,
+                like_user_ids=str(post.get('like_user_ids', '')),
+            )
+            post_objs.append(post_obj)
+        return post_objs
 
     def get_user_activities(self, user_id):
         all_activities = get_all_bulletin()

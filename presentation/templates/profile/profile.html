@@ -73,7 +73,7 @@
                         <img src="{{ user.profile_picture or url_for('static', filename='icons/user.png') }}" class="feed-avatar" alt="Avatar">
                         <div class="feed-content">
                             <p class="post-content">{{ post.content }}</p>
-                            {% if post.image_url %}
+                            {% if post.image_url and post.image_url != 'None' %}
                                 <img src="{{ post.image_url }}" alt="Post Image" class="post-image" style="max-width: 100%; margin-top: 8px; border-radius: 8px;" />
                             {% endif %}
                             <span class="feed-timestamp">{{ post.created_at }}</span>
