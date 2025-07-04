@@ -46,7 +46,7 @@ def create_app():
 
     app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET_KEY", "")
     app.config["SESSION_TYPE"] = "filesystem"
-    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1)  # Browser cookie timeout
+    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)  # Browser cookie timeout
     app.config['SESSION_COOKIE_SECURE'] = True
     app.config['SESSION_COOKIE_HTTPONLY'] = True
     app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
@@ -95,8 +95,8 @@ def create_app():
     app.register_blueprint(profile_bp)
 
     # --- SESSION TIMEOUT HANDLER ---
-    IDLE_TIMEOUT = timedelta(seconds= 60 * 30)  # 30 minutes
-    ABSOLUTE_TIMEOUT = timedelta(seconds= 60 * 60)  # 1 hour
+    IDLE_TIMEOUT = timedelta(seconds= 10 * 60)  # 10 minutes
+    ABSOLUTE_TIMEOUT = timedelta(seconds= 30 * 60)  # 30 minutes
 
     @app.before_request
     def enforce_session_timeouts():
