@@ -23,3 +23,4 @@ class Post:
     created_at: str
     likes: int
     comments: List[Comment] = field(default_factory=list)
+    like_user_ids: str = ""

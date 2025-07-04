@@ -317,7 +317,7 @@ def add_like(post_id, user_id):
         row = cursor.fetchone()
         if row is None:
             return False
-        user_ids = set(row['like_user_ids'].split(',')) if row['like_user_ids'] else set()
+        user_ids = set((row['like_user_ids'] or '').split(','))
         if str(user_id) not in user_ids:
             user_ids.add(str(user_id))
             new_ids = ','.join(user_ids)
@@ -344,7 +344,7 @@ def remove_like(post_id, user_id):
         row = cursor.fetchone()
         if row is None or not row['like_user_ids']:
             return False
-        user_ids = set(row['like_user_ids'].split(','))
+        user_ids = set((row['like_user_ids'] or '').split(','))
         if str(user_id) in user_ids:
             user_ids.remove(str(user_id))
             new_ids = ','.join(user_ids)
@@ -369,8 +369,9 @@ def get_like_count(post_id):
     try:
         cursor.execute("SELECT like_user_ids FROM feed WHERE id = %s", (post_id,))
         row = cursor.fetchone()
-        if row and row['like_user_ids']:
-            return len(set(row['like_user_ids'].split(',')))
+        if row and row['like_user_ids'] is not None:
+            # Only count non-empty user IDs
+            return len([uid for uid in (row['like_user_ids'] or '').split(',') if uid.strip()])
         return 0
     except Exception as e:
         print(f"[DB ERROR] Error getting like count: {e}")

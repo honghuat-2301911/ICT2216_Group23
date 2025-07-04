@@ -61,6 +61,7 @@ def create_entity_from_row(result):
             created_at="",  # No created_at in current schema
             likes=get_like_count(row["id"]),
             comments=comments,
+            like_user_ids=row.get('like_user_ids', ''),
         )
         # Attach profile_picture to the post object
         post.profile_picture = row.get("profile_picture", "")
@@ -105,6 +106,7 @@ def get_featured_posts_control():
             created_at="",  # No created_at in current schema
             likes=get_like_count(row["id"]),
             comments=[],  # Featured posts don't need comments
+            like_user_ids=row.get('like_user_ids', ''),
         )
         # Attach profile_picture to the post object
         post.profile_picture = row.get("profile_picture", "")
@@ -146,6 +148,7 @@ def get_post_by_id_control(post_id):
         created_at="",  # No created_at in current schema
         likes=get_like_count(row["id"]),
         comments=comments,
+        like_user_ids=row.get('like_user_ids', ''),
     )
     # Attach profile_picture to the post object
     post.profile_picture = row.get("profile_picture", "")
