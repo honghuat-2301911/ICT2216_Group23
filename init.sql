@@ -122,6 +122,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`user` (
   `locked_until` DATETIME NULL,
   `otp_secret` VARCHAR(32) NULL,
   `otp_enabled` BOOLEAN NOT NULL DEFAULT FALSE,
+  `current_session_token` VARCHAR(64) NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
   UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE

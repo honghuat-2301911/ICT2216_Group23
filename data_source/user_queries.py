@@ -230,3 +230,22 @@ def remove_user_profile_picture(user_id: int) -> bool:
             cursor.close()
         if connection:
             connection.close()
+
+
+def get_user_session_token(user_id: int):
+    connection = get_connection()
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute("SELECT current_session_token FROM user WHERE id = %s", (user_id,))
+    result = cursor.fetchone()
+    cursor.close()
+    connection.close()
+    return result["current_session_token"] if result else None
+
+
+def update_user_session_token(user_id: int, token: str):
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute("UPDATE user SET current_session_token = %s WHERE id = %s", (token, user_id))
+    connection.commit()
+    cursor.close()
+    connection.close()

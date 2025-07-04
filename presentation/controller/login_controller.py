@@ -6,7 +6,7 @@ from domain.entity.forms import OTPForm
 from datetime import datetime
 import os
 
-from data_source.user_queries import get_user_by_email
+from data_source.user_queries import get_user_by_email, get_user_session_token, update_user_session_token
 from domain.control.login_management import (
     get_user_display_data,
     login_user,
@@ -44,6 +44,9 @@ def login():
             # Else perform normal login
             session.clear()  # Force new session on login
             session['init'] = os.urandom(16).hex()  # Force new session file/ID
+            session_token = os.urandom(32).hex()
+            session['session_token'] = session_token
+            update_user_session_token(user.id, session_token)
             flask_login_user(user)
             session['created_at'] = datetime.utcnow().isoformat()   # After user authenticated, time stamp is set
             session['last_activity'] = datetime.utcnow().isoformat() 
@@ -61,6 +64,8 @@ def login():
 @login_required
 def logout():
     logout_user()
+    if hasattr(current_user, 'id'):
+        update_user_session_token(current_user.id, None)
     session.clear()
     return redirect(url_for("login.login"))
 
@@ -94,6 +99,9 @@ def otp_verify():
         if verified:
             session.clear()  # Force new session after 2FA so that hackers cannot use the same session ID even in 2FA fails
             session['init'] = os.urandom(16).hex()  # Force new session file/ID
+            session_token = os.urandom(32).hex()
+            session['session_token'] = session_token
+            update_user_session_token(user.id, session_token)
             flask_login_user(user)
             session.pop("pre_2fa_user_id", None)
             session.pop("pre_2fa_user_email", None)

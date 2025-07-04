@@ -8,7 +8,7 @@ from flask_login import LoginManager
 from flask_session import Session
 from flask_wtf import CSRFProtect
 
-from data_source.user_queries import get_user_by_id
+from data_source.user_queries import get_user_by_id, get_user_session_token
 from domain.entity.user import User
 from presentation.controller.admin_controller import admin_bp
 from presentation.controller.bulletin_controller import bulletin_bp
@@ -67,6 +67,8 @@ def create_app():
     login_manager = LoginManager()
     login_manager.login_view = "login.login"
     login_manager.init_app(app)
+    login_manager.session_protection = "strong" # Check the user's IP address and User-Agent on every request.
+                                                # Log the user out if either changes (to help prevent session hijacking).
 
     csrf = CSRFProtect(app)
 
@@ -118,6 +120,14 @@ def create_app():
             session.clear()   # Clear session
             flash('Session expired due to inactivity. Please log in again.', 'warning')
             return redirect(url_for('login.login'))
+        # Single session enforcement
+        from flask_login import current_user
+        if hasattr(current_user, 'is_authenticated') and current_user.is_authenticated:
+            user_token = get_user_session_token(current_user.id)
+            if session.get('session_token') != user_token:
+                session.clear()
+                flash('You have been logged out because your account was accessed from another device.', 'warning')
+                return redirect(url_for('login.login'))
         # Update last activity
         session['last_activity'] = now.isoformat()
 

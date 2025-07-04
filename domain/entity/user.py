@@ -23,6 +23,7 @@ class User:
     profile_picture: str = field(default="")
     otp_secret: Optional[str] = field(default=None)
     otp_enabled: bool = field(default=False)
+    current_session_token: Optional[str] = field(default=None)
 
     # --- Getters ---
     def get_id(self):
