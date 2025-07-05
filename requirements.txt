@@ -12,3 +12,4 @@ pypng
 pillow
 itsdangerous
 sendgrid
+python-dotenv

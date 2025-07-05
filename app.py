@@ -17,11 +17,14 @@ from presentation.controller.login_controller import login_bp
 from presentation.controller.profile_controller import profile_bp
 from presentation.controller.register_controller import register_bp
 from presentation.controller.social_feed_controller import social_feed_bp
+from dotenv import load_dotenv
 
 # from data_source.login_queries import init_schema
 
 
 def create_app():
+    load_dotenv()
+    
     app = Flask(
         __name__,
         template_folder="presentation/templates",
