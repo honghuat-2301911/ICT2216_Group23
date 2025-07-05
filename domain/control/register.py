@@ -33,8 +33,10 @@ def send_verification_email(user_email, token):
         html_content=f'<p>Click to verify: <a href="{verify_url}">{verify_url}</a></p>'
     )
     try:
-        sg = SendGridAPIClient(os.getenv('EMAILVERIFICATION_API_KEY'))
-        current_app.logger.error(f"api key:{EMAILVERIFICATION_API_KEY}")
+        api_key = os.getenv('EMAILVERIFICATION_API_KEY')
+        current_app.logger.error(f"api key: {api_key}")
+        sg = SendGridAPIClient(api_key)
+
         response = sg.send(message)    
         current_app.logger.error(f"response status code:{response.status_code}")
         current_app.logger.error(f"response body:{response.body}")  
