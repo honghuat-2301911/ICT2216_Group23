@@ -34,7 +34,11 @@ def send_verification_email(user_email, token):
     )
     try:
         sg = SendGridAPIClient(os.environ.get('EMAILVERIFICATION_API_KEY'))
-        sg.send(message)
+        response = sg.send(message)      
+        current_app.logger.warning(response.status_code)
+        current_app.logger.warning(response.body)
+        current_app.logger.warning(response.headers)
+        
     except Exception as e:
         current_app.logger.error(f"Error sending verification email: {e}")
 
