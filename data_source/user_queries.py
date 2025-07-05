@@ -6,6 +6,20 @@ from flask import current_app
 from data_source.db_connection import get_connection
 
 
+def update_user_verification_status(email, verified=True):
+    connection = get_connection()
+    cursor = connection.cursor()
+    try:
+        cursor.execute("UPDATE user SET email_verified = %s WHERE email = %s", (int(verified), email))
+        connection.commit()
+        return True
+    except Exception as e:
+        print("Verification update failed:", e)
+        return False
+    finally:
+        cursor.close()
+        connection.close()
+
 def set_otp_secret(otp_secret, user_id):
     try:
         connection = get_connection()
@@ -119,8 +133,8 @@ def insert_user(user_data: dict) -> bool:
         connection = get_connection()
         cursor = connection.cursor()
         query = """
-            INSERT INTO user (name, password, email, role, profile_picture)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO user (name, password, email, role)
+            VALUES (%s, %s, %s, %s)
         """
         cursor.execute(
             query,
@@ -129,7 +143,6 @@ def insert_user(user_data: dict) -> bool:
                 user_data["password"],
                 user_data["email"],
                 user_data.get("role", "user"),
-                user_data.get("profile_picture", ""),
             ),
         )
         connection.commit()

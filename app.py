@@ -7,6 +7,7 @@ from flask import Flask, render_template, session, redirect, url_for, flash, req
 from flask_login import LoginManager
 from flask_session import Session
 from flask_wtf import CSRFProtect
+from itsdangerous import URLSafeTimedSerializer
 
 from data_source.user_queries import get_user_by_id, get_user_session_token
 from domain.entity.user import User
@@ -27,6 +28,7 @@ def create_app():
         static_folder="presentation/static",
         static_url_path="/static",
     )
+
 
     # Configuration for log format and handling
 
@@ -119,6 +121,9 @@ def create_app():
                 return redirect(url_for('login.login'))
         # Update last activity
         session['last_activity'] = now.isoformat()
+
+    # Configuration for email verification
+    app.config['SERIALIZER'] = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
     @app.errorhandler(Exception)
     def handle_exception(e):

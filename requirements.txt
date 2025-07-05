@@ -10,3 +10,5 @@ pyotp
 pyqrcode
 pypng
 pillow
+itsdangerous
+sendgrid
