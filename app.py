@@ -51,17 +51,6 @@ def create_app():
     app.config['SESSION_COOKIE_HTTPONLY'] = True
     app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
-    # # Only send cookies over HTTPS
-    # app.config['SESSION_COOKIE_SECURE']   = True
-    # # Prevent JavaScript from reading the cookie
-    # app.config['SESSION_COOKIE_HTTPONLY'] = True
-    # # Control cross-site sending; options: 'Lax', 'Strict', or 'None'
-    # app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-
-    # app.config['REMEMBER_COOKIE_SECURE']   = True
-    # app.config['REMEMBER_COOKIE_HTTPONLY'] = True
-    # app.config['REMEMBER_COOKIE_SAMESITE'] = 'Lax'
-
     Session(app)
 
     login_manager = LoginManager()

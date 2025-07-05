@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}"> 
   <title>Social Feed</title>
   <script>
     window.sessionCreatedAt = "{{ session.get('created_at', '') }}";
@@ -201,7 +202,8 @@
       const countSpan = el.querySelector('.stat-count');
       const isLiked = heart.classList.contains('liked');
       const url = isLiked ? `/feed/unlike/${postId}` : `/feed/like/${postId}`;
-      fetch(url, { method: 'POST' })
+      const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+      fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken } })
         .then(res => res.json())
         .then(data => {
           if (data.success) {

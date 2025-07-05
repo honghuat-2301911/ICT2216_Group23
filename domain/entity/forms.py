@@ -76,6 +76,7 @@ class FilterForm(FlaskForm):
     submit = SubmitField("Filter")
 
 
+
 class HostForm(FlaskForm):
     activity_name = StringField("Activity Name", validators=[DataRequired()])
     activity_type = SelectField(
@@ -96,6 +97,11 @@ class HostForm(FlaskForm):
         "Max Participants", validators=[DataRequired(), NumberRange(min=1)]
     )
     submit = SubmitField("Host")
+
+
+    def validate_date(self, field):
+        if field.data < datetime.now():
+            raise ValidationError("Date cannot be in the past.")
 
 
 class JoinForm(FlaskForm):
@@ -122,7 +128,7 @@ class CommentForm(FlaskForm):
 class ProfileEditForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     email = StringField("Email", validators=[DataRequired(), Email()])
-    password = PasswordField("Password", validators=[Optional(), Length(min=6)])
+    password = PasswordField("Password", validators=[Optional(), Length(min=8)])
     profile_picture = FileField(
         "Profile Picture", 
         validators=[FileAllowed(['jpg', 'jpeg', 'png'], 'Images only!')]
@@ -146,6 +152,10 @@ class ActivityEditForm(FlaskForm):
     location = StringField("Location", validators=[DataRequired()])
     max_pax = IntegerField("Max Participants", validators=[DataRequired()])
     submit = SubmitField("Save Changes")
+
+    def validate_date(self, field):
+        if field.data < datetime.now():
+            raise ValidationError("Date cannot be in the past.")
 
 
 class PostEditForm(FlaskForm):
