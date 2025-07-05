@@ -36,6 +36,10 @@ def login():
         # use form data
         user = login_user(form.email.data, form.password.data)
         if user:
+            # Check if email is verified
+            if not getattr(user, "email_verified", False):
+                form.email.errors.append("You must verify your email before logging in. Please check your inbox.")
+                return render_template("login/login.html", form=form)
             # If 2FA is enabled, redirect to OTP verification page
             if getattr(user, "otp_enabled", False):
                 session["pre_2fa_user_id"] = user.id
