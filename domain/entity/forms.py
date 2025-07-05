@@ -187,3 +187,14 @@ class OTPForm(FlaskForm):
     )
     submit = SubmitField("Verify")
 
+
+class RequestResetForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    submit = SubmitField('Request Password Reset')
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField('New Password', validators=[DataRequired()])
+    confirm_password = PasswordField('Confirm Password', validators=[
+        DataRequired(), EqualTo('password')
+    ])
+    submit = SubmitField('Reset Password')

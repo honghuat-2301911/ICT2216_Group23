@@ -5,7 +5,7 @@ from itsdangerous import URLSafeTimedSerializer
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 import os
-from flask import current_app, url_for, render_template
+from flask import current_app, url_for
 
 def get_serializer():
     return URLSafeTimedSerializer(current_app.config['SECRET_KEY'])

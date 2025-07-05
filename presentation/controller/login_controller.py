@@ -1,8 +1,9 @@
-from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+from flask import Blueprint, flash, redirect, render_template, request, session, url_for, current_app
 from flask_login import current_user, login_required
 from flask_login import login_user as flask_login_user
 from flask_login import logout_user as flask_logout_user
-from domain.entity.forms import OTPForm 
+from itsdangerous import URLSafeTimedSerializer
+from domain.entity.forms import OTPForm, RequestResetForm, ResetPasswordForm 
 from datetime import datetime
 import os
 
@@ -11,6 +12,8 @@ from domain.control.login_management import (
     get_user_display_data,
     login_user,
     logout_user,
+    process_reset_password,
+    process_reset_password_request,
     verify_user_otp,
 )
 from domain.entity.forms import LoginForm
@@ -118,3 +121,23 @@ def otp_verify():
         else:
             flash("Invalid OTP code. Please try again.")
     return render_template("login/login_otp.html", form=form)
+
+@login_bp.route('/reset_password_request', methods=['GET', 'POST'])
+def reset_password_request():
+    form = RequestResetForm()
+    if form.validate_on_submit():
+        process_reset_password_request(form.email.data)
+        flash('If your email is registered, you will receive a password reset link.', 'info')
+        return redirect(url_for('login.login'))
+    return render_template('reset_password_request.html', form=form)
+
+
+
+@login_bp.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    form = ResetPasswordForm()
+    return process_reset_password(token, form)
+    
+
+
+

@@ -4,9 +4,15 @@ from datetime import datetime, timedelta, timezone
 
 import bcrypt
 import pyotp
-from flask import current_app, g
+from flask import current_app, g, url_for,flash, redirect, render_template
 from flask_login import login_user as flask_login_user
 from flask_login import logout_user as flask_logout_user
+from itsdangerous import URLSafeTimedSerializer
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
+import bcrypt
+import os
 
 from data_source.user_queries import (
     clear_failed_logins,
@@ -14,6 +20,7 @@ from data_source.user_queries import (
     get_user_failed_attempts_count,
     record_failed_login,
     update_user_lockout,
+    update_user_password_by_email,
 )
 from domain.entity.user import User
 
@@ -134,3 +141,48 @@ def get_user_display_data():
         "email": user.get_email(),
         "role": user.get_role(),
     }
+
+def process_reset_password_request(email):
+    user = get_user_by_email(email)
+    if user:
+        serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+        token = serializer.dumps(user['email'], salt='password-reset')
+
+        # Send the reset email with the token
+        reset_url = url_for('login.reset_password', token=token, _external=True)
+        message = Mail(
+            from_email='buddiesfinder@gmail.com',
+            to_emails=email,
+            subject='Reset Your Password for buddiesfinder',
+            html_content=f'<p>Click <a href="{reset_url}">here</a> to reset your password.</p>'
+        )
+        try:
+            api_key = os.getenv('EMAILVERIFICATION_API_KEY')
+            current_app.logger.error(f"api key: {api_key}")
+            sg = SendGridAPIClient(api_key)
+
+            response = sg.send(message)    
+            current_app.logger.error(f"response status code:{response.status_code}")
+            current_app.logger.error(f"response body:{response.body}")  
+            current_app.logger.error(f"response header:{response.headers}")  
+            
+        except Exception as e:
+            current_app.logger.error(f"Error sending verification email: {e}")
+
+
+def process_reset_password(token, form):
+    serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+    try:
+        email = serializer.loads(token, salt='password-reset', max_age=3600)
+    except (SignatureExpired, BadSignature):
+        flash('The reset link is invalid or has expired.', 'danger')
+        return redirect(url_for('auth.reset_password_request'))
+
+    if form.validate_on_submit():
+        hashed = bcrypt.hashpw(form.password.data.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+        user = get_user_by_email(email)
+        if user:
+            update_user_password_by_email(user['email'], hashed)
+            flash('Your password has been updated. You can now log in.', 'success')
+            return redirect(url_for('login.login'))
+    return render_template('reset_password.html', form=form)

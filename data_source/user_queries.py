@@ -6,6 +6,23 @@ from flask import current_app
 from data_source.db_connection import get_connection
 
 
+
+def update_user_password_by_email(email, hashed_password):
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
+        cursor.execute(
+            "UPDATE user SET password = %s WHERE email = %s",
+            (hashed_password, email)
+        )
+        connection.commit()
+        cursor.close()
+        connection.close()
+        return True
+    except Exception as e:
+        current_app.logger.error(f"Error updating password: {e}")
+        return False
+
 def update_user_verification_status(email, verified=True):
     connection = get_connection()
     cursor = connection.cursor()
