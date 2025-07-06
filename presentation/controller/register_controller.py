@@ -2,7 +2,7 @@ import bcrypt
 from flask import Blueprint, flash, redirect, render_template, url_for, current_app
 from itsdangerous import URLSafeTimedSerializer
 
-from domain.control.register import register_user, generate_verification_token, send_verification_email, update_verification_status
+from domain.control.register import register_user, send_verification_email, update_verification_status
 from domain.entity.forms import RegisterForm
 
 register_bp = Blueprint(
@@ -35,14 +35,11 @@ def register():
     # If GET or validation failed, render form with errors
     return render_template("register/register.html", form=form)
 
-
 @register_bp.route("/verify/<token>")
 def verify_email(token):
-    serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
-    try:
-        email = serializer.loads(token, salt='email-verify', max_age=3600)
-        update_verification_status(email, True)
+    success, result = update_verification_status(token)
+    if success:
         flash("Your email has been verified! You can now log in.", "success")
-    except Exception:
-        flash("Verification link is invalid or has expired.", "danger")
+    else:
+        flash(result, "danger")
     return redirect(url_for("login.login"))

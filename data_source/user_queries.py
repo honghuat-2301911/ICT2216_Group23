@@ -36,15 +36,19 @@ def update_user_password_by_email(email, hashed_password):
         current_app.logger.error(f"Error updating password: {e}")
         return False
 
-def update_user_verification_status(email, verified=True):
-    connection = get_connection()
-    cursor = connection.cursor()
+def update_user_verification_status(email):
+    verified = True
     try:
-        cursor.execute("UPDATE user SET email_verified = %s WHERE email = %s", (int(verified), email))
+        connection = get_connection()
+        cursor = connection.cursor()
+        cursor.execute(
+            "UPDATE user SET email_verified = %s WHERE email = %s",
+            (int(verified), email)
+        )
         connection.commit()
-        return True
+        updated_rows = cursor.rowcount
+        return updated_rows > 0
     except Exception as e:
-        print("Verification update failed:", e)
         return False
     finally:
         cursor.close()

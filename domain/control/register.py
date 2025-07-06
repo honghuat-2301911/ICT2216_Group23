@@ -1,7 +1,7 @@
 """User registration control logic and business rules"""
 
 from data_source.user_queries import get_user_by_email, insert_user, update_user_verification_status
-from itsdangerous import URLSafeTimedSerializer
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 import os
@@ -33,6 +33,17 @@ def send_verification_email(user_email):
     except Exception as e:
         current_app.logger.error(f"Error sending verification email: {e}")
 
-
-def update_verification_status(email, verified=True):
-    return update_user_verification_status(email, verified)
+def update_verification_status(token):
+    serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+    try:
+        email = serializer.loads(token, salt='email-verify', max_age=3600)
+        if update_user_verification_status(email):
+            return True, email  # Success
+        else:
+            return False, "User not found or verification update failed."
+    except SignatureExpired:
+        return False, "Verification link has expired."
+    except BadSignature:
+        return False, "Verification link is invalid."
+    except Exception as e:
+        return False, str(e)
