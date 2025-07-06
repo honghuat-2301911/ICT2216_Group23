@@ -7,9 +7,6 @@ from sendgrid.helpers.mail import Mail
 import os
 from flask import current_app, url_for
 
-def get_serializer():
-    return URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
-
 def register_user(user_data: dict) -> bool:
     # TODO: Implement register function
     existing_user = get_user_by_email(user_data["email"])
@@ -19,12 +16,9 @@ def register_user(user_data: dict) -> bool:
     return insert_user(user_data)
 
 
-def generate_verification_token(email):
-    serializer = get_serializer()
-    return serializer.dumps(email, salt='email-verify')
-
-
-def send_verification_email(user_email, token):
+def send_verification_email(user_email):
+    serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+    token = serializer.dumps(user_email, salt='email-verify')
     verify_url = url_for('register.verify_email', token=token, _external=True)
     message = Mail(
         from_email='buddiesfinder@gmail.com',
@@ -35,7 +29,7 @@ def send_verification_email(user_email, token):
     try:
         api_key = os.getenv('EMAILVERIFICATION_API_KEY')
         sg = SendGridAPIClient(api_key)
-        sg.send(message)          
+        sg.send(message)
     except Exception as e:
         current_app.logger.error(f"Error sending verification email: {e}")
 

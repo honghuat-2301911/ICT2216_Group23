@@ -9,9 +9,6 @@ register_bp = Blueprint(
     "register", __name__, url_prefix="/", template_folder="../templates/"
 )
 
-def get_serializer():
-    return URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
-
 @register_bp.route("/register", methods=["GET", "POST"])
 def register():
     form = RegisterForm()
@@ -29,8 +26,7 @@ def register():
         }
 
         if register_user(user_data):
-            token = generate_verification_token(form.email.data)
-            send_verification_email(form.email.data, token)
+            send_verification_email(form.email.data)
             return render_template("register/verify_email.html", email=form.email.data)
 
         flash("Something went wrong. Please try again.", "error")
@@ -42,7 +38,7 @@ def register():
 
 @register_bp.route("/verify/<token>")
 def verify_email(token):
-    serializer = get_serializer()
+    serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
     try:
         email = serializer.loads(token, salt='email-verify', max_age=3600)
         update_verification_status(email, True)
