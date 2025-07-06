@@ -54,7 +54,6 @@ def fetchProfile():
         activity_form=ActivityEditForm(),
         post_form=PostEditForm(),
         delete_form=DeleteForm(),
-        disable_otp_form=DisableOTPForm(),
     )
 
 @profile_bp.route("/edit_activity/<int:activity_id>", methods=["POST"])
