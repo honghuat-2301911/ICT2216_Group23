@@ -138,7 +138,7 @@ def verify_otp():
 
 @profile_bp.route("/disable_otp", methods=["POST"])
 @login_required
-def disable_otp_route():
+def disable_otp():
     form = DisableOTPForm()
     if form.validate_on_submit():
         user_id = int(current_user.get_id())
@@ -151,4 +151,3 @@ def disable_otp_route():
     else:
         flash("Invalid form submission.", "danger")
     return redirect(url_for("profile_bp.fetchProfile"))
-
