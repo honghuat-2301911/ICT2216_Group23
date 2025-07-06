@@ -55,7 +55,7 @@
                         {% endif %}
                     </p>
                     {% if user.otp_enabled %}
-                        <form method="POST" action="{{ url_for('profile_bp.disable_otp') }}">
+                        <form method="POST" action="{{ url_for('profile_bp.disable_otp_route') }}">
                             {{ disable_otp_form.hidden_tag() }}
                             <button type="submit" class="btn btn-danger">Disable 2FA</button>
                         </form>

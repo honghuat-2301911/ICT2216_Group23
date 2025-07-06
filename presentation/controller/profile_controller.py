@@ -139,7 +139,7 @@ def verify_otp():
 
 @profile_bp.route("/disable_otp", methods=["POST"])
 @login_required
-def disable_otp():
+def disable_otp_route():
     form = DisableOTPForm()
     if form.validate_on_submit():
         user_id = int(current_user.get_id())
