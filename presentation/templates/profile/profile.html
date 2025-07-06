@@ -56,7 +56,7 @@
                     </p>
                     {% if user.otp_enabled %}
                         <!-- Disable 2FA Form -->
-                        <form method="POST" action="{{ url_for('profile_bp.disable_otp_route') }}">
+                        <form method="POST" action="{{ url_for('profile_bp.disable_otp') }}">
                             <button type="submit" class="btn btn-danger">Disable 2FA</button>
                         </form>
                     {% else %}
