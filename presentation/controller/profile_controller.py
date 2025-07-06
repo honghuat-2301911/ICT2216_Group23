@@ -135,10 +135,15 @@ def verify_otp():
         current_app.logger.error(f"OTP verification error: {str(e)}")
         return jsonify({"status": "error", "message": "Failed to verify OTP"}), 500
 
-@profile_bp.route("/check_otp_status")
+@profile_bp.route("/disable_otp", methods=["POST"])
 @login_required
-def check_otp_status():
+def disable_otp_route():
     user_id = int(current_user.get_id())
     profile_manager = ProfileManagement()
-    otp_enabled = profile_manager.check_otp_status(user_id)
-    return jsonify({"otp_enabled": bool(otp_enabled)})
+    success = profile_manager.disable_otp(user_id)
+    if success:
+        current_user.otp_enabled = False
+        flash("OTP has been disabled.", "success")
+    else:
+        flash("Failed to disable OTP.", "danger")
+    return redirect(url_for("profile_bp.fetchProfile"))

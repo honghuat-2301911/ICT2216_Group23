@@ -9,6 +9,7 @@ from data_source.user_queries import (
     remove_user_profile_picture,
     update_user_profile_by_id,
     get_user_by_id,
+    disable_otp_by_user_id,
 )
 
 from data_source.social_feed_queries import get_posts_by_user_id
@@ -259,13 +260,6 @@ class ProfileManagement:
     def verify_otp(self, user_id, otp_code):
         success, error = verify_and_enable_otp(user_id, otp_code)
         return success, error
-
-    def check_otp_status(self, user_id):
-        user_data = get_user_by_id(user_id)
-        otp_enabled = False
-        if user_data:
-            if isinstance(user_data, dict):
-                otp_enabled = user_data.get("otp_enabled", False)
-            else:
-                otp_enabled = getattr(user_data, "otp_enabled", False)
-        return bool(otp_enabled)
+    
+    def disable_otp(self, user_id):
+        return disable_otp_by_user_id(user_id)

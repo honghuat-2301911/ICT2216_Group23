@@ -5,7 +5,20 @@ from flask import current_app
 
 from data_source.db_connection import get_connection
 
-
+def disable_otp_by_user_id(user_id):
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
+        cursor.execute(
+            "UPDATE user SET otp_enabled=0, otp_secret=NULL WHERE id=%s", (user_id,)
+        )
+        connection.commit()
+        cursor.close()
+        connection.close()
+        return True
+    except Exception as e:
+        current_app.logger.error(f"Error disabling OTP: {e}")
+        return False
 
 def update_user_password_by_email(email, hashed_password):
     try:

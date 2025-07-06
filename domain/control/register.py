@@ -34,14 +34,8 @@ def send_verification_email(user_email, token):
     )
     try:
         api_key = os.getenv('EMAILVERIFICATION_API_KEY')
-        current_app.logger.error(f"api key: {api_key}")
         sg = SendGridAPIClient(api_key)
-
-        response = sg.send(message)    
-        current_app.logger.error(f"response status code:{response.status_code}")
-        current_app.logger.error(f"response body:{response.body}")  
-        current_app.logger.error(f"response header:{response.headers}")  
-        
+        sg.send(message)          
     except Exception as e:
         current_app.logger.error(f"Error sending verification email: {e}")
 
