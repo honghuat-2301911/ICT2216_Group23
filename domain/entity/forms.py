@@ -198,3 +198,6 @@ class ResetPasswordForm(FlaskForm):
         DataRequired(), EqualTo('password')
     ])
     submit = SubmitField('Reset Password')
+    
+class DisableOTPForm(FlaskForm):
+    submit = SubmitField('Disable 2FA')
