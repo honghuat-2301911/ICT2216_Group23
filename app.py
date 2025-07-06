@@ -64,7 +64,7 @@ def create_app():
     login_manager.session_protection = "strong" # Check the user's IP address and User-Agent on every request.
                                                 # Log the user out if either changes (to help prevent session hijacking).
 
-    csrf = CSRFProtect(app)
+    #csrf = CSRFProtect(app)
 
     @login_manager.user_loader
     def load_user(user_id):
