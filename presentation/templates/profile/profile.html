@@ -54,14 +54,15 @@
                             <span style="color: red; font-weight: bold;">Disabled</span>
                         {% endif %}
                     </p>
-                    {% if user.otp_enabled %}
-                        <form method="POST" action="{{ url_for('profile_bp.disable_otp_route') }}">
-                            {{ disable_otp_form.hidden_tag() }}
-                            <button type="submit" class="btn btn-danger">Disable 2FA</button>
-                        </form>
-                    {% else %}
-                        <button id="enable2faBtn" class="btn btn-primary">Enable 2FA</button>
-                    {% endif %}
+                        {% if user.otp_enabled %}
+                            <form method="POST" action="{{ url_for('profile_bp.disable_otp') }}">
+                                {{ disable_otp_form.csrf_token }}
+                                <button type="submit" class="btn btn-danger">Disable 2FA</button>
+                            </form>
+                        {% else %}
+                            <p>2FA is already disabled.</p>
+                            <button id="enable2faBtn" class="btn btn-primary">Enable 2FA</button>
+                        {% endif %}
                 </div>
             </div>
         </div>

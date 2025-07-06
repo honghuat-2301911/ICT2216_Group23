@@ -137,9 +137,9 @@ def verify_otp():
         current_app.logger.error(f"OTP verification error: {str(e)}")
         return jsonify({"status": "error", "message": "Failed to verify OTP"}), 500
 
-@profile_bp.route("/disable_otp", methods=["POST"])
+@profile_bp.route('/disable_otp', methods=['POST'])
 @login_required
-def disable_otp_route():
+def disable_otp():
     form = DisableOTPForm()
     if form.validate_on_submit():
         user_id = int(current_user.get_id())
@@ -151,4 +151,4 @@ def disable_otp_route():
             flash("Failed to disable OTP.", "danger")
     else:
         flash("Invalid form submission.", "danger")
-    return redirect(url_for("profile_bp.fetchProfile"))
+    return redirect(url_for('profile_bp.fetchProfile'))
