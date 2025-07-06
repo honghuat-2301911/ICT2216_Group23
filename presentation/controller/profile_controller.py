@@ -21,7 +21,6 @@ from domain.entity.forms import (
     DeleteForm,
     PostEditForm,
     ProfileEditForm,
-    DisableOTPForm,
 )
 
 profile_bp = Blueprint(
@@ -143,6 +142,7 @@ def disable_otp_route():
     profile_manager = ProfileManagement()
     success = profile_manager.disable_otp(user_id)
     if success:
+        current_user.otp_enabled = False
         flash("OTP has been disabled.", "success")
     else:
         flash("Failed to disable OTP.", "danger")
