@@ -1,5 +1,8 @@
 name: Pip Audit on requirements.txt 
 
+permissions:
+  contents: read
+  
 on:
   push:
     branches:

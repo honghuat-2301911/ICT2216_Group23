@@ -1,5 +1,8 @@
 name: HTML Lint
 
+permissions:
+  contents: read
+
 on:
   push:
     branches:

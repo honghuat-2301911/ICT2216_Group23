@@ -1,5 +1,8 @@
 name: Format check using black,isort
 
+permissions:
+  contents: read
+  
 on:
   push:
     branches:

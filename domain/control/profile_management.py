@@ -59,7 +59,7 @@ class ProfileManagement:
             str(user_data.get("role", "user")),
             str(user_data.get("profile_picture", "")),
             user_data.get("otp_secret"),
-            bool(int(user_data.get("otp_enabled", 0))),
+            otp_enabled=bool(int(user_data.get("otp_enabled", 0))),
         )
 
     def get_user_posts(self, user_id):
