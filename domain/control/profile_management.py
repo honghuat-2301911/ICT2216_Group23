@@ -23,6 +23,7 @@ from werkzeug.utils import secure_filename
 from domain.control.otp_management import generate_otp_for_user, verify_and_enable_otp
 from domain.control.social_feed_management import deletePost, editPost
 from domain.entity.social_post import Post, Comment
+from flask import g, current_app
 
 class ProfileManagement:
     def updateProfile(self, user_id, name, password, profile_picture=None):
@@ -48,20 +49,30 @@ class ProfileManagement:
             user_id_val = int(id_val)
         else:
             user_id_val = 0
-        return User(
-            user_id_val,
-            str(user_data.get("name")) if user_data.get("name") is not None else "",
-            (
-                str(user_data.get("password"))
-                if user_data.get("password") is not None
-                else ""
-            ),
-            str(user_data.get("email")) if user_data.get("email") is not None else "",
-            str(user_data.get("role", "user")),
-            str(user_data.get("profile_picture", "")),
-            user_data.get("otp_secret"),
-            otp_enabled=bool(int(user_data.get("otp_enabled", 0))),
+        # Safely convert database values to proper types
+        otp_secret_val = user_data.get("otp_secret")
+        if otp_secret_val is not None:
+            otp_secret_val = str(otp_secret_val)
+        
+        otp_enabled_val = user_data.get("otp_enabled", 0)
+        if isinstance(otp_enabled_val, (int, str)):
+            otp_enabled_val = bool(int(otp_enabled_val))
+        else:
+            otp_enabled_val = False
+            
+        user = User(
+            id=user_id_val,
+            name=str(user_data.get("name")) if user_data.get("name") is not None else "",
+            password=str(user_data.get("password")) if user_data.get("password") is not None else "",
+            email=str(user_data.get("email")) if user_data.get("email") is not None else "",
+            role=str(user_data.get("role", "user")),
+            profile_picture=str(user_data.get("profile_picture", "")),
+            otp_secret=otp_secret_val,
+            otp_enabled=otp_enabled_val,
         )
+        # Store user data in Flask g object
+        g.current_user_profile = user
+        return user
 
     def get_user_posts(self, user_id):
         posts = get_posts_by_user_id(user_id)
@@ -94,6 +105,8 @@ class ProfileManagement:
                 like_user_ids=str(post.get('like_user_ids', '')),
             )
             post_objs.append(post_obj)
+        # Store user posts in Flask g object
+        g.user_posts = post_objs
         return post_objs
 
     def get_user_activities(self, user_id):
@@ -132,6 +145,9 @@ class ProfileManagement:
                     ]
                     if str(user_id) in joined_ids:
                         joined_only_activities.append(activity)
+        # Store user activities in Flask g object
+        g.user_hosted_activities = hosted_activities
+        g.user_joined_activities = joined_only_activities
         return hosted_activities, joined_only_activities
 
     def update_profile_full(self, user_id, form):
@@ -149,7 +165,7 @@ class ProfileManagement:
                 image.verify()  # Raises if not a valid image
                 file.seek(0)    # Reset pointer for saving
             except (UnidentifiedImageError, Exception):
-                flash("Uploaded profile picture is not a valid image.", "error")
+                current_app.logger.error("Uploaded profile picture is not a valid image.")
                 return False
 
             ext = os.path.splitext(secure_filename(file.filename))[1]
@@ -199,32 +215,46 @@ class ProfileManagement:
                 return int(val)
             except (TypeError, ValueError):
                 return default
-        if not activity or safe_int(get_val(activity, 'user_id', 0)) != user_id:
-            return False, "You are not authorized to edit this activity."
+        if not activity:
+            return False, "Activity not found."
+        activity_user_id = safe_int(get_val(activity, 'user_id', 0))
+        if activity_user_id != user_id:
+            return False, "You can only edit activities you created."
+        activity_obj = SportsActivity(
+            id=safe_int(get_val(activity, 'id', 0)),
+            user_id=activity_user_id,
+            activity_name=str(get_val(activity, 'activity_name', '')),
+            activity_type=str(get_val(activity, 'activity_type', '')),
+            skills_req=str(get_val(activity, 'skills_req', '')),
+            date=str(get_val(activity, 'date', '')),
+            location=str(get_val(activity, 'location', '')),
+            max_pax=safe_int(get_val(activity, 'max_pax', 0)),
+            user_id_list_join=str(get_val(activity, 'user_id_list_join', '')),
+        )
         if form.validate_on_submit():
-            update_sports_activity_details(
-                activity_id,
-                form.activity_name.data,
-                form.activity_type.data,
-                form.skills_req.data,
-                form.date.data.strftime("%Y-%m-%d %H:%M:%S") if form.date.data else "",
-                form.location.data,
-                form.max_pax.data,
-                get_val(activity, 'user_id_list_join', ""),
+            activity_obj.activity_name = form.activity_name.data
+            activity_obj.activity_type = form.activity_type.data
+            activity_obj.skills_req = form.skills_req.data
+            activity_obj.date = form.date.data
+            activity_obj.location = form.location.data
+            activity_obj.max_pax = form.max_pax.data
+            result = update_sports_activity_details(
+                activity_obj.id,
+                activity_obj.activity_name,
+                activity_obj.activity_type,
+                activity_obj.skills_req,
+                activity_obj.date,
+                activity_obj.location,
+                activity_obj.max_pax,
             )
-            return True, "Activity updated successfully."
-        return False, "Failed to update activity. Check the fields."
+            if result:
+                return True, "Activity updated successfully."
+            else:
+                return False, "Failed to update activity."
+        return False, "Invalid form data."
 
     def edit_post(self, user_id, post_id, form):
-        if form.validate_on_submit():
-            updated_content = form.content.data or ""
-            remove_image = form.remove_image.data
-            success = editPost(user_id, post_id, updated_content, remove_image)
-            if success:
-                return True, "Post updated successfully."
-            else:
-                return False, "Failed to update post."
-        return False, "Failed to update post. Please check the fields."
+        return editPost(user_id, post_id, form.content.data)
 
     def leave_activity(self, user_id, activity_id):
         activity = get_sports_activity_by_id(activity_id)
@@ -232,34 +262,120 @@ class ProfileManagement:
             if isinstance(r, dict):
                 return r.get(key, default)
             return getattr(r, key, default)
-        user_id_list_join = str(get_val(activity, 'user_id_list_join', ''))
-        if not activity or not user_id_list_join:
-            return False, "Activity not found or you are not a participant."
-        joined_ids = [uid.strip() for uid in user_id_list_join.split(",") if uid.strip()]
-        if str(user_id) in joined_ids:
-            joined_ids.remove(str(user_id))
-            new_join_list = ",".join([str(uid) for uid in joined_ids])
-            update_sports_activity(activity_id, new_join_list)
-            return True, "You have left the activity."
-        else:
+        def safe_int(val, default=0):
+            try:
+                return int(val)
+            except (TypeError, ValueError):
+                return default
+        if not activity:
+            return False, "Activity not found."
+        joined_ids = [
+            uid.strip()
+            for uid in (get_val(activity, 'user_id_list_join', '') or '').split(',')
+            if uid.strip()
+        ]
+        if str(user_id) not in joined_ids:
             return False, "You are not a participant in this activity."
+        joined_ids.remove(str(user_id))
+        new_join_list = ','.join(joined_ids)
+        result = update_sports_activity(activity_id, new_join_list)
+        if result:
+            return True, "Successfully left the activity."
+        else:
+            return False, "Failed to leave the activity."
 
     def delete_post(self, user_id, post_id):
-        success = deletePost(user_id, post_id)
-        if success:
-            return True, "Post deleted successfully."
-        else:
-            return False, "Failed to delete post."
+        return deletePost(user_id, post_id)
 
     def generate_otp(self, user_id):
-        otp_data, error = generate_otp_for_user(user_id)
-        if error:
-            return None, error
-        return otp_data, None
+        return generate_otp_for_user(user_id)
 
     def verify_otp(self, user_id, otp_code):
-        success, error = verify_and_enable_otp(user_id, otp_code)
-        return success, error
-    
+        return verify_and_enable_otp(user_id, otp_code)
+
     def disable_otp(self, user_id):
         return disable_otp_by_user_id(user_id)
+
+    def get_profile_display_data(self):
+        """
+        Retrieve display data for the current user profile
+
+        Returns:
+            dict: User profile display information, or None if no user is logged in
+        """
+        user = g.get("current_user_profile")
+        if not user:
+            return None
+
+        return {
+            "id": user.get_id(),
+            "name": user.get_name(),
+            "email": user.get_email(),
+            "role": user.get_role(),
+            "profile_picture": user.get_profile_picture(),
+            "otp_enabled": user.get_otp_enabled(),
+        }
+
+    def get_user_posts_display_data(self):
+        """
+        Retrieve display data for the current user's posts
+
+        Returns:
+            list: List of user posts display information, or empty list if no posts
+        """
+        posts = g.get("user_posts", [])
+        if not posts:
+            return []
+
+        return [
+            {
+                "id": post.get_id(),
+                "user": post.get_user(),
+                "content": post.get_content(),
+                "image_url": post.get_image_url(),
+                "created_at": post.get_created_at(),
+                "likes": post.get_likes(),
+                "comments_count": len(post.get_comments()),
+                "like_user_ids": post.get_like_user_ids(),
+            }
+            for post in posts
+        ]
+
+    def get_user_activities_display_data(self):
+        """
+        Retrieve display data for the current user's activities
+
+        Returns:
+            dict: User activities display information
+        """
+        hosted_activities = g.get("user_hosted_activities", [])
+        joined_activities = g.get("user_joined_activities", [])
+
+        return {
+            "hosted_activities": [
+                {
+                    "id": activity.get_id(),
+                    "activity_name": activity.get_activity_name(),
+                    "activity_type": activity.get_activity_type(),
+                    "skills_req": activity.get_skills_req(),
+                    "date": activity.get_date(),
+                    "location": activity.get_location(),
+                    "max_pax": activity.get_max_pax(),
+                    "user_id_list_join": activity.get_user_id_list_join(),
+                }
+                for activity in hosted_activities
+            ],
+            "joined_activities": [
+                {
+                    "id": activity.get_id(),
+                    "activity_name": activity.get_activity_name(),
+                    "activity_type": activity.get_activity_type(),
+                    "skills_req": activity.get_skills_req(),
+                    "date": activity.get_date(),
+                    "location": activity.get_location(),
+                    "max_pax": activity.get_max_pax(),
+                    "user_id_list_join": activity.get_user_id_list_join(),
+                }
+                for activity in joined_activities
+            ],
+        }
