@@ -14,6 +14,18 @@
 </head>
 <body>
     {% include 'admin_navbar.html' %}
+    <div id="flashModal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <span class="close" onclick="closeFlashModal()">&times;</span>
+        {% with flash_messages = get_flashed_messages(with_categories=true) %}
+        {% if flash_messages %}
+            {% for category, message in flash_messages %}
+            <div class="flash-message {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </div>
+    </div>
 
     <div class="bulletin-container">
         {% if error %}
@@ -128,6 +140,14 @@
 
         function closeHostModal() {
             document.getElementById("hostModal").style.display = "none";
+        }
+        window.onload = function () {
+        if (document.querySelector('#flashModal .flash-message')) {
+            document.getElementById('flashModal').style.display = 'block';
+        }
+        };
+        function closeFlashModal() {
+        document.getElementById('flashModal').style.display = 'none';
         }
 
     </script>
