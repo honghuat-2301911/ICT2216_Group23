@@ -21,7 +21,8 @@ from wtforms.validators import (
     Optional,
 )
 
-import datetime
+from datetime import datetime
+
 
 
 class RegisterForm(FlaskForm):
