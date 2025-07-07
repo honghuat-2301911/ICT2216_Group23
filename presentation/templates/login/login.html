@@ -48,16 +48,13 @@
             </div>
 
             <div class="form-options">
-                <a href="#" class="forgot-password">Forgot password?</a>
+                <a href="{{ url_for('login.reset_password_request') }}" class="forgot-password">Forgot password?</a>
             </div>
 
             {{ form.submit(class="login-btn") }}
             </form>
             <div class="login-footer">
                 <p>Don't have an account? <a href="{{ url_for('register.register') }}" class="signup-link">Sign up</a></p>
-            </div>
-            <div class="login-footer">
-                <p>Forgot your passowrd? <a href="{{ url_for('login.reset_password_request') }}" class="signup-link">Reset Password</a></p>
             </div>
         </div>
     </div>
