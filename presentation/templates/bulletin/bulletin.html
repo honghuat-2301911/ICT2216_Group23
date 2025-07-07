@@ -15,6 +15,20 @@
 <body>
   {% include 'navbar.html' %}
 
+  <div id="flashModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <span class="close" onclick="closeFlashModal()">&times;</span>
+    {% with flash_messages = get_flashed_messages(with_categories=true) %}
+      {% if flash_messages %}
+        {% for category, message in flash_messages %}
+          <div class="flash-message {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+</div>
+
+
   <div class="bulletin-container">
     {% if error %}
       <div class="error-message" style="color: black; text-align: center; margin-top: 20px;">
@@ -181,6 +195,8 @@
             name="date"
             required
             value="{{ host_form.date.data|datetimeformat if host_form.date.data else '' }}"
+            
+
           >
           {% if host_form.date.errors %}
             <div class="error-message">{{ host_form.date.errors[0] }}</div>
@@ -251,6 +267,14 @@
 
     function closeHostModal() {
       document.getElementById("hostModal").style.display = "none";
+    }
+    window.onload = function () {
+      if (document.querySelector('#flashModal .flash-message')) {
+        document.getElementById('flashModal').style.display = 'block';
+      }
+    };
+    function closeFlashModal() {
+      document.getElementById('flashModal').style.display = 'none';
     }
   </script>
 </body>

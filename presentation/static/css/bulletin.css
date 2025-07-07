@@ -18,8 +18,8 @@ body {
 }
 .grid-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 32px;
+    grid-template-columns: repeat(2, 1fr); /* always 2 */
+    gap: 24px;
     padding: 32px 0;
 }
 .card {
@@ -37,12 +37,41 @@ body {
     cursor: pointer;
     transition: box-shadow 0.2s, transform 0.2s;
     border: 1px solid #fca5a5;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    word-wrap: break-word;
+    word-break: break-word;
 }
 .card:hover {
     box-shadow: 0 8px 32px rgba(239, 68, 68, 0.15);
     transform: translateY(-4px) scale(1.04);
     background: #fff;
 }
+.card h3 {
+  width: 100%;
+  text-align: center;
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  color: #b91c1c;
+  overflow-wrap: break-word;
+}
+.card p {
+  font-weight: normal;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+  line-height: 1.4;
+  text-align: left;
+  width: 100%;
+  word-break: break-word;
+}
+
+.card p strong {
+  display: inline-block;
+  min-width: 90px;
+}
+
+
 .search-bar input[type="text"] {
     padding: 10px 16px;
     border-radius: 8px;
@@ -135,6 +164,7 @@ body {
     flex-direction: column;
     align-items: stretch;
     animation: slideUp 0.3s;
+    
 }
 .close {
     position: absolute;
@@ -158,11 +188,24 @@ body {
     margin-bottom: 18px;
     font-weight: 700;
     text-align: center;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    text-align: center;
+    font-size: 1.2rem;
+    line-height: 1.4;
+    max-width: 100%;
 }
 .modal-content p {
     color: #23272a;
     font-size: 1.05rem;
     margin-bottom: 10px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    text-align: center;
+    line-height: 1.4;
+    max-width: 100%;
 }
 .modal-content button.bulletin-btn {
     margin-top: 18px;
@@ -202,9 +245,8 @@ body {
     .modal-content { padding: 10px 2px; }
 }
 @media (max-width: 600px) {
-    .modal-content {
-        padding: 16px 4px 16px 4px;
-        max-width: 98vw;
+    .grid-container {
+        grid-template-columns: 1fr;
     }
 }
 .bulletin-header { text-align: center; margin-bottom: 30px; }

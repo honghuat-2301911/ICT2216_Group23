@@ -81,6 +81,7 @@ def join_activity():
 
     activity_id = join_form.activity_id.data
     if get_host_name(activity_id):
+        flash("You can't join the activities you are hosting", "error")
         return redirect(url_for("bulletin.bulletin_page"))
 
     user_id = int(current_user.get_id())

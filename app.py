@@ -2,6 +2,7 @@ import logging
 import os
 from logging.handlers import RotatingFileHandler
 from datetime import timedelta, datetime
+import traceback
 
 from flask import Flask, render_template, session, redirect, url_for, flash, request
 from flask_login import LoginManager
@@ -132,7 +133,11 @@ def create_app():
     def handle_exception(e):
         # Default values
         code = 500
-        message = "An unexpected error occurred."
+        message = str(e)
+        exception_type = type(e).__name__
+
+        # Get full traceback as a string
+        tb = traceback.format_exc()
 
         # If the exception is an HTTPException, extract details
         if hasattr(e, 'code'):
@@ -140,7 +145,13 @@ def create_app():
         if hasattr(e, 'description'):
             message = e.description
 
-        return render_template("error/error.html", error_code=code, error_message=message), code
+        return render_template(
+            "error/error.html",
+            error_code=code,
+            error_message=message,
+            exception_type=exception_type,
+            traceback_info=tb
+        ), code
 
     # make sure DB has the required tables
     # init_schema()
