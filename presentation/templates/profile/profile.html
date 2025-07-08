@@ -15,6 +15,18 @@
 </head>
 <body>
     {% include 'navbar.html' %}
+    <div id="flashModal" class="modal" style="display:none;">
+      <div class="modal-content">
+        <span class="close" onclick="closeFlashModal()">&times;</span>
+        {% with flash_messages = get_flashed_messages(with_categories=true) %}
+          {% if flash_messages %}
+            {% for category, message in flash_messages %}
+              <div class="flash-message {{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+      </div>
+    </div>
     <div class="profile-banner">
         <div class="profile-header">
             <img id="profilePicView" src="{{ user.profile_picture or url_for('static', filename='icons/user.png') }}" class="profile-avatar" alt="Profile Picture" style="cursor:pointer;">
@@ -232,7 +244,7 @@
         <div class="modal-content">
             <span class="close-modal" id="closeEditPostModalBtn">&times;</span>
             <h3>Edit Post</h3>
-            <form id="editPostForm" method="POST" enctype="multipart/form-data">
+            <form id="editPostForm" class="profile-edit-form" method="POST" enctype="multipart/form-data">
                 {{ post_form.hidden_tag() }}
                 {{ post_form.post_id(id='editPostId') }}
                 <div>
@@ -267,7 +279,7 @@
         <div class="modal-content">
             <span class="close-modal" id="closeEditActivityModalBtn">&times;</span>
             <h3>Edit Activity</h3>
-            <form id="editActivityForm" method="POST">
+            <form id="editActivityForm" class="profile-edit-form" method="POST">
                 {{ activity_form.hidden_tag() }}
                 {{ activity_form.activity_id(id="editActivityId") }}
                 <div>
@@ -577,6 +589,9 @@
             } else if (window.location.hash === "#feedSection") {
                 showSection('feedSection', document.getElementById('feedTab'));
             }
+            if (document.querySelector('#flashModal .flash-message')) {
+                document.getElementById('flashModal').style.display = 'block';
+            }
         };
 
         // Profile Picture Modal Logic
@@ -624,6 +639,9 @@
                 .catch(() => {
                     joinedUsersList.innerHTML = '<li>Error loading users.</li>';
                 });
+        }
+        function closeFlashModal() {
+            document.getElementById('flashModal').style.display = 'none';
         }
     </script>
 </body>
