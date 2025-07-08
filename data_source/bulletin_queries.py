@@ -47,7 +47,7 @@ def get_sports_activity_by_id(activity_id: int):
     return activity_data
 
 
-def update_sports_activity(activity_id: int, user_id_list_join: str):
+def update_sports_activity(activity_id: int, user_id_list_join: str) -> bool:
     connection = get_connection()
     cursor = connection.cursor()
     query = """
@@ -57,8 +57,10 @@ def update_sports_activity(activity_id: int, user_id_list_join: str):
     """
     cursor.execute(query, (user_id_list_join, activity_id))
     connection.commit()
+    success = cursor.rowcount > 0  # True if at least one row was updated
     cursor.close()
     connection.close()
+    return success
 
 
 def insert_new_activity(activity_data):
@@ -160,11 +162,46 @@ def get_joined_user_names_by_activity_id(activity_id: int):
         cursor.close()
         connection.close()
         return []
-    # Fetch user names for these IDs
+    # Fetch only user names for these IDs
     format_strings = ",".join(["%s"] * len(user_id_list))
-    query = f"SELECT id, name FROM user WHERE id IN ({format_strings})"
+    query = f"SELECT name FROM user WHERE id IN ({format_strings})"
     cursor.execute(query, tuple(user_id_list))
     users = cursor.fetchall()
     cursor.close()
     connection.close()
-    return users
+    # Return only the names as a list
+    return [user['name'] for user in users]
+
+
+def get_hosted_activities_with_name(user_id):
+    connection = get_connection()
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute(
+        """
+        SELECT sa.id, sa.activity_name, sa.activity_type, sa.skills_req, sa.date, sa.location, sa.max_pax, u.name as host_name
+        FROM sports_activity sa
+        JOIN user u ON sa.user_id = u.id
+        WHERE sa.user_id = %s AND sa.date >= CURDATE()
+        """, (user_id,)
+    )
+    data = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return data
+
+
+def get_joined_activities_with_host_name(user_id):
+    connection = get_connection()
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute(
+        """
+        SELECT sa.id, sa.activity_name, sa.activity_type, sa.skills_req, sa.date, sa.location, sa.max_pax, u.name as host_name
+        FROM sports_activity sa
+        JOIN user u ON sa.user_id = u.id
+        WHERE sa.user_id != %s AND sa.date >= CURDATE() AND FIND_IN_SET(%s, sa.user_id_list_join)
+        """, (user_id, user_id)
+    )
+    data = cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return data

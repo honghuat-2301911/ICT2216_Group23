@@ -4,6 +4,8 @@ from data_source.bulletin_queries import (
     get_sports_activity_by_id,
     update_sports_activity,
     update_sports_activity_details,
+    get_hosted_activities_with_name,
+    get_joined_activities_with_host_name,
 )
 from data_source.user_queries import (
     remove_user_profile_picture,
@@ -110,42 +112,35 @@ class ProfileManagement:
         return post_objs
 
     def get_user_activities(self, user_id):
-        all_activities = get_all_bulletin()
-        hosted_activities = []
-        joined_only_activities = []
-        def get_val(r, key, default=None):
-            if isinstance(r, dict):
-                return r.get(key, default)
-            return getattr(r, key, default)
-        def safe_int(val, default=0):
-            try:
-                return int(val)
-            except (TypeError, ValueError):
-                return default
-        if all_activities:
-            for row in all_activities:
-                activity = SportsActivity(
-                    id=safe_int(get_val(row, 'id', 0)),
-                    user_id=safe_int(get_val(row, 'user_id', 0)),
-                    activity_name=str(get_val(row, 'activity_name', '')),
-                    activity_type=str(get_val(row, 'activity_type', '')),
-                    skills_req=str(get_val(row, 'skills_req', '')),
-                    date=str(get_val(row, 'date', '')),
-                    location=str(get_val(row, 'location', '')),
-                    max_pax=safe_int(get_val(row, 'max_pax', 0)),
-                    user_id_list_join=str(get_val(row, 'user_id_list_join', '')),
-                )
-                if activity.user_id == user_id:
-                    hosted_activities.append(activity)
-                else:
-                    joined_ids = [
-                        uid.strip()
-                        for uid in (activity.user_id_list_join or '').split(',')
-                        if uid.strip()
-                    ]
-                    if str(user_id) in joined_ids:
-                        joined_only_activities.append(activity)
-        # Store user activities in Flask g object
+        hosted_activities_raw = get_hosted_activities_with_name(user_id)
+        joined_activities_raw = get_joined_activities_with_host_name(user_id)
+       
+        hosted_activities = [
+            {
+                'id': a['id'],
+                'activity_name': a['activity_name'],
+                'activity_type': a['activity_type'],
+                'skills_req': a['skills_req'],
+                'date': a['date'],
+                'location': a['location'],
+                'max_pax': a['max_pax'],
+                'host_name': a['host_name'],
+            }
+            for a in hosted_activities_raw
+        ]
+        joined_only_activities = [
+            {
+                'id': a['id'],
+                'activity_name': a['activity_name'],
+                'activity_type': a['activity_type'],
+                'skills_req': a['skills_req'],
+                'date': a['date'],
+                'location': a['location'],
+                'max_pax': a['max_pax'],
+                'host_name': a['host_name'],
+            }
+            for a in joined_activities_raw
+        ]
         g.user_hosted_activities = hosted_activities
         g.user_joined_activities = joined_only_activities
         return hosted_activities, joined_only_activities
