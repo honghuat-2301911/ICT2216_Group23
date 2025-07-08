@@ -199,7 +199,9 @@ def process_reset_password(token, form):
 
         utc_plus_8 = timezone(timedelta(hours=8))
         now = datetime.now(utc_plus_8)
-        expires_at_with_timezone = token_data["expires_at"].replace(tzinfo=utc_plus_8)
+
+        expires_at_str = token_data["expires_at"]
+        expires_at_with_timezone = datetime.strptime(expires_at_str, "%Y-%m-%d %H:%M:%S").replace(tzinfo=utc_plus_8)
         if now > expires_at_with_timezone:
             flash('This reset link has expired. Please request a new password reset.', 'danger')
             return redirect(url_for('login.login'))
