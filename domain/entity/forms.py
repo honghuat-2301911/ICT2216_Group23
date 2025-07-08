@@ -29,20 +29,20 @@ from wtforms import ValidationError
 class RegisterForm(FlaskForm):
     name = StringField(
         "Name",
-        validators=[DataRequired(message="Name is required"), Length(min=2, max=50)],
+        validators=[DataRequired(message="Name is required"), Length(max=50, message="Name must be less than 50 characters")],
     )
     email = StringField(
         "Email Address",
         validators=[
             DataRequired(message="Email is required"),
-            Email(message="Enter a valid email"),
+            Email(message="Enter a valid email"), Length(max=254, message="Email must be less than 254 characters")
         ],
     )
     password = PasswordField(
         "Password",
         validators=[
             DataRequired(message="Password is required"),
-            Length(min=8, message="Password must be at least 8 characters long"),
+            Length(min=8, max=255, message="Password must be between 8 and 255 characters"),
         ],
     )
     confirm_password = PasswordField(
@@ -80,9 +80,8 @@ class FilterForm(FlaskForm):
     submit = SubmitField("Filter")
 
 
-
 class HostForm(FlaskForm):
-    activity_name = StringField("Activity Name", validators=[DataRequired()])
+    activity_name = StringField("Activity Name", validators=[DataRequired(), Length(min=2, max=50, message="Activity name must be between 2 and 50 characters")])
     activity_type = SelectField(
         "Type",
         choices=[
@@ -92,11 +91,11 @@ class HostForm(FlaskForm):
         ],
         validators=[DataRequired()],
     )
-    skills_req = StringField("Required Skills", validators=[DataRequired()])
+    skills_req = StringField("Required Skills", validators=[DataRequired(), Length(min=2, max=100, message="Required skills must be between 2 and 100 characters")])
     date = DateTimeLocalField(
         "Date", format="%Y-%m-%dT%H:%M", validators=[DataRequired()]
     )
-    location = StringField("Location", validators=[DataRequired()])
+    location = StringField("Location", validators=[DataRequired(), Length(min=2, max=50, message="Location must be between 2 and 50 characters")])
     max_pax = IntegerField(
         "Max Participants", validators=[DataRequired(), NumberRange(min=1)]
     )
@@ -115,7 +114,7 @@ class JoinForm(FlaskForm):
 
 class PostForm(FlaskForm):
     content = TextAreaField(
-        "Share something with your buddies…", validators=[DataRequired()]
+        "Share something with your buddies…", validators=[DataRequired(), Length(max=255, message="Content must be less than 255 characters")],
     )
     image = FileField(
         "Image (optional)", 
@@ -125,14 +124,14 @@ class PostForm(FlaskForm):
 
 
 class CommentForm(FlaskForm):
-    comment = StringField("Write a comment…", validators=[DataRequired()])
+    comment = StringField("Write a comment…", validators=[DataRequired(), Length(max=255, message="Comment must be less than 255 characters")])
     submit = SubmitField("Post")
 
 
 class ProfileEditForm(FlaskForm):
-    name = StringField("Name", validators=[DataRequired()])
-    email = StringField("Email", validators=[DataRequired(), Email()])
-    password = PasswordField("Password", validators=[Optional(), Length(min=8)])
+    name = StringField("Name", validators=[DataRequired(), Length(max=50, message="Name must be less than 50 characters")])
+    email = StringField("Email", validators=[DataRequired(), Email(), Length(max=254, message="Email must be less than 254 characters")])
+    password = PasswordField("Password", validators=[Optional(), Length(min=8, max=255, message="Password must be between 8 and 255 characters")])
     profile_picture = FileField(
         "Profile Picture", 
         validators=[FileAllowed(['jpg', 'jpeg', 'png'], 'Images only!')]
@@ -143,18 +142,18 @@ class ProfileEditForm(FlaskForm):
 
 class ActivityEditForm(FlaskForm):
     activity_id = HiddenField()
-    activity_name = StringField("Activity Name", validators=[DataRequired()])
+    activity_name = StringField("Activity Name", validators=[DataRequired(), Length(min=2, max=50, message="Activity name must be between 2 and 50 characters")])
     activity_type = SelectField(
         "Type",
         choices=[("Sports", "Sports"), ("Non Sports", "Non Sports")],
         validators=[DataRequired()],
     )
-    skills_req = StringField("Skills Required", validators=[DataRequired()])
+    skills_req = StringField("Skills Required", validators=[DataRequired(), Length(min=2, max=100, message="Skills required must be between 2 and 100 characters")])
     date = DateTimeLocalField(
         "Date", validators=[DataRequired()], format="%Y-%m-%dT%H:%M"
     )
-    location = StringField("Location", validators=[DataRequired()])
-    max_pax = IntegerField("Max Participants", validators=[DataRequired()])
+    location = StringField("Location", validators=[DataRequired(), Length(min=2, max=50, message="Location must be between 2 and 50 characters")])
+    max_pax = IntegerField("Max Participants", validators=[DataRequired(), NumberRange(min=1, message="Max participants must be at least 1")])
     submit = SubmitField("Save Changes")
 
     def validate_date(self, field):
@@ -164,7 +163,7 @@ class ActivityEditForm(FlaskForm):
 
 class PostEditForm(FlaskForm):
     post_id = HiddenField()
-    content = TextAreaField("Content", validators=[DataRequired()])
+    content = TextAreaField("Content", validators=[DataRequired(), Length(max=255, message="Content must be less than 255 characters")])
     remove_image = BooleanField("Remove image from post")
     submit = SubmitField("Save Changes")
 
@@ -196,8 +195,9 @@ class RequestResetForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     submit = SubmitField('Request Password Reset')
 
+
 class ResetPasswordForm(FlaskForm):
-    password = PasswordField('New Password', validators=[DataRequired()])
+    password = PasswordField('New Password', validators=[DataRequired(), Length(min=8, max=255, message="Password must be between 8 and 255 characters")])
     confirm_password = PasswordField('Confirm Password', validators=[
         DataRequired(), EqualTo('password')
     ])
