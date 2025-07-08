@@ -2,7 +2,7 @@ import os
 import uuid
 from PIL import Image, UnidentifiedImageError
 
-from flask import current_app, g
+from flask import current_app, g, flash
 from werkzeug.utils import secure_filename
 
 from data_source.social_feed_queries import add_comment, add_post, decrement_like, add_like, remove_like
@@ -22,7 +22,6 @@ from domain.entity.social_post import Comment, Post
 
 
 def allowed_file(filename):
-
     return "." in filename and filename.rsplit(".", 1)[1].lower() in {
         "png",
         "jpg",

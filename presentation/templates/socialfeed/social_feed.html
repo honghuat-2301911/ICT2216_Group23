@@ -15,6 +15,18 @@
 </head>
 <body>
   {% include 'navbar.html' %}
+  <div id="flashModal" class="flash-toast" style="display:none;">
+    <div class="flash-toast-content">
+      <span class="close" onclick="closeFlashModal()">&times;</span>
+      {% with flash_messages = get_flashed_messages(with_categories=true) %}
+        {% if flash_messages %}
+          {% for category, message in flash_messages %}
+            <div class="flash-message {{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </div>
+  </div>
 
   <div class="layout-3col" style="gap: 0;">
     <!-- Center Feed -->
@@ -47,7 +59,7 @@
 
       <!-- Post Composer -->
       <div class="social-card post-composer">
-        <form method="post" action="{{ url_for('social_feed.create_post') }}" enctype="multipart/form-data">
+        <form method="post" action="{{ url_for('social_feed.create_post') }}" enctype="multipart/form-data" id="postForm">
           {{ post_form.csrf_token }}
           <div class="post-header">
             <img src="{{ current_user.profile_picture or url_for('static', filename='icons/user.png') }}"
@@ -69,7 +81,10 @@
                 <path d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l10-10a3 3 0 0 1 4.24 4.24l-10 10a1 1 0 0 1-1.41-1.41l9.19-9.19"/>
               </svg>
             </label>
-            {{ post_form.submit(class_="post-btn") }}
+            <button type="submit" class="post-btn" id="postBtn">Post</button>
+            <span id="postLoading" style="display:none;margin-left:10px;vertical-align:middle;">
+              <svg width="20" height="20" viewBox="0 0 50 50"><circle cx="25" cy="25" r="20" fill="none" stroke="#888" stroke-width="5" stroke-linecap="round" stroke-dasharray="31.4 31.4" transform="rotate(-90 25 25)"><animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.5s" repeatCount="indefinite"/></circle></svg>
+            </span>
           </div>
         </form>
       </div>
@@ -187,6 +202,14 @@
   <div id="imageModal" class="modal" style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.8);align-items:center;justify-content:center;">
     <span class="close-modal" onclick="closeImageModal()" style="position:absolute;top:32px;right:48px;font-size:2.5em;color:#fff;cursor:pointer;z-index:10001;">&times;</span>
     <img id="modalImage" src="" alt="Expanded image" style="max-width:90vw;max-height:80vh;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+  </div>
+
+  <!-- Spinner Overlay -->
+  <div id="spinnerOverlay" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(255,255,255,0.7);z-index:9999;align-items:center;justify-content:center;">
+    <div style="display:flex;flex-direction:column;align-items:center;">
+      <svg width="60" height="60" viewBox="0 0 50 50"><circle cx="25" cy="25" r="20" fill="none" stroke="#888" stroke-width="5" stroke-linecap="round" stroke-dasharray="31.4 31.4" transform="rotate(-90 25 25)"><animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.7s" repeatCount="indefinite"/></circle></svg>
+      <span style="margin-top:16px;font-size:1.1em;color:#555;">Posting...</span>
+    </div>
   </div>
 
   <script>
@@ -309,6 +332,16 @@
     });
     function selectUser(u) {
       window.location.href = `/feed/user/${u.id}`;
+    }
+  </script>
+  <script>
+    window.onload = function () {
+      if (document.querySelector('#flashModal .flash-message')) {
+        document.getElementById('flashModal').style.display = 'block';
+      }
+    };
+    function closeFlashModal() {
+      document.getElementById('flashModal').style.display = 'none';
     }
   </script>
 </body>

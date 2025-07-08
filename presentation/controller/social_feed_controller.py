@@ -63,6 +63,7 @@ def create_post():
     content = post_form.content.data
     image_file = post_form.image.data
     create_post_control(user_id, content, image_file)
+    flash("Post uploaded successfully!", "success")  # Flash success message for modal
     return redirect(url_for("social_feed.feed"))
 
 
@@ -140,12 +141,14 @@ def search_users():
     users = search_users_by_name(term, limit=10)
     return jsonify(
         [
-            {
-                "id": u["id"],
-                "name": u["name"],
-                "email": u["email"],
-                "profile_picture": u.get("profile_picture", ""),
-            }
+            (
+                lambda d: {
+                    "id": d.get("id"),
+                    "name": d.get("name"),
+                    "email": d.get("email"),
+                    "profile_picture": d.get("profile_picture", ""),
+                }
+            )(dict(u._mapping) if hasattr(u, '_mapping') else dict(u))
             for u in users
         ]
     )

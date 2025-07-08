@@ -11,6 +11,22 @@ body {
     padding-top: 80px;
     color: #0F1419;
 }
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: auto;
+    background: rgba(0,0,0,0.4);
+    align-items: center;
+    justify-content: center;
+}
+.modal.show {
+    display: flex;
+}
 .modal-content {
     background: #fff;
     margin: auto;
@@ -24,7 +40,90 @@ body {
     flex-direction: column;
     align-items: stretch;
     animation: slideUp 0.3s;
-    
+}
+.close {
+    position: absolute;
+    top: 14px;
+    right: 20px;
+    font-size: 1.7em;
+    color: #b91c1c;
+    cursor: pointer;
+    font-weight: bold;
+    transition: color 0.2s;
+}
+.close:hover {
+    color: #ff5858;
+}
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.flash-message {
+    padding: 16px 18px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    font-size: 1.08em;
+    font-weight: 500;
+    text-align: center;
+    background: #fff3f3;
+    color: #b91c1c;
+    border: 1.5px solid #ff5858;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.08);
+    word-break: break-word;
+    max-width: 100%;
+}
+.flash-message.success {
+    background: #e6ffed;
+    color: #1a7f37;
+    border-color: #34d058;
+}
+.flash-message.error {
+    background: #fff3f3;
+    color: #b91c1c;
+    border-color: #ff5858;
+}
+
+.flash-toast {
+    position: fixed;
+    top: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 320px;
+    max-width: 90vw;
+    pointer-events: none;
+    background: none;
+    box-shadow: none;
+}
+.flash-toast-content {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(239, 68, 68, 0.18);
+    padding: 0 0 0 0;
+    min-width: 320px;
+    max-width: 90vw;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    pointer-events: auto;
+    position: relative;
+}
+.flash-toast .close {
+    position: absolute;
+    top: 8px;
+    right: 16px;
+    font-size: 1.3em;
+    color: #b91c1c;
+    cursor: pointer;
+    font-weight: bold;
+    transition: color 0.2s;
+    z-index: 10;
+}
+.flash-toast .close:hover {
+    color: #ff5858;
 }
 
 /* Import profile layout styles */
