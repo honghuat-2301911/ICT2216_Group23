@@ -24,34 +24,64 @@ class RegisterPageTest(unittest.TestCase):
         )
         cls.driver.implicitly_wait(10)
         cls.base_url = "https://localhost"
-        cls.test_email = "testuser@example.com"  # Same email to test duplicate
+        cls.base_password = "securepassword"
 
-    def fill_registration_form(self, email):
+    def fill_registration_form(self, email, password):
         self.driver.get(f"{self.base_url}/register")
         self.driver.find_element(By.NAME, "name").send_keys("Test User")
         self.driver.find_element(By.NAME, "email").send_keys(email)
-        self.driver.find_element(By.NAME, "password").send_keys("securepassword")
-        self.driver.find_element(By.NAME, "confirm_password").send_keys(
-            "securepassword"
-        )
+        self.driver.find_element(By.NAME, "password").send_keys(password)
+        self.driver.find_element(By.NAME, "confirm_password").send_keys(password)
         self.driver.find_element(By.CLASS_NAME, "register-btn").click()
         time.sleep(2)
 
-    def test_register_duplicate_email(self):
+    def test_register_success(self):
+        test_email = "success@example.com"  # Use a fixed email for success test
         try:
-            self.fill_registration_form(email=self.test_email)
-            self.assertIn("Registration successful", self.driver.page_source)
-            self.fill_registration_form(email=self.test_email)
+            self.fill_registration_form(email=test_email, password=self.base_password)
+            self.assertIn("A verification link has been sent to your email address.", self.driver.page_source)
+
+        except Exception as e:
+            os.makedirs("artifacts", exist_ok=True)
+            self.driver.save_screenshot("artifacts/register_success.png")
+            with open("artifacts/debug.html", "w", encoding="utf-8") as f:
+                f.write(self.driver.page_source)
+            raise  # Re-raise so the test still fails
+
+    def test_register_duplicate_email(self):
+        duplicate_email = "duplicate@example.com"  # Use a fixed email for duplicate test
+        try:
+            self.fill_registration_form(email=duplicate_email, password=self.base_password)
+            self.assertIn("A verification link has been sent to your email address.", self.driver.page_source)
+            self.fill_registration_form(email=duplicate_email, password=self.base_password)
             self.assertIn(
                 "Something went wrong. Please try again.", self.driver.page_source
             )
 
         except Exception as e:
             os.makedirs("artifacts", exist_ok=True)
-            self.driver.save_screenshot("artifacts/screenshot.png")
+            self.driver.save_screenshot("artifacts/register_duplicate_email.png")
             with open("artifacts/debug.html", "w", encoding="utf-8") as f:
                 f.write(self.driver.page_source)
             raise  # Re-raise so the test still fails
+
+    # def test_register_password_complexity(self):
+    #     test_email = self.generate_random_email()
+    #     simple_password = "123456"
+
+    #     try:
+    #         self.fill_registration_form(email=test_email, password=simple_password)
+    #         self.assertIn("Please lengthen this text to 8 characters or more", self.driver.page_source)
+    #         self.fill_registration_form(email=test_email, password=self.base_password)
+    #         self.assertIn("A verification link has been sent to your email address.", self.driver.page_source)
+
+    #     except Exception as e:
+    #         os.makedirs("artifacts", exist_ok=True)
+    #         self.driver.save_screenshot("artifacts/register_password_complexity.png")
+    #         with open("artifacts/debug.html", "w", encoding="utf-8") as f:
+    #             f.write(self.driver.page_source)
+    #         raise  # Re-raise so the test still fails
+
 
     @classmethod
     def tearDownClass(cls):

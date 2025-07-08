@@ -1,7 +1,8 @@
 import os
 import uuid
-
+import functools
 import bcrypt
+
 from flask import (
     Blueprint,
     current_app,
@@ -31,8 +32,20 @@ profile_bp = Blueprint(
     url_prefix="/profile",
 )
 
+
+def user_required(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if current_user.role != "user":
+            return redirect(url_for("admin.bulletin_page"))
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
 @profile_bp.route("/", methods=["GET", "POST"])
 @login_required
+@user_required
 def fetchProfile():
     user_id = int(current_user.get_id())
     profile_manager = ProfileManagement()
@@ -59,6 +72,7 @@ def fetchProfile():
 
 @profile_bp.route("/edit_activity/<int:activity_id>", methods=["POST"])
 @login_required
+@user_required
 def edit_activity(activity_id):
     user_id = int(current_user.get_id())
     form = ActivityEditForm()
@@ -69,6 +83,7 @@ def edit_activity(activity_id):
 
 @profile_bp.route("/edit_post/<int:post_id>", methods=["POST"])
 @login_required
+@user_required
 def edit_post(post_id):
     user_id = int(current_user.get_id())
     form = PostEditForm()
@@ -79,6 +94,7 @@ def edit_post(post_id):
 
 @profile_bp.route("/leave_activity/<int:activity_id>", methods=["POST"])
 @login_required
+@user_required
 def leave_activity(activity_id):
     user_id = int(current_user.get_id())
     profile_manager = ProfileManagement()
@@ -88,6 +104,7 @@ def leave_activity(activity_id):
 
 @profile_bp.route("/delete_post/<int:post_id>", methods=["POST"])
 @login_required
+@user_required
 def delete_post(post_id):
     user_id = int(current_user.get_id())
     profile_manager = ProfileManagement()
@@ -97,6 +114,7 @@ def delete_post(post_id):
 
 @profile_bp.route("/joined_users/<int:activity_id>", methods=["GET"])
 @login_required
+@user_required
 def get_joined_users(activity_id):
     profile_manager = ProfileManagement()
     users = profile_manager.get_joined_user_names(activity_id)
@@ -104,6 +122,7 @@ def get_joined_users(activity_id):
 
 @profile_bp.route("/generate_otp", methods=["POST"])
 @login_required
+@user_required
 def generate_otp():
     try:
         user_id = int(current_user.get_id())
@@ -121,6 +140,7 @@ def generate_otp():
 
 @profile_bp.route("/verify_otp", methods=["POST"])
 @login_required
+@user_required
 def verify_otp():
     try:
         user_id = int(current_user.get_id())
@@ -139,6 +159,7 @@ def verify_otp():
 
 @profile_bp.route('/disable_otp', methods=['POST'])
 @login_required
+@user_required
 def disable_otp():
     form = DisableOTPForm()
     if form.validate_on_submit():

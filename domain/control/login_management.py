@@ -7,20 +7,25 @@ import pyotp
 from flask import current_app, g, url_for,flash, redirect, render_template
 from flask_login import login_user as flask_login_user
 from flask_login import logout_user as flask_logout_user
-from itsdangerous import URLSafeTimedSerializer
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
-from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 import bcrypt
 import os
+import uuid
+import hashlib
 
 from data_source.user_queries import (
     clear_failed_logins,
+    delete_reset_password,
+    get_id_by_email,
     get_user_by_email,
+    get_user_by_token_hash,
     get_user_failed_attempts_count,
+    insert_into_reset_password,
     record_failed_login,
+    update_reset_link_used,
     update_user_lockout,
-    update_user_password_by_email,
+    update_user_password_by_id,
 )
 from domain.entity.user import User
 
@@ -143,11 +148,27 @@ def get_user_display_data():
     }
 
 def process_reset_password_request(email):
-    user = get_user_by_email(email)
-    if user:
-        serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
-        token = serializer.dumps(user['email'], salt='password-reset')
 
+    # get user id by email
+    if not email:
+        return None
+    
+    user_id = get_id_by_email(email)
+
+    # generate a unique token for the password reset and store in the database
+    if user_id:
+
+        delete_reset_password(user_id)
+
+        token = str(uuid.uuid4())
+        token_hash = hashlib.sha256(token.encode()).hexdigest()
+
+        utc_plus_8 = timezone(timedelta(hours=8))
+        now = datetime.now(utc_plus_8)
+        expires_at = now + timedelta(minutes=60)
+
+        insert_into_reset_password(user_id, token_hash, expires_at.replace(tzinfo=None))
+        
         # Send the reset email with the token
         reset_url = url_for('login.reset_password', token=token, _external=True)
         message = Mail(
@@ -165,18 +186,40 @@ def process_reset_password_request(email):
 
 
 def process_reset_password(token, form):
-    serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
-    try:
-        email = serializer.loads(token, salt='password-reset', max_age=3600)
-    except (SignatureExpired, BadSignature):
-        flash('The reset link is invalid or has expired.', 'danger')
-        return redirect(url_for('auth.reset_password_request'))
 
     if form.validate_on_submit():
-        hashed = bcrypt.hashpw(form.password.data.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-        user = get_user_by_email(email)
-        if user:
-            update_user_password_by_email(user['email'], hashed)
-            flash('Your password has been updated. You can now log in.', 'success')
+
+        user_token_hash = hashlib.sha256(token.encode()).hexdigest()
+    
+        token_data = get_user_by_token_hash(user_token_hash)
+
+        if not token_data:
+            flash('Invalid or expired reset link. Please request a new password reset.', 'danger')
             return redirect(url_for('login.login'))
+
+        if token_data['used']:
+            flash('This reset link has been used. Please request a new password reset.', 'danger')
+            return redirect(url_for('login.login'))
+
+        
+        utc_plus_8 = timezone(timedelta(hours=8))
+        now = datetime.now(utc_plus_8)
+
+        expires_at = token_data["expires_at"]
+        if isinstance(expires_at, str):
+            expires_at_with_timezone = datetime.strptime(expires_at, "%Y-%m-%d %H:%M:%S").replace(tzinfo=utc_plus_8)
+        elif expires_at.tzinfo is None:
+            expires_at_with_timezone = expires_at.replace(tzinfo=utc_plus_8)
+        else:
+            expires_at_with_timezone = expires_at.astimezone(utc_plus_8)
+
+        if now > expires_at_with_timezone:
+            flash('This reset link has expired. Please request a new password reset.', 'danger')
+            return redirect(url_for('login.login'))
+    
+        hashed = bcrypt.hashpw(form.password.data.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+        update_user_password_by_id(token_data['user_id'], hashed)
+        update_reset_link_used(user_token_hash)
+        flash('Your password has been updated. You can now log in.', 'success')
+        return redirect(url_for('login.login'))
     return render_template('reset_password.html', form=form)

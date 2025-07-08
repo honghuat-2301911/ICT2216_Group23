@@ -60,7 +60,6 @@
                                 <button type="submit" class="btn btn-danger">Disable 2FA</button>
                             </form>
                         {% else %}
-                            <p>2FA is already disabled.</p>
                             <button id="enable2faBtn" class="btn btn-primary">Enable 2FA</button>
                         {% endif %}
                 </div>
@@ -444,6 +443,7 @@
         if (close2faModalBtn) {
             close2faModalBtn.onclick = function() {
                 enable2faModal.style.display = 'none';
+                window.location.reload();
             };
         }
 
