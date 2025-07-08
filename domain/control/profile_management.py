@@ -84,7 +84,6 @@ class ProfileManagement:
                     post_id=int(post.get('id', 0) or 0),
                     user=str(c.get('user', '')),
                     content=str(c.get('content', '')),
-                    created_at=str(c.get('created_at', '')),
                     profile_picture=str(c.get('profile_picture', '')),
                 ) for c in post.get('comments', [])
             ]
@@ -99,7 +98,6 @@ class ProfileManagement:
                 user=str(post.get('user', '')),
                 content=str(post.get('content', '')),
                 image_url=str(post.get('image_url', '')),
-                created_at=str(post.get('created_at', '')),
                 likes=likes_val,
                 comments=comments,
                 like_user_ids=str(post.get('like_user_ids', '')),
