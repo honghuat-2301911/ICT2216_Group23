@@ -78,7 +78,10 @@ def edit_activity(activity_id):
     form = ActivityEditForm()
     profile_manager = ProfileManagement()
     success, message = profile_manager.edit_activity(user_id, activity_id, form)
-    flash(message, "success" if success else "danger")
+    if success:
+        flash(message, "success")
+    else:
+        flash(message, "error")
     return redirect(url_for("profile_bp.fetchProfile") + "#activitiesSection")
 
 @profile_bp.route("/edit_post/<int:post_id>", methods=["POST"])
@@ -89,7 +92,10 @@ def edit_post(post_id):
     form = PostEditForm()
     profile_manager = ProfileManagement()
     success, message = profile_manager.edit_post(user_id, post_id, form)
-    flash(message, "success" if success else "danger")
+    if success:
+        flash(message, "success")
+    else:
+        flash(message, "error")
     return redirect(url_for("profile_bp.fetchProfile") + "#feedSection")
 
 @profile_bp.route("/leave_activity/<int:activity_id>", methods=["POST"])
@@ -99,7 +105,10 @@ def leave_activity(activity_id):
     user_id = int(current_user.get_id())
     profile_manager = ProfileManagement()
     success, message = profile_manager.leave_activity(user_id, activity_id)
-    flash(message, "success" if success else ("warning" if "not a participant" in message else "danger"))
+    if success:
+        flash(message, "success")
+    else:
+        flash(message, "error")
     return redirect(url_for("profile_bp.fetchProfile") + "#activitiesSection")
 
 @profile_bp.route("/delete_post/<int:post_id>", methods=["POST"])
@@ -109,7 +118,10 @@ def delete_post(post_id):
     user_id = int(current_user.get_id())
     profile_manager = ProfileManagement()
     success, message = profile_manager.delete_post(user_id, post_id)
-    flash(message, "success" if success else "danger")
+    if success:
+        flash(message, "success")
+    else:
+        flash(message, "error")
     return redirect(url_for("profile_bp.fetchProfile") + "#feedSection")
 
 @profile_bp.route("/joined_users/<int:activity_id>", methods=["GET"])

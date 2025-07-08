@@ -239,6 +239,7 @@ class ProfileManagement:
                 activity_obj.date,
                 activity_obj.location,
                 activity_obj.max_pax,
+                activity_obj.user_id_list_join,
             )
             if result:
                 return True, "Activity updated successfully."
@@ -247,7 +248,7 @@ class ProfileManagement:
         return False, "Invalid form data."
 
     def edit_post(self, user_id, post_id, form):
-        return editPost(user_id, post_id, form.content.data)
+        return editPost(user_id, post_id, form.content.data, form.remove_image.data)
 
     def leave_activity(self, user_id, activity_id):
         activity = get_sports_activity_by_id(activity_id)
@@ -278,7 +279,11 @@ class ProfileManagement:
             return False, "Failed to leave the activity."
 
     def delete_post(self, user_id, post_id):
-        return deletePost(user_id, post_id)
+        success = deletePost(user_id, post_id)
+        if success:
+            return True, "Post deleted successfully."
+        else:
+            return False, "Failed to delete post."
 
     def generate_otp(self, user_id):
         return generate_otp_for_user(user_id)
