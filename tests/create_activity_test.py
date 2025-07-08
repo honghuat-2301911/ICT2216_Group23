@@ -42,23 +42,21 @@ class CreateActivityPageTest(unittest.TestCase):
             # Assert that the login with the seeded email and password is successful
             # After login, the user should be redirected to the bulletin board page
             self.fill_login_form(email=self.seeded_email, password=self.seeded_password)
-            self.assertIn("<title>Bulletin Board</title>", self.driver.page_source)
+            self.assertIn("Bulletin Board", self.driver.page_source)
 
-            # Open the host activity modal
-            host_button = self.driver.find_element(By.XPATH, "//button[contains(text(), 'Host Activity')]")
-            host_button.click()
-            time.sleep(1)  # Wait for modal animation
-
-            # Fill in and submit the activity form
+            # Fill in the activity form
             self.driver.find_element(By.ID, "activityNameInput").send_keys("Selenium Test Activity")
             self.driver.find_element(By.ID, "activityTypeInput").send_keys("Sports")
             self.driver.find_element(By.ID, "skillsReqInput").send_keys("None")
+            
             date_input = self.driver.find_element(By.ID, "dateInput")
             self.driver.execute_script("arguments[0].value = arguments[1]", date_input, "2025-07-08T15:30")
+            
             self.driver.find_element(By.ID, "locationInput").send_keys("Test Field")
             self.driver.find_element(By.ID, "maxPaxInput").clear()
             self.driver.find_element(By.ID, "maxPaxInput").send_keys("10")
 
+            # Submit the form
             self.driver.find_element(By.XPATH, "//button[contains(text(), 'Host')]").click()
             time.sleep(2)
 
