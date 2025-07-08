@@ -47,7 +47,6 @@ def create_entity_from_row(result):
                 post_id=row["id"],
                 user=comment_data.get("user", ""),
                 content=comment_data.get("content", ""),
-                created_at="",  # No created_at in current schema
                 profile_picture=comment_data.get("profile_picture", ""),
             )
             comments.append(comment)
@@ -58,7 +57,6 @@ def create_entity_from_row(result):
             user=row.get("user_name", ""),
             content=row.get("caption", ""),
             image_url=row.get("image_path", ""),
-            created_at="",  # No created_at in current schema
             likes=get_like_count(row["id"]),
             comments=comments,
             like_user_ids=row.get('like_user_ids', ''),
@@ -103,7 +101,6 @@ def get_featured_posts_control():
             user=row.get("user_name", ""),
             content=row.get("caption", ""),
             image_url=row.get("image_path", ""),
-            created_at="",  # No created_at in current schema
             likes=get_like_count(row["id"]),
             comments=[],  # Featured posts don't need comments
             like_user_ids=row.get('like_user_ids', ''),
@@ -134,7 +131,6 @@ def get_post_by_id_control(post_id):
             post_id=row["id"],
             user=comment_data.get("user", ""),
             content=comment_data.get("content", ""),
-            created_at="",  # No created_at in current schema
             profile_picture=comment_data.get("profile_picture", ""),
         )
         comments.append(comment)
@@ -145,7 +141,6 @@ def get_post_by_id_control(post_id):
         user=row.get("user_name", ""),
         content=row.get("caption", ""),
         image_url=row.get("image_path", ""),
-        created_at="",  # No created_at in current schema
         likes=get_like_count(row["id"]),
         comments=comments,
         like_user_ids=row.get('like_user_ids', ''),
@@ -231,10 +226,10 @@ def get_posts_display_data():
 
 def editPost(
     userId: int, postId: int, updatedContent: str, removeImage: bool = False
-) -> bool:
+) -> tuple[bool, str]:
     post = get_post_by_id(postId)
     if not post or int(post["user_id"]) != userId:
-        return False
+        return False, "Post not found or unauthorized."
 
     image_filename = post.get("image_path")
     # Remove image if requested
@@ -247,7 +242,11 @@ def editPost(
         image_filename = None
 
     # Update post in DB
-    return update_post(postId, updatedContent, image_filename)
+    result = update_post(postId, updatedContent, image_filename)
+    if result:
+        return True, "Post updated successfully."
+    else:
+        return False, "Failed to update post."
 
 
 def deletePost(userId: int, postId: int) -> bool:
