@@ -37,12 +37,8 @@ class RegisterPageTest(unittest.TestCase):
         self.driver.find_element(By.CLASS_NAME, "register-btn").click()
         time.sleep(2)
 
-    def generate_random_email(self):
-        random_suffix = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
-        return f"{random_suffix}@example.com"
-
     def test_register_success(self):
-        test_email = self.generate_random_email()
+        test_email = "success@example.com"  # Use a fixed email for success test
         try:
             self.fill_registration_form(email=test_email, password=self.base_password)
             self.assertIn("A verification link has been sent to your email address.", self.driver.page_source)
@@ -55,7 +51,7 @@ class RegisterPageTest(unittest.TestCase):
             raise  # Re-raise so the test still fails
 
     def test_register_duplicate_email(self):
-        duplicate_email = self.generate_random_email()
+        duplicate_email = "duplicate@example.com"  # Use a fixed email for duplicate test
         try:
             self.fill_registration_form(email=duplicate_email, password=self.base_password)
             self.assertIn("A verification link has been sent to your email address.", self.driver.page_source)
