@@ -49,6 +49,32 @@ class RegisterPageTest(unittest.TestCase):
                 f.write(self.driver.page_source)
             raise  # Re-raise so the test still fails
 
+    def test_login_nonexistent_email(self):
+        test_email = "nonexistent@example.com"  # Use an nonexistent email for this test
+        try:
+            self.fill_login_form(email=test_email, password=self.base_password)
+            self.assertIn("Invalid email or password.", self.driver.page_source)
+
+        except Exception as e:
+            os.makedirs("artifacts", exist_ok=True)
+            self.driver.save_screenshot("artifacts/login_nonexistent_email.png")
+            with open("artifacts/debug.html", "w", encoding="utf-8") as f:
+                f.write(self.driver.page_source)
+            raise  # Re-raise so the test still fails
+
+    def test_login_incorrect_password(self):
+        test_email = "success@example.com"  # Use a fixed email to test incorrect password
+        incorrect_password = "wrongpassword"
+        try:
+            self.fill_login_form(email=test_email, password=incorrect_password)
+            self.assertIn("Invalid email or password.", self.driver.page_source)
+
+        except Exception as e:
+            os.makedirs("artifacts", exist_ok=True)
+            self.driver.save_screenshot("artifacts/incorrect_password.png")
+            with open("artifacts/debug.html", "w", encoding="utf-8") as f:
+                f.write(self.driver.page_source)
+            raise  # Re-raise so the test still fails
 
     @classmethod
     def tearDownClass(cls):

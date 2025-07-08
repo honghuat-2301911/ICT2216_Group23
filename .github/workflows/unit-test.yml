@@ -53,9 +53,12 @@ jobs:
           pip install selenium>=4.10.0
           pip install webdriver-manager>=4.0.0
 
-      - name: Run Unit Tests
+      - name: Run Unit Tests for Register
         run: | 
           python tests/register_test.py
+
+      - name: Run Unit Tests for Login
+        run: |
           python tests/login_test.py
 
       - name: Upload test artifacts (screenshots, HTML)
