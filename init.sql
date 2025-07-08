@@ -144,6 +144,24 @@ CREATE TABLE IF NOT EXISTS `mydb`.`user_failed_login` (
         ON UPDATE NO ACTION
 ) ENGINE = InnoDB;
 
+-- USER RESET PASSWORD REQUEST TABLE
+CREATE TABLE IF NOT EXISTS `mydb`.`reset_password` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `user_id` INT NOT NULL,
+  `token_hash` CHAR(64) NOT NULL,
+  `expires_at` DATETIME NOT NULL,
+  `used` BOOLEAN NOT NULL DEFAULT FALSE,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `token_hash_UNIQUE` (`token_hash` ASC) VISIBLE,
+  INDEX `idx_reset_password_user_id` (`user_id` ASC) VISIBLE,
+  CONSTRAINT `fk_reset_password_user`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `mydb`.`user` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION
+) ENGINE = InnoDB;
+
+
 -- SPORTS ACTIVITY
 CREATE TABLE IF NOT EXISTS `mydb`.`sports_activity` (
   `id` INT NOT NULL AUTO_INCREMENT,
