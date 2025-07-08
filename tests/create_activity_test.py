@@ -8,8 +8,6 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
 
 class CreateActivityPageTest(unittest.TestCase):
@@ -46,13 +44,13 @@ class CreateActivityPageTest(unittest.TestCase):
             self.fill_login_form(email=self.seeded_email, password=self.seeded_password)
             self.assertIn("Bulletin Board", self.driver.page_source)
 
+            # Open the host activity modal
+            host_button = self.driver.find_element(By.XPATH, "//button[contains(text(), 'Host Activity')]")
+            host_button.click()
+            time.sleep(1)  # Wait for modal animation
+
             # Fill in the activity form
-            # Wait until the input is visible and enabled
-            name_input = WebDriverWait(self.driver, 5).until(
-                EC.element_to_be_clickable((By.ID, "activityNameInput"))
-            )
-            name_input.send_keys("Selenium Test Activity")
-            # self.driver.find_element(By.ID, "activityNameInput").send_keys("Selenium Test Activity")
+            self.driver.find_element(By.ID, "activityNameInput").send_keys("Selenium Test Activity")
             self.driver.find_element(By.ID, "activityTypeInput").send_keys("Sports")
             self.driver.find_element(By.ID, "skillsReqInput").send_keys("None")
             
