@@ -51,11 +51,10 @@ class CreateActivityPageTest(unittest.TestCase):
 
             # Fill in and submit the activity form
             self.driver.find_element(By.ID, "activityNameInput").send_keys("Selenium Test Activity")
-            self.driver.find_element(By.ID, "activityTypeInput").send_keys("Sports")  # or use Select
-            # from selenium.webdriver.support.ui import Select
-            # Select(self.driver.find_element(By.ID, "activityTypeInput")).select_by_visible_text("Sports")
+            self.driver.find_element(By.ID, "activityTypeInput").send_keys("Sports")
             self.driver.find_element(By.ID, "skillsReqInput").send_keys("None")
-            self.driver.find_element(By.ID, "dateInput").send_keys("2025-07-08T15:30")  # format must match datetime-local
+            date_input = self.driver.find_element(By.ID, "dateInput")
+            self.driver.execute_script("arguments[0].value = arguments[1]", date_input, "2025-07-08T15:30")
             self.driver.find_element(By.ID, "locationInput").send_keys("Test Field")
             self.driver.find_element(By.ID, "maxPaxInput").clear()
             self.driver.find_element(By.ID, "maxPaxInput").send_keys("10")
