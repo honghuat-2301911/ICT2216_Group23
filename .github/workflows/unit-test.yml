@@ -35,6 +35,12 @@ jobs:
             -keyout ./certbot/conf/live/buddiesfinders.hopto.org/privkey.pem \
             -out ./certbot/conf/live/buddiesfinders.hopto.org/fullchain.pem \
             -subj "/CN=localhost"
+
+      - name: Add a seeded user to the init.sql file
+        run: |
+          echo "-- Seed a pre-verified user" >> init.sql
+          echo "INSERT INTO mydb.user (name, password, email, role, email_verified)" >> init.sql
+          echo "VALUES ('eden', '\$2b\$12\$LY/PNCs3ZwJgifKB9rrBiuSao3EaeBq4uTX/1bq4y3ZxidiC0tEsO', '2301875@sit.singaporetech.edu.sg', 'user', 1);" >> init.sql
       
       - name: Build and start services (without certbot)
         run: docker compose -f docker-compose.yml -f docker-compose.override.yml up --build -d
@@ -60,6 +66,10 @@ jobs:
       - name: Run Unit Tests for Login
         run: |
           python tests/login_test.py
+
+      - name: Run Unit Tests for Create Activity
+        run: |
+          python tests/create_activity_test.py
 
       - name: Upload test artifacts (screenshots, HTML)
         if: failure()  # Only upload if the job fails

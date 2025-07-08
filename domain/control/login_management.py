@@ -16,6 +16,7 @@ import hashlib
 
 from data_source.user_queries import (
     clear_failed_logins,
+    delete_reset_password,
     get_id_by_email,
     get_user_by_email,
     get_user_by_token_hash,
@@ -156,13 +157,17 @@ def process_reset_password_request(email):
 
     # generate a unique token for the password reset and store in the database
     if user_id:
+
+        delete_reset_password(user_id)
+
         token = str(uuid.uuid4())
         token_hash = hashlib.sha256(token.encode()).hexdigest()
 
-        expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
+        utc_plus_8 = timezone(timedelta(hours=8))
+        now = datetime.now(utc_plus_8)
+        expires_at = now + timedelta(minutes=60)
 
-
-        insert_into_reset_password(user_id, token_hash, expires_at)
+        insert_into_reset_password(user_id, token_hash, expires_at.replace(tzinfo=None))
         
         # Send the reset email with the token
         reset_url = url_for('login.reset_password', token=token, _external=True)
@@ -195,9 +200,20 @@ def process_reset_password(token, form):
         if token_data['used']:
             flash('This reset link has been used. Please request a new password reset.', 'danger')
             return redirect(url_for('login.login'))
+
         
-        now = datetime.now(timezone.utc)
-        if now > token_data['expires_at']:
+        utc_plus_8 = timezone(timedelta(hours=8))
+        now = datetime.now(utc_plus_8)
+
+        expires_at = token_data["expires_at"]
+        if isinstance(expires_at, str):
+            expires_at_with_timezone = datetime.strptime(expires_at, "%Y-%m-%d %H:%M:%S").replace(tzinfo=utc_plus_8)
+        elif expires_at.tzinfo is None:
+            expires_at_with_timezone = expires_at.replace(tzinfo=utc_plus_8)
+        else:
+            expires_at_with_timezone = expires_at.astimezone(utc_plus_8)
+
+        if now > expires_at_with_timezone:
             flash('This reset link has expired. Please request a new password reset.', 'danger')
             return redirect(url_for('login.login'))
     

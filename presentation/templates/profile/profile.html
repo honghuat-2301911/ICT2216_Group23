@@ -60,7 +60,6 @@
                                 <button type="submit" class="btn btn-danger">Disable 2FA</button>
                             </form>
                         {% else %}
-                            <p>2FA is already disabled.</p>
                             <button id="enable2faBtn" class="btn btn-primary">Enable 2FA</button>
                         {% endif %}
                 </div>
@@ -82,7 +81,7 @@
                             {% if post.image_url and post.image_url != 'None' %}
                                 <img src="{{ post.image_url }}" alt="Post Image" class="post-image" style="max-width: 100%; margin-top: 8px; border-radius: 8px;" />
                             {% endif %}
-                            <span class="feed-timestamp">{{ post.created_at }}</span>
+                            {# No created_at here #}
                         </div>
                         <button class="icon-btn edit-post-btn" title="Edit Post" data-post-id="{{ post.id }}" data-post-content="{{ post.content|e }}">
                             <img src="{{ url_for('static', filename='icons/edit.png') }}" alt="Edit" class="edit-icon">
@@ -90,6 +89,21 @@
                         <button class="icon-btn delete-post-btn" title="Delete Post" data-post-id="{{ post.id }}">
                             <img src="{{ url_for('static', filename='icons/delete.png') }}" alt="Delete" class="edit-icon">
                         </button>
+                        {# Comments Section #}
+                        {% if post.comments %}
+                        <div class="comments-list">
+                            {% for comment in post.comments %}
+                            <div class="comment">
+                                <img src="{{ comment.profile_picture or url_for('static', filename='icons/user.png') }}" class="comment-avatar" alt="Profile Picture">
+                                <div class="comment-content">
+                                    <span class="comment-username">{{ comment.user }}</span>
+                                    <div class="comment-text">{{ comment.content }}</div>
+                                    {# No comment.created_at here #}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
                     </div>
                 {% endfor %}
             {% else %}
@@ -429,6 +443,7 @@
         if (close2faModalBtn) {
             close2faModalBtn.onclick = function() {
                 enable2faModal.style.display = 'none';
+                window.location.reload();
             };
         }
 

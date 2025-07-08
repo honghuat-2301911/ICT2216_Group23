@@ -2,8 +2,6 @@ import os
 import sys
 import time
 import unittest
-import random
-import string
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options

@@ -18,6 +18,15 @@ def get_id_by_email(email: str):
     
     return result[0] if result else None
 
+def delete_reset_password(user_id):
+    """Delete reset password request by ID."""
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute("DELETE FROM reset_password WHERE user_id=%s", (user_id,))
+    connection.commit()
+    cursor.close()
+    connection.close()
+
 
 def insert_into_reset_password(user_id, token_hash, expires_at):
     try:
