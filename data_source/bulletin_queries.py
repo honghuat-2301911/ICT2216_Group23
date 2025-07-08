@@ -47,7 +47,7 @@ def get_sports_activity_by_id(activity_id: int):
     return activity_data
 
 
-def update_sports_activity(activity_id: int, user_id_list_join: str):
+def update_sports_activity(activity_id: int, user_id_list_join: str) -> bool:
     connection = get_connection()
     cursor = connection.cursor()
     query = """
@@ -57,8 +57,10 @@ def update_sports_activity(activity_id: int, user_id_list_join: str):
     """
     cursor.execute(query, (user_id_list_join, activity_id))
     connection.commit()
+    success = cursor.rowcount > 0  # True if at least one row was updated
     cursor.close()
     connection.close()
+    return success
 
 
 def insert_new_activity(activity_data):
