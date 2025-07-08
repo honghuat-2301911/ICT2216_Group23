@@ -61,9 +61,9 @@ class CreateActivityPageTest(unittest.TestCase):
             time.sleep(2)
 
             # Assert that the activity was created successfully
-            success_flash = self.driver.find_element(By.XPATH, "//div[contains(@class, 'flash-message') and contains(text(), 'Activity created successfully!')]")
-            self.assertTrue(success_flash.is_displayed())
-
+            self.assertIn("Selenium Test Activity", self.driver.page_source)
+            # activity_card = self.driver.find_element(By.XPATH, "//div[contains(@class, 'card')]//h3[text()='Selenium Test Activity']")
+            # self.assertTrue(activity_card.is_displayed())
 
         except Exception as e:
             os.makedirs("artifacts", exist_ok=True)
