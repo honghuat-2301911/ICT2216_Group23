@@ -29,7 +29,7 @@
     </div>
     <div class="profile-banner">
         <div class="profile-header">
-            <img id="profilePicView" src="{{ user.profile_picture or url_for('static', filename='icons/user.png') }}" class="profile-avatar" alt="Profile Picture" style="cursor:pointer;">
+            <img id="profilePicView" src="{% if not user.profile_picture or user.profile_picture == 'None' %}{{ url_for('static', filename='icons/user.png') }}{% else %}{{ user.profile_picture }}{% endif %}" class="profile-avatar" alt="Profile Picture" style="cursor:pointer;">
             <div class="profile-header-info">
                 <h2>{{ user.name}}</h2>
                 <p>{{ user.email}}</p>
@@ -45,7 +45,7 @@
         <div class="profile-feed">
             <h3>User Profile</h3>
             <div class="profile-feed-item">
-                <img src="{{ user.profile_picture or url_for('static', filename='icons/user.png') }}" class="feed-avatar" alt="Profile Picture">
+                <img src="{% if not user.profile_picture or user.profile_picture == 'None' %}{{ url_for('static', filename='icons/user.png') }}{% else %}{{ user.profile_picture }}{% endif %}" class="feed-avatar" alt="Profile Picture">
                 <div class="feed-content">
                     <p><strong>Name:</strong> {{ user.name}}</p>
                     <p><strong>Email:</strong> {{ user.email}}</p>
@@ -87,7 +87,7 @@
                         {{ delete_form.csrf_token }}
                     </form>
                     <div class="profile-feed-item" data-post-id="{{ post.id }}">
-                        <img src="{{ user.profile_picture or url_for('static', filename='icons/user.png') }}" class="feed-avatar" alt="Avatar">
+                        <img src="{% if not user.profile_picture or user.profile_picture == 'None' %}{{ url_for('static', filename='icons/user.png') }}{% else %}{{ user.profile_picture }}{% endif %}" class="feed-avatar" alt="Avatar">
                         <div class="feed-content">
                             <p class="post-content">{{ post.content }}</p>
                             {% if post.image_url and post.image_url != 'None' %}
@@ -106,7 +106,7 @@
                         <div class="comments-list">
                             {% for comment in post.comments %}
                             <div class="comment">
-                                <img src="{{ comment.profile_picture or url_for('static', filename='icons/user.png') }}" class="comment-avatar" alt="Profile Picture">
+                                <img src="{% if not comment.profile_picture or comment.profile_picture == 'None' %}{{ url_for('static', filename='icons/user.png') }}{% else %}{{ comment.profile_picture }}{% endif %}" class="comment-avatar" alt="Profile Picture">
                                 <div class="comment-content">
                                     <span class="comment-username">{{ comment.user }}</span>
                                     <div class="comment-text">{{ comment.content }}</div>
@@ -131,7 +131,7 @@
                 {% if hosted_activities|length > 0 %}
                     {% for activity in hosted_activities %}
                         <div class="profile-feed-item" data-activity-id="{{ activity.id }}-{{ activity.date }}">
-                            <img src="{{ user.profile_picture or url_for('static', filename='icons/user.png') }}" class="feed-avatar" alt="Profile Picture">
+                            <img src="{% if not user.profile_picture or user.profile_picture == 'None' %}{{ url_for('static', filename='icons/user.png') }}{% else %}{{ user.profile_picture }}{% endif %}" class="feed-avatar" alt="Profile Picture">
                             <div class="feed-content">
                                 <p><strong>{{ activity.activity_name }}</strong></p>
                                 <p>Type: {{ activity.activity_type }}</p>
@@ -161,7 +161,7 @@
                 {% if joined_only_activities|length > 0 %}
                     {% for activity in joined_only_activities %}
                         <div class="profile-feed-item" data-activity-id="{{ activity.id }}-{{ activity.date }}">
-                            <img src="{{ user.profile_picture or url_for('static', filename='icons/user.png') }}" class="feed-avatar" alt="Profile Picture">
+                            <img src="{% if not user.profile_picture or user.profile_picture == 'None' %}{{ url_for('static', filename='icons/user.png') }}{% else %}{{ user.profile_picture }}{% endif %}" class="feed-avatar" alt="Profile Picture">
                             <div class="feed-content">
                                 <p><strong>{{ activity.activity_name }}</strong></p>
                                 <p>Type: {{ activity.activity_type }}</p>
@@ -633,7 +633,7 @@
                     if (users.length === 0) {
                         joinedUsersList.innerHTML = '<li>No users have joined this activity yet.</li>';
                     } else {
-                        joinedUsersList.innerHTML = users.map(user => `<li>${user.name}</li>`).join('');
+                        joinedUsersList.innerHTML = users.map(user => `<li>${user}</li>`).join('');
                     }
                 })
                 .catch(() => {

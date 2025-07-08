@@ -4,8 +4,8 @@ from data_source.bulletin_queries import (
     get_sports_activity_by_id,
     update_sports_activity,
     update_sports_activity_details,
-    get_hosted_activities_with_name,
-    get_joined_activities_with_host_name,
+    get_hosted_activities,
+    get_joined_activities,
 )
 from data_source.user_queries import (
     remove_user_profile_picture,
@@ -109,10 +109,7 @@ class ProfileManagement:
         g.user_posts = post_objs
         return post_objs
 
-    def get_user_activities(self, user_id):
-        hosted_activities_raw = get_hosted_activities_with_name(user_id)
-        joined_activities_raw = get_joined_activities_with_host_name(user_id)
-       
+    def create_entity_from_row(self, hosted_activities_raw, joined_activities_raw):
         hosted_activities = [
             {
                 'id': a['id'],
@@ -122,7 +119,6 @@ class ProfileManagement:
                 'date': a['date'],
                 'location': a['location'],
                 'max_pax': a['max_pax'],
-                'host_name': a['host_name'],
             }
             for a in hosted_activities_raw
         ]
@@ -135,13 +131,17 @@ class ProfileManagement:
                 'date': a['date'],
                 'location': a['location'],
                 'max_pax': a['max_pax'],
-                'host_name': a['host_name'],
             }
             for a in joined_activities_raw
         ]
         g.user_hosted_activities = hosted_activities
         g.user_joined_activities = joined_only_activities
-        return hosted_activities, joined_only_activities
+
+    def set_user_activities(self, user_id):
+        hosted_activities_raw = get_hosted_activities(user_id)
+        joined_activities_raw = get_joined_activities(user_id)
+        self.create_entity_from_row(hosted_activities_raw, joined_activities_raw)
+        # No return
 
     def update_profile_full(self, user_id, form):
         name = form.name.data
@@ -340,40 +340,6 @@ class ProfileManagement:
         ]
 
     def get_user_activities_display_data(self):
-        """
-        Retrieve display data for the current user's activities
-
-        Returns:
-            dict: User activities display information
-        """
-        hosted_activities = g.get("user_hosted_activities", [])
-        joined_activities = g.get("user_joined_activities", [])
-
-        return {
-            "hosted_activities": [
-                {
-                    "id": activity.get_id(),
-                    "activity_name": activity.get_activity_name(),
-                    "activity_type": activity.get_activity_type(),
-                    "skills_req": activity.get_skills_req(),
-                    "date": activity.get_date(),
-                    "location": activity.get_location(),
-                    "max_pax": activity.get_max_pax(),
-                    "user_id_list_join": activity.get_user_id_list_join(),
-                }
-                for activity in hosted_activities
-            ],
-            "joined_activities": [
-                {
-                    "id": activity.get_id(),
-                    "activity_name": activity.get_activity_name(),
-                    "activity_type": activity.get_activity_type(),
-                    "skills_req": activity.get_skills_req(),
-                    "date": activity.get_date(),
-                    "location": activity.get_location(),
-                    "max_pax": activity.get_max_pax(),
-                    "user_id_list_join": activity.get_user_id_list_join(),
-                }
-                for activity in joined_activities
-            ],
-        }
+        hosted_activities = g.get('user_hosted_activities', [])
+        joined_only_activities = g.get('user_joined_activities', [])
+        return hosted_activities, joined_only_activities

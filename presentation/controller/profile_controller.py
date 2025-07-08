@@ -49,9 +49,10 @@ def user_required(func):
 def fetchProfile():
     user_id = int(current_user.get_id())
     profile_manager = ProfileManagement()
+    profile_manager.set_user_activities(user_id) 
+    hosted_activities, joined_only_activities = profile_manager.get_user_activities_display_data()
     user = profile_manager.get_user_profile(user_id)
     user_posts = profile_manager.get_user_posts(user_id)
-    hosted_activities, joined_only_activities = profile_manager.get_user_activities(user_id)
     form = ProfileEditForm(obj=user)
     if request.method == "POST" and form.validate_on_submit():
         result = profile_manager.update_profile_full(user_id, form)

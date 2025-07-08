@@ -1,4 +1,5 @@
 from data_source.db_connection import get_connection
+from flask_login import current_user
 
 
 def get_host_id(activity_id: int):
@@ -146,12 +147,20 @@ def update_sports_activity_details(
 def get_joined_user_names_by_activity_id(activity_id: int):
     connection = get_connection()
     cursor = connection.cursor(dictionary=True)
-    # Get the user_id_list_join for the activity
-    cursor.execute(
-        "SELECT user_id_list_join FROM sports_activity WHERE id = %s", (activity_id,)
-    )
+    # Check if current user is the host
+    cursor.execute("SELECT user_id, user_id_list_join FROM sports_activity WHERE id = %s", (activity_id,))
     result = cursor.fetchone()
-    if not result or not result.get("user_id_list_join"):
+    if not result:
+        cursor.close()
+        connection.close()
+        return []
+    # Only allow the host to see the joined users
+    if str(result['user_id']) != str(current_user.get_id()):
+        cursor.close()
+        connection.close()
+        return []
+    # Get the user_id_list_join for the activity
+    if not result.get("user_id_list_join"):
         cursor.close()
         connection.close()
         return []
@@ -173,14 +182,13 @@ def get_joined_user_names_by_activity_id(activity_id: int):
     return [user['name'] for user in users]
 
 
-def get_hosted_activities_with_name(user_id):
+def get_hosted_activities(user_id):
     connection = get_connection()
     cursor = connection.cursor(dictionary=True)
     cursor.execute(
         """
-        SELECT sa.id, sa.activity_name, sa.activity_type, sa.skills_req, sa.date, sa.location, sa.max_pax, u.name as host_name
+        SELECT sa.id, sa.activity_name, sa.activity_type, sa.skills_req, sa.date, sa.location, sa.max_pax
         FROM sports_activity sa
-        JOIN user u ON sa.user_id = u.id
         WHERE sa.user_id = %s AND sa.date >= CURDATE()
         """, (user_id,)
     )
@@ -190,14 +198,13 @@ def get_hosted_activities_with_name(user_id):
     return data
 
 
-def get_joined_activities_with_host_name(user_id):
+def get_joined_activities(user_id):
     connection = get_connection()
     cursor = connection.cursor(dictionary=True)
     cursor.execute(
         """
-        SELECT sa.id, sa.activity_name, sa.activity_type, sa.skills_req, sa.date, sa.location, sa.max_pax, u.name as host_name
+        SELECT sa.id, sa.activity_name, sa.activity_type, sa.skills_req, sa.date, sa.location, sa.max_pax
         FROM sports_activity sa
-        JOIN user u ON sa.user_id = u.id
         WHERE sa.user_id != %s AND sa.date >= CURDATE() AND FIND_IN_SET(%s, sa.user_id_list_join)
         """, (user_id, user_id)
     )
