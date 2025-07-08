@@ -25,6 +25,8 @@ from domain.entity.forms import (
     DisableOTPForm,
 )
 
+PROFILE_PAGE = "profile_bp.fetch_profile"
+
 profile_bp = Blueprint(
     "profile_bp",
     __name__,
@@ -46,7 +48,7 @@ def user_required(func):
 @profile_bp.route("/", methods=["GET", "POST"])
 @login_required
 @user_required
-def fetchProfile():
+def fetch_profile():
     user_id = int(current_user.get_id())
     profile_manager = ProfileManagement()
     profile_manager.set_user_activities(user_id) 
@@ -55,9 +57,9 @@ def fetchProfile():
     user_posts = profile_manager.get_user_posts(user_id)
     form = ProfileEditForm(obj=user)
     if request.method == "POST" and form.validate_on_submit():
-        result = profile_manager.update_profile_full(user_id, form)
+        profile_manager.update_profile_full(user_id, form)
         flash("Profile updated successfully.", "success")
-        return redirect(url_for("profile_bp.fetchProfile"))
+        return redirect(url_for(PROFILE_PAGE))
     return render_template(
         "profile/profile.html",
         user=user,
@@ -83,7 +85,7 @@ def edit_activity(activity_id):
         flash(message, "success")
     else:
         flash(message, "error")
-    return redirect(url_for("profile_bp.fetchProfile") + "#activitiesSection")
+    return redirect(url_for(PROFILE_PAGE) + "#activitiesSection")
 
 @profile_bp.route("/edit_post/<int:post_id>", methods=["POST"])
 @login_required
@@ -97,7 +99,7 @@ def edit_post(post_id):
         flash(message, "success")
     else:
         flash(message, "error")
-    return redirect(url_for("profile_bp.fetchProfile") + "#feedSection")
+    return redirect(url_for(PROFILE_PAGE) + "#feedSection")
 
 @profile_bp.route("/leave_activity/<int:activity_id>", methods=["POST"])
 @login_required
@@ -110,7 +112,7 @@ def leave_activity(activity_id):
         flash(message, "success")
     else:
         flash(message, "error")
-    return redirect(url_for("profile_bp.fetchProfile") + "#activitiesSection")
+    return redirect(url_for(PROFILE_PAGE) + "#activitiesSection")
 
 @profile_bp.route("/delete_post/<int:post_id>", methods=["POST"])
 @login_required
@@ -123,7 +125,7 @@ def delete_post(post_id):
         flash(message, "success")
     else:
         flash(message, "error")
-    return redirect(url_for("profile_bp.fetchProfile") + "#feedSection")
+    return redirect(url_for(PROFILE_PAGE) + "#feedSection")
 
 @profile_bp.route("/joined_users/<int:activity_id>", methods=["GET"])
 @login_required
@@ -185,4 +187,4 @@ def disable_otp():
             flash("Failed to disable OTP.", "danger")
     else:
         flash("Invalid form submission.", "danger")
-    return redirect(url_for('profile_bp.fetchProfile'))
+    return redirect(url_for('profile_bp.fetch_profile'))

@@ -23,18 +23,18 @@ import bcrypt
 from PIL import Image, UnidentifiedImageError
 from werkzeug.utils import secure_filename
 from domain.control.otp_management import generate_otp_for_user, verify_and_enable_otp
-from domain.control.social_feed_management import deletePost, editPost
+from domain.control.social_feed_management import delete_post, edit_post
 from domain.entity.social_post import Post, Comment
 from flask import g, current_app
 
 class ProfileManagement:
-    def updateProfile(self, user_id, name, password, profile_picture=None):
+    def update_profile(self, user_id, name, password, profile_picture=None):
         if profile_picture is not None:
             return update_user_profile_by_id(user_id, name, password, profile_picture)
         else:
             return update_user_profile_by_id(user_id, name, password)
 
-    def removeProfilePicture(self, user_id):
+    def remove_profile_picture(self, user_id):
         return remove_user_profile_picture(user_id)
 
     def get_joined_user_names(self, activity_id):
@@ -177,11 +177,11 @@ class ProfileManagement:
                 password.encode("utf-8"), bcrypt.gensalt()
             ).decode("utf-8")
             if profile_picture_url is not None:
-                result = self.updateProfile(
+                result = self.update_profile(
                     user_id, name, hashed_password, profile_picture_url
                 )
             else:
-                result = self.updateProfile(user_id, name, hashed_password)
+                result = self.update_profile(user_id, name, hashed_password)
         else:
             user_data = get_user_by_id(user_id)
             current_password = (
@@ -190,11 +190,11 @@ class ProfileManagement:
                 else ""
             )
             if profile_picture_url is not None:
-                result = self.updateProfile(
+                result = self.update_profile(
                     user_id, name, current_password, profile_picture_url
                 )
             else:
-                result = self.updateProfile(user_id, name, current_password)
+                result = self.update_profile(user_id, name, current_password)
         return result
 
     def edit_activity(self, user_id, activity_id, form):
@@ -248,7 +248,7 @@ class ProfileManagement:
         return False, "Invalid form data."
 
     def edit_post(self, user_id, post_id, form):
-        return editPost(user_id, post_id, form.content.data, form.remove_image.data)
+        return edit_post(user_id, post_id, form.content.data, form.remove_image.data)
 
     def leave_activity(self, user_id, activity_id):
         activity = get_sports_activity_by_id(activity_id)
@@ -279,7 +279,7 @@ class ProfileManagement:
             return False, "Failed to leave the activity."
 
     def delete_post(self, user_id, post_id):
-        success = deletePost(user_id, post_id)
+        success = delete_post(user_id, post_id)
         if success:
             return True, "Post deleted successfully."
         else:

@@ -1,3 +1,4 @@
+from time import timezone
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for, current_app
 from flask_login import current_user, login_required
 from flask_login import login_user as flask_login_user
@@ -19,6 +20,9 @@ from domain.control.login_management import (
 from domain.entity.forms import LoginForm
 from domain.entity.user import User
 
+LOGIN_VIEW = "login.login"
+BULLETIN_PAGE = "bulletin.bulletin_page"
+
 login_bp = Blueprint(
     "login", __name__, url_prefix="/", template_folder="../templates/login"
 )
@@ -26,13 +30,13 @@ login_bp = Blueprint(
 
 @login_bp.route("/")
 def root_redirect():
-    return redirect(url_for("login.login"))
+    return redirect(url_for(LOGIN_VIEW))
 
 
 @login_bp.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for("bulletin.bulletin_page"))
+        return redirect(url_for(BULLETIN_PAGE))
 
     form = LoginForm()
     if form.validate_on_submit():
@@ -55,12 +59,12 @@ def login():
             session['session_token'] = session_token
             update_user_session_token(user.id, session_token)
             flask_login_user(user)
-            session['created_at'] = datetime.utcnow().isoformat()   # After user authenticated, time stamp is set
-            session['last_activity'] = datetime.utcnow().isoformat() 
+            session['created_at'] = datetime.now(timezone.utc).isoformat()   # After user authenticated, time stamp is set
+            session['last_activity'] = datetime.now(timezone.utc).isoformat() 
             if user.role == "admin":
                 return redirect(url_for("admin.bulletin_page"))
             else:
-                return redirect(url_for("bulletin.bulletin_page"))
+                return redirect(url_for(BULLETIN_PAGE))
         # invalid credentials
         form.email.errors.append("Invalid email or password.")
     # either GET or validation failed
@@ -74,7 +78,7 @@ def logout():
     if hasattr(current_user, 'id'):
         update_user_session_token(current_user.id, None)
     session.clear()
-    return redirect(url_for("login.login"))
+    return redirect(url_for(LOGIN_VIEW))
 
 
 @login_bp.route("/otp_verify", methods=["GET", "POST"])
@@ -82,11 +86,11 @@ def otp_verify():
     user_id = session.get("pre_2fa_user_id")
     user_email = session.get("pre_2fa_user_email")
     if not user_id or not user_email:
-        return redirect(url_for("login.login"))
+        return redirect(url_for(LOGIN_VIEW))
     user_data = get_user_by_email(user_email)
     if not user_data or not user_data.get("otp_secret"):
         flash("OTP setup not found. Please login again.")
-        return redirect(url_for("login.login"))
+        return redirect(url_for(LOGIN_VIEW))
 
     form = OTPForm()
     if form.validate_on_submit():
@@ -112,12 +116,12 @@ def otp_verify():
             flask_login_user(user)
             session.pop("pre_2fa_user_id", None)
             session.pop("pre_2fa_user_email", None)
-            session['created_at'] = datetime.utcnow().isoformat()
-            session['last_activity'] = datetime.utcnow().isoformat()
+            session['created_at'] = datetime.now(timezone.utc).isoformat()
+            session['last_activity'] = datetime.now(timezone.utc).isoformat()
             if user.role == "admin":
                 return redirect(url_for("admin.bulletin_page"))
             else:
-                return redirect(url_for("bulletin.bulletin_page"))
+                return redirect(url_for(BULLETIN_PAGE))
         else:
             flash("Invalid OTP code. Please try again.")
     return render_template("login/login_otp.html", form=form)

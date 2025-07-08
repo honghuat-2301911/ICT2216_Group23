@@ -31,6 +31,7 @@ from domain.entity.user import User
 
 FAILED_ATTEMPT_LIMIT = 10
 LOCKOUT_MINUTES = 15
+LOGIN_VIEW = 'login.login'
 
 
 def login_user(email: str, password: str):
@@ -195,11 +196,11 @@ def process_reset_password(token, form):
 
         if not token_data:
             flash('Invalid or expired reset link. Please request a new password reset.', 'danger')
-            return redirect(url_for('login.login'))
+            return redirect(url_for(LOGIN_VIEW))
 
         if token_data['used']:
             flash('This reset link has been used. Please request a new password reset.', 'danger')
-            return redirect(url_for('login.login'))
+            return redirect(url_for(LOGIN_VIEW))
 
         
         utc_plus_8 = timezone(timedelta(hours=8))
@@ -215,11 +216,11 @@ def process_reset_password(token, form):
 
         if now > expires_at_with_timezone:
             flash('This reset link has expired. Please request a new password reset.', 'danger')
-            return redirect(url_for('login.login'))
+            return redirect(url_for(LOGIN_VIEW))
     
         hashed = bcrypt.hashpw(form.password.data.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
         update_user_password_by_id(token_data['user_id'], hashed)
         update_reset_link_used(user_token_hash)
         flash('Your password has been updated. You can now log in.', 'success')
-        return redirect(url_for('login.login'))
+        return redirect(url_for(LOGIN_VIEW))
     return render_template('reset_password.html', form=form)

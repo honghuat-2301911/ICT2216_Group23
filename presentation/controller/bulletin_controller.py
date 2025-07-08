@@ -15,6 +15,10 @@ from domain.control.bulletin_management import (
 )
 from domain.entity.forms import FilterForm, HostForm, JoinForm, SearchForm
 
+BULLETIN_TEMPLATE = "bulletin/bulletin.html"
+BULLETIN_PAGE = "bulletin.bulletin_page"
+
+
 bulletin_bp = Blueprint(
     "bulletin", __name__, url_prefix="/", template_folder="../templates"
 )
@@ -48,7 +52,7 @@ def bulletin_page():
     if not result and (query or search_form.errors):
         error = search_form.errors.get("query", ["No activities found."])[0]
         return render_template(
-            "bulletin/bulletin.html",
+            BULLETIN_TEMPLATE,
             bulletin_list=[],
             error=error,
             query=query,
@@ -60,7 +64,7 @@ def bulletin_page():
 
     bulletin_list = get_bulletin_display_data()
     return render_template(
-        "bulletin/bulletin.html",
+        BULLETIN_TEMPLATE,
         bulletin_list=bulletin_list,
         query=query,
         search_form=search_form,
@@ -77,19 +81,19 @@ def join_activity():
     join_form = JoinForm()
     if not join_form.validate_on_submit():
         flash("Invalid request to join.", "error")
-        return redirect(url_for("bulletin.bulletin_page"))
+        return redirect(url_for(BULLETIN_PAGE))
 
     activity_id = join_form.activity_id.data
     if get_host_name(activity_id):
         flash("You can't join the activities you are hosting", "error")
-        return redirect(url_for("bulletin.bulletin_page"))
+        return redirect(url_for(BULLETIN_PAGE))
 
     user_id = int(current_user.get_id())
     if not join_activity_control(activity_id, user_id):
         flash("Failed to join the activity. You may have already joined.", "error")
     else:
         flash("Successfully joined the activity! You may view it in your profile", "success")
-    return redirect(url_for("bulletin.bulletin_page"))
+    return redirect(url_for(BULLETIN_PAGE))
 
 
 @bulletin_bp.route("/host", methods=["POST"])
@@ -101,7 +105,7 @@ def host_activity():
         # grab first error message
         msg = next(iter(host_form.errors.values()))[0]
         flash(f"Host form error: {msg}", "error")
-        return redirect(url_for("bulletin.bulletin_page"))
+        return redirect(url_for(BULLETIN_PAGE))
 
     success = create_activity(
         host_form.activity_name.data,
@@ -117,7 +121,7 @@ def host_activity():
         flash("Could not create activity. Please try again.", "error")
     else:
         flash("Activity created successfully!", "success")
-    return redirect(url_for("bulletin.bulletin_page"))
+    return redirect(url_for(BULLETIN_PAGE))
 
 
 @bulletin_bp.route("/bulletin/filtered", methods=["POST"])
@@ -127,14 +131,14 @@ def filtered_bulletin():
     filter_form = FilterForm()
     if not filter_form.validate_on_submit():
         flash("Invalid filter submission.", "error")
-        return redirect(url_for("bulletin.bulletin_page"))
+        return redirect(url_for(BULLETIN_PAGE))
 
     s = filter_form.sports_checkbox.data
     ns = filter_form.non_sports_checkbox.data
 
     if not s and not ns:
         return render_template(
-            "bulletin/bulletin.html",
+            BULLETIN_TEMPLATE,
             bulletin_list=[],
             error="Please select at least one category to filter.",
             search_form=SearchForm(),
@@ -146,7 +150,7 @@ def filtered_bulletin():
     result = get_filtered_bulletins(s, ns)
     if not result:
         return render_template(
-            "bulletin/bulletin.html",
+            BULLETIN_TEMPLATE,
             bulletin_list=[],
             error="No activities found for the selected categories.",
             search_form=SearchForm(),
@@ -157,7 +161,7 @@ def filtered_bulletin():
 
     bulletin_list = get_bulletin_display_data()
     return render_template(
-        "bulletin/bulletin.html",
+        BULLETIN_TEMPLATE,
         bulletin_list=bulletin_list,
         search_form=SearchForm(),
         filter_form=filter_form,

@@ -5,11 +5,13 @@ from werkzeug.utils import secure_filename
 
 from data_source.db_connection import get_connection
 
+DB_CONN_ERROR = "[DB ERROR] Could not connect to database."
 
-def get_all_posts(current_user_id=None):
+
+def get_all_posts():
     connection = get_connection()
     if connection is None:
-        print("[DB ERROR] Could not connect to database.")
+        print(DB_CONN_ERROR)
         return []
 
     cursor = connection.cursor(dictionary=True)
@@ -57,7 +59,7 @@ def get_all_posts(current_user_id=None):
 def add_post(user_id, content, image_url=None):
     connection = get_connection()
     if connection is None:
-        print("[DB ERROR] Could not connect to database.")
+        print(DB_CONN_ERROR)
         return False
     cursor = connection.cursor()
     try:
@@ -79,7 +81,7 @@ def add_post(user_id, content, image_url=None):
 def add_comment(feed_id, user_id, content):
     connection = get_connection()
     if connection is None:
-        print("[DB ERROR] Could not connect to database.")
+        print(DB_CONN_ERROR)
         return False
     cursor = connection.cursor()
     try:
@@ -101,7 +103,7 @@ def add_comment(feed_id, user_id, content):
 def get_posts_by_user(username):
     connection = get_connection()
     if connection is None:
-        print("[DB ERROR] Could not connect to database.")
+        print(DB_CONN_ERROR)
         return []
     cursor = connection.cursor(dictionary=True)
     try:
@@ -132,7 +134,7 @@ def get_posts_by_user(username):
 def get_posts_by_user_id(user_id):
     connection = get_connection()
     if connection is None:
-        print("[DB ERROR] Could not connect to database.")
+        print(DB_CONN_ERROR)
         return []
     cursor = connection.cursor(dictionary=True)
     try:
@@ -177,7 +179,7 @@ def add_post_to_db(user_id, content, image_file=None):
 def increment_like(post_id):
     connection = get_connection()
     if connection is None:
-        print("[DB ERROR] Could not connect to database.")
+        print(DB_CONN_ERROR)
         return False
     cursor = connection.cursor()
     try:
@@ -197,7 +199,7 @@ def increment_like(post_id):
 def decrement_like(post_id):
     connection = get_connection()
     if connection is None:
-        print("[DB ERROR] Could not connect to database.")
+        print(DB_CONN_ERROR)
         return False
     cursor = connection.cursor()
     try:
@@ -217,7 +219,7 @@ def decrement_like(post_id):
 def get_featured_posts():
     connection = get_connection()
     if connection is None:
-        print("[DB ERROR] Could not connect to database.")
+        print(DB_CONN_ERROR)
         return []
     cursor = connection.cursor(dictionary=True)
     try:
@@ -241,7 +243,7 @@ def get_featured_posts():
 def get_post_by_id(post_id):
     connection = get_connection()
     if connection is None:
-        print("[DB ERROR] Could not connect to database.")
+        print(DB_CONN_ERROR)
         return None
     cursor = connection.cursor(dictionary=True)
     try:
@@ -271,7 +273,7 @@ def get_post_by_id(post_id):
 def update_post(post_id, content, image_filename):
     connection = get_connection()
     if connection is None:
-        print("[DB ERROR] Could not connect to database.")
+        print(DB_CONN_ERROR)
         return False
     cursor = connection.cursor()
     try:
@@ -290,7 +292,7 @@ def update_post(post_id, content, image_filename):
 def delete_post(post_id):
     connection = get_connection()
     if connection is None:
-        print("[DB ERROR] Could not connect to database.")
+        print(DB_CONN_ERROR)
         return False
     cursor = connection.cursor()
     try:
@@ -309,7 +311,7 @@ def delete_post(post_id):
 def add_like(post_id, user_id):
     connection = get_connection()
     if connection is None:
-        print("[DB ERROR] Could not connect to database.")
+        print(DB_CONN_ERROR)
         return False
     cursor = connection.cursor(dictionary=True)
     try:
@@ -336,7 +338,7 @@ def add_like(post_id, user_id):
 def remove_like(post_id, user_id):
     connection = get_connection()
     if connection is None:
-        print("[DB ERROR] Could not connect to database.")
+        print(DB_CONN_ERROR)
         return False
     cursor = connection.cursor(dictionary=True)
     try:
@@ -363,7 +365,7 @@ def remove_like(post_id, user_id):
 def get_like_count(post_id):
     connection = get_connection()
     if connection is None:
-        print("[DB ERROR] Could not connect to database.")
+        print(DB_CONN_ERROR)
         return 0
     cursor = connection.cursor(dictionary=True)
     try:

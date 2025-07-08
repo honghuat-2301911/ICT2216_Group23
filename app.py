@@ -1,7 +1,7 @@
 import logging
 import os
 from logging.handlers import RotatingFileHandler
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
 import traceback
 
 from flask import Flask, render_template, session, redirect, url_for, flash, request
@@ -20,7 +20,6 @@ from presentation.controller.register_controller import register_bp
 from presentation.controller.social_feed_controller import social_feed_bp
 from dotenv import load_dotenv
 
-# from data_source.login_queries import init_schema
 
 
 def create_app():
@@ -95,9 +94,11 @@ def create_app():
 
     @app.before_request
     def enforce_session_timeouts():
+
+        LOGIN_VIEW = 'login.login'
         if not session.get('created_at'):
             return  # Not logged in or session not set yet
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         created_at = session.get('created_at')
         last_activity = session.get('last_activity')
         # Convert from string if needed
@@ -109,12 +110,12 @@ def create_app():
         if now - created_at > ABSOLUTE_TIMEOUT:
             session.clear()   # Clear session
             flash('Session expired. Please log in again.', 'warning')
-            return redirect(url_for('login.login'))
+            return redirect(url_for(LOGIN_VIEW))
         # Idle timeout
         if now - last_activity > IDLE_TIMEOUT:
             session.clear()   # Clear session
             flash('Session expired due to inactivity. Please log in again.', 'warning')
-            return redirect(url_for('login.login'))
+            return redirect(url_for(LOGIN_VIEW))
         # Single session enforcement
         from flask_login import current_user
         if hasattr(current_user, 'is_authenticated') and current_user.is_authenticated:
@@ -122,7 +123,7 @@ def create_app():
             if session.get('session_token') != user_token:
                 session.clear()
                 flash('You have been logged out because your account was accessed from another device.', 'warning')
-                return redirect(url_for('login.login'))
+                return redirect(url_for(LOGIN_VIEW))
         # Update last activity
         session['last_activity'] = now.isoformat()
 

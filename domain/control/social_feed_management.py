@@ -223,16 +223,16 @@ def get_posts_display_data():
     return display_data
 
 
-def editPost(
-    userId: int, postId: int, updatedContent: str, removeImage: bool = False
+def edit_post(
+    user_id: int, post_id: int, updated_content: str, remove_image: bool = False
 ) -> tuple[bool, str]:
-    post = get_post_by_id(postId)
-    if not post or int(post["user_id"]) != userId:
+    post = get_post_by_id(post_id)
+    if not post or int(post["user_id"]) != user_id:
         return False, "Post not found or unauthorized."
 
     image_filename = post.get("image_path")
     # Remove image if requested
-    if removeImage and image_filename:
+    if remove_image and image_filename:
         image_path = os.path.join(
             "presentation", "static", "uploads", os.path.basename(image_filename)
         )
@@ -241,16 +241,16 @@ def editPost(
         image_filename = None
 
     # Update post in DB
-    result = update_post(postId, updatedContent, image_filename)
+    result = update_post(post_id, updated_content, image_filename)
     if result:
         return True, "Post updated successfully."
     else:
         return False, "Failed to update post."
 
 
-def deletePost(userId: int, postId: int) -> bool:
-    post = get_post_by_id(postId)
-    if not post or int(post["user_id"]) != userId:
+def delete_post(user_id: int, post_id: int) -> bool:
+    post = get_post_by_id(post_id)
+    if not post or int(post["user_id"]) != user_id:
         return False
     image_filename = post.get("image_path")
     if image_filename:
@@ -259,7 +259,7 @@ def deletePost(userId: int, postId: int) -> bool:
         )
         if os.path.exists(image_path):
             os.remove(image_path)
-    return ds_delete_post(postId)
+    return ds_delete_post(post_id)
 
 
 """Get all posts by a specific user ID"""

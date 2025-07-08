@@ -25,6 +25,12 @@ from datetime import datetime
 from wtforms import ValidationError
 
 
+PASSWORD_LENGTH_MESSAGE = "Password must be between 8 and 255 characters"
+NON_SPORTS_ACTIVITY_TYPE = "Non Sports"
+SAVE_CHANGES_MESSAGE = "Save Changes"
+
+
+
 
 class RegisterForm(FlaskForm):
     name = StringField(
@@ -42,7 +48,7 @@ class RegisterForm(FlaskForm):
         "Password",
         validators=[
             DataRequired(message="Password is required"),
-            Length(min=8, max=255, message="Password must be between 8 and 255 characters"),
+            Length(min=8, max=255, message=PASSWORD_LENGTH_MESSAGE),
         ],
     )
     confirm_password = PasswordField(
@@ -76,7 +82,7 @@ class SearchForm(FlaskForm):
 
 class FilterForm(FlaskForm):
     sports_checkbox = BooleanField("Sports")
-    non_sports_checkbox = BooleanField("Non Sports")
+    non_sports_checkbox = BooleanField(NON_SPORTS_ACTIVITY_TYPE)
     submit = SubmitField("Filter")
 
 
@@ -87,7 +93,7 @@ class HostForm(FlaskForm):
         choices=[
             ("", "Select Activity Type"),
             ("Sports", "Sports"),
-            ("Non Sports", "Non Sports"),
+            (NON_SPORTS_ACTIVITY_TYPE, NON_SPORTS_ACTIVITY_TYPE),
         ],
         validators=[DataRequired()],
     )
@@ -131,13 +137,13 @@ class CommentForm(FlaskForm):
 class ProfileEditForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired(), Length(max=50, message="Name must be less than 50 characters")])
     email = StringField("Email", validators=[DataRequired(), Email(), Length(max=254, message="Email must be less than 254 characters")])
-    password = PasswordField("Password", validators=[Optional(), Length(min=8, max=255, message="Password must be between 8 and 255 characters")])
+    password = PasswordField("Password", validators=[Optional(), Length(min=8, max=255, message=PASSWORD_LENGTH_MESSAGE)])
     profile_picture = FileField(
         "Profile Picture", 
         validators=[FileAllowed(['jpg', 'jpeg', 'png'], 'Images only!')]
     )
     remove_profile_picture = BooleanField("Remove current profile picture")
-    submit = SubmitField("Save Changes")
+    submit = SubmitField(SAVE_CHANGES_MESSAGE)
 
 
 class ActivityEditForm(FlaskForm):
@@ -145,7 +151,7 @@ class ActivityEditForm(FlaskForm):
     activity_name = StringField("Activity Name", validators=[DataRequired(), Length(min=2, max=50, message="Activity name must be between 2 and 50 characters")])
     activity_type = SelectField(
         "Type",
-        choices=[("Sports", "Sports"), ("Non Sports", "Non Sports")],
+        choices=[("Sports", "Sports"), (NON_SPORTS_ACTIVITY_TYPE, NON_SPORTS_ACTIVITY_TYPE)],
         validators=[DataRequired()],
     )
     skills_req = StringField("Skills Required", validators=[DataRequired(), Length(min=2, max=100, message="Skills required must be between 2 and 100 characters")])
@@ -154,7 +160,7 @@ class ActivityEditForm(FlaskForm):
     )
     location = StringField("Location", validators=[DataRequired(), Length(min=2, max=50, message="Location must be between 2 and 50 characters")])
     max_pax = IntegerField("Max Participants", validators=[DataRequired(), NumberRange(min=1, message="Max participants must be at least 1")])
-    submit = SubmitField("Save Changes")
+    submit = SubmitField(SAVE_CHANGES_MESSAGE)
 
     def validate_date(self, field):
         if field.data < datetime.now():
@@ -165,7 +171,7 @@ class PostEditForm(FlaskForm):
     post_id = HiddenField()
     content = TextAreaField("Content", validators=[DataRequired(), Length(max=255, message="Content must be less than 255 characters")])
     remove_image = BooleanField("Remove image from post")
-    submit = SubmitField("Save Changes")
+    submit = SubmitField(SAVE_CHANGES_MESSAGE)
 
 
 class DeleteForm(FlaskForm):
@@ -197,7 +203,7 @@ class RequestResetForm(FlaskForm):
 
 
 class ResetPasswordForm(FlaskForm):
-    password = PasswordField('New Password', validators=[DataRequired(), Length(min=8, max=255, message="Password must be between 8 and 255 characters")])
+    password = PasswordField('New Password', validators=[DataRequired(), Length(min=8, max=255, message=PASSWORD_LENGTH_MESSAGE)])
     confirm_password = PasswordField('Confirm Password', validators=[
         DataRequired(), EqualTo('password')
     ])
