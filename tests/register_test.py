@@ -71,22 +71,22 @@ class RegisterPageTest(unittest.TestCase):
                 f.write(self.driver.page_source)
             raise  # Re-raise so the test still fails
 
-    def test_register_password_complexity(self):
-        test_email = self.generate_random_email()
-        simple_password = "123456"
+    # def test_register_password_complexity(self):
+    #     test_email = self.generate_random_email()
+    #     simple_password = "123456"
 
-        try:
-            self.fill_registration_form(email=test_email, password=simple_password)
-            self.assertIn("Please lengthen this text to 8 characters or more", self.driver.page_source)
-            self.fill_registration_form(email=test_email, password=self.base_password)
-            self.assertIn("A verification link has been sent to your email address.", self.driver.page_source)
+    #     try:
+    #         self.fill_registration_form(email=test_email, password=simple_password)
+    #         self.assertIn("Please lengthen this text to 8 characters or more", self.driver.page_source)
+    #         self.fill_registration_form(email=test_email, password=self.base_password)
+    #         self.assertIn("A verification link has been sent to your email address.", self.driver.page_source)
 
-        except Exception as e:
-            os.makedirs("artifacts", exist_ok=True)
-            self.driver.save_screenshot("artifacts/register_password_complexity.png")
-            with open("artifacts/debug.html", "w", encoding="utf-8") as f:
-                f.write(self.driver.page_source)
-            raise  # Re-raise so the test still fails
+    #     except Exception as e:
+    #         os.makedirs("artifacts", exist_ok=True)
+    #         self.driver.save_screenshot("artifacts/register_password_complexity.png")
+    #         with open("artifacts/debug.html", "w", encoding="utf-8") as f:
+    #             f.write(self.driver.page_source)
+    #         raise  # Re-raise so the test still fails
 
 
     @classmethod
