@@ -16,6 +16,7 @@ import hashlib
 
 from data_source.user_queries import (
     clear_failed_logins,
+    delete_reset_password,
     get_id_by_email,
     get_user_by_email,
     get_user_by_token_hash,
@@ -156,6 +157,9 @@ def process_reset_password_request(email):
 
     # generate a unique token for the password reset and store in the database
     if user_id:
+
+        delete_reset_password(user_id)
+
         token = str(uuid.uuid4())
         token_hash = hashlib.sha256(token.encode()).hexdigest()
 
@@ -197,18 +201,14 @@ def process_reset_password(token, form):
             flash('This reset link has been used. Please request a new password reset.', 'danger')
             return redirect(url_for('login.login'))
 
-        utc_plus_8 = timezone(timedelta(hours=8))
-        now = datetime.now(utc_plus_8)
-
-        expires_at_str = token_data["expires_at"]
-
-
         
         utc_plus_8 = timezone(timedelta(hours=8))
         now = datetime.now(utc_plus_8)
 
-        utc_plus_9 = timezone(timedelta(hours=9))
-        expires_at_with_timezone = token_data["expires_at"].replace(tzinfo=utc_plus_9)
+        expires_at_with_timezone = token_data["expires_at"].replace(tzinfo=utc_plus_8)
+
+        flash(f"Current time (UTC+8): {now.strftime('%Y-%m-%d %H:%M:%S')}", 'debug')
+        flash(f"Expiry time (UTC+8): {expires_at_with_timezone.strftime('%Y-%m-%d %H:%M:%S')}", 'debug')
         
         if now > expires_at_with_timezone:
             flash('This reset link has expired. Please request a new password reset.', 'danger')
