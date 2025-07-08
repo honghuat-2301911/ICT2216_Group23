@@ -31,7 +31,7 @@ class RegisterPageTest(unittest.TestCase):
         random_suffix = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
         cls.test_email = f"{random_suffix}@example.com"
         cls.base_password = "securepassword"
-        cls.fill_registration_form(email=cls.test_email, password=cls.base_password)
+        cls.fill_registration_form(cls, cls.test_email, cls.base_password)
 
 
     def fill_registration_form(self, email, password):
