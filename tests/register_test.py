@@ -40,7 +40,7 @@ class RegisterPageTest(unittest.TestCase):
     def test_register_duplicate_email(self):
         try:
             self.fill_registration_form(email=self.test_email)
-            self.assertIn("Registration successful", self.driver.page_source)
+            self.assertIn("A verification link has been sent to your email address.", self.driver.page_source)
             self.fill_registration_form(email=self.test_email)
             self.assertIn(
                 "Something went wrong. Please try again.", self.driver.page_source
