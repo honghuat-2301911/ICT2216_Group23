@@ -77,11 +77,9 @@ class RegisterPageTest(unittest.TestCase):
 
         try:
             self.fill_registration_form(email=test_email, password=simple_password)
-            self.assertIn("A verification link has been sent to your email address.", self.driver.page_source)
+            self.assertIn("Please lengthen this text to 8 characters or more", self.driver.page_source)
             self.fill_registration_form(email=test_email, password=self.base_password)
-            self.assertIn(
-                "Something went wrong. Please try again.", self.driver.page_source
-            )
+            self.assertIn("A verification link has been sent to your email address.", self.driver.page_source)
 
         except Exception as e:
             os.makedirs("artifacts", exist_ok=True)
