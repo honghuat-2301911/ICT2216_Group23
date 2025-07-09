@@ -159,7 +159,6 @@ def search_users():
         [
             (
                 lambda d: {
-                    "id": d.get("id"),
                     "name": d.get("name"),
                     "email": d.get("email"),
                     "profile_picture": d.get("profile_picture", ""),
