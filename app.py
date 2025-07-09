@@ -214,4 +214,4 @@ def create_app():
 if __name__ == "__main__":
     app = create_app()
     # debug=True is only for local dev!
-    app.run(debug=True)
+    # app.run(debug=True)
