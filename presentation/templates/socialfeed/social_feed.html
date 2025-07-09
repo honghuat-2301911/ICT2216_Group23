@@ -203,7 +203,7 @@
   <!-- Image Modal -->
   <div id="imageModal" class="modal" style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.8);align-items:center;justify-content:center;">
     <button type="button" class="close-modal" onclick="closeImageModal()" aria-label="Close" style="position:absolute;top:32px;right:48px;font-size:2.5em;color:#fff;cursor:pointer;z-index:10001;">&times;</button>
-    <img id="modalImage" src="" alt="Expanded image" style="max-width:90vw;max-height:80vh;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+    <img id="modalImage" src="" alt="Expanded" style="max-width:90vw;max-height:80vh;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.4);">
   </div>
 
   <!-- Spinner Overlay -->
@@ -295,38 +295,45 @@
     let searchTimeout;
     const searchInput = document.getElementById('userSearchInput');
     const searchResults = document.getElementById('userSearchResults');
-    searchInput.addEventListener('input', () => {
+
+    function handleUserSearchInput() {
       const q = searchInput.value.trim();
       clearTimeout(searchTimeout);
       if (q.length < 2) {
         searchResults.style.display = 'none';
         return;
       }
-      searchTimeout = setTimeout(() => {
-        fetch(`/feed/search-users?q=${encodeURIComponent(q)}`)
-          .then(r => r.json())
-          .then(users => {
-            searchResults.innerHTML = '';
-            if (!users.length) {
-              searchResults.style.display = 'none';
-              return;
-            }
-            users.forEach(u => {
-              const div = document.createElement('div');
-              div.className = 'search-result-item';
-              div.onclick = () => selectUser(u);
-              div.innerHTML = `
-                <img src="${u.profile_picture || '/static/icons/user.png'}" alt="Profile" style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:8px;">
-                <div class="user-info" style="display:inline-block;vertical-align:middle;">
-                  <div class="user-name">${u.name}</div>
-                  <div class="user-email" style="color:#888;font-size:0.9em;">${u.email}</div>
-                </div>`;
-              searchResults.appendChild(div);
-            });
-            searchResults.style.display = 'block';
-          });
-      }, 300);
-    });
+      searchTimeout = setTimeout(() => fetchUserSearchResults(q), 300);
+    }
+
+    function fetchUserSearchResults(q) {
+      fetch(`/feed/search-users?q=${encodeURIComponent(q)}`)
+        .then(r => r.json())
+        .then(users => renderUserSearchResults(users));
+    }
+
+    function renderUserSearchResults(users) {
+      searchResults.innerHTML = '';
+      if (!users.length) {
+        searchResults.style.display = 'none';
+        return;
+      }
+      users.forEach(u => {
+        const div = document.createElement('div');
+        div.className = 'search-result-item';
+        div.onclick = () => selectUser(u);
+        div.innerHTML = `
+          <img src="${u.profile_picture || '/static/icons/user.png'}" alt="Profile" style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:8px;">
+          <div class="user-info" style="display:inline-block;vertical-align:middle;">
+            <div class="user-name">${u.name}</div>
+            <div class="user-email" style="color:#888;font-size:0.9em;">${u.email}</div>
+          </div>`;
+        searchResults.appendChild(div);
+      });
+      searchResults.style.display = 'block';
+    }
+
+    searchInput.addEventListener('input', handleUserSearchInput);
     document.addEventListener('click', e => {
       if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
         searchResults.style.display = 'none';
