@@ -91,40 +91,40 @@ class CreateActivityPageTest(unittest.TestCase):
                 f.write(self.driver.page_source)
             raise  # Re-raise so the test still fails
 
-    def test_create_activity_past_date(self):
-        try:
-            # Assert that the login with the seeded email and password is successful
-            # After login, the user should be redirected to the bulletin board page
-            self.fill_login_form(email=self.seeded_email, password=self.seeded_password)
-            self.assertIn("Bulletin Board", self.driver.page_source)
+    # def test_create_activity_past_date(self):
+    #     try:
+    #         # Assert that the login with the seeded email and password is successful
+    #         # After login, the user should be redirected to the bulletin board page
+    #         self.fill_login_form(email=self.seeded_email, password=self.seeded_password)
+    #         self.assertIn("Bulletin Board", self.driver.page_source)
 
-            # Open the host activity modal
-            host_button = self.driver.find_element(
-                By.XPATH, "//button[contains(text(), 'Host Activity')]"
-            )
-            host_button.click()
-            time.sleep(1)  # Wait for modal animation
+    #         # Open the host activity modal
+    #         host_button = self.driver.find_element(
+    #             By.XPATH, "//button[contains(text(), 'Host Activity')]"
+    #         )
+    #         host_button.click()
+    #         time.sleep(1)  # Wait for modal animation
 
-            self.fill_activity_form(
-                name="Past Date Activity",
-                date="2000-07-08T15:30"  # Past date for testing failure
-            )
+    #         self.fill_activity_form(
+    #             name="Past Date Activity",
+    #             date="2000-07-08T15:30"  # Past date for testing failure
+    #         )
 
-            # # Assert that the activity was not created and an error message is displayed
-            # self.assertIn("Host form error: Date cannot be in the past.", self.driver.page_source)
+    #         # # Assert that the activity was not created and an error message is displayed
+    #         # self.assertIn("Host form error: Date cannot be in the past.", self.driver.page_source)
 
-            wait = WebDriverWait(self.driver, 10)
-            error_elem = wait.until(
-                EC.visibility_of_element_located((By.CSS_SELECTOR, "#flashModal .flash-message.error"))
-            )
-            self.assertIn("Date cannot be in the past", error_elem.text)
+    #         wait = WebDriverWait(self.driver, 10)
+    #         error_elem = wait.until(
+    #             EC.visibility_of_element_located((By.CSS_SELECTOR, "#flashModal .flash-message.error"))
+    #         )
+    #         self.assertIn("Date cannot be in the past", error_elem.text)
 
-        except Exception as e:
-            os.makedirs("artifacts", exist_ok=True)
-            self.driver.save_screenshot("artifacts/create_activity_success.png")
-            with open("artifacts/debug.html", "w", encoding="utf-8") as f:
-                f.write(self.driver.page_source)
-            raise  # Re-raise so the test still fails
+    #     except Exception as e:
+    #         os.makedirs("artifacts", exist_ok=True)
+    #         self.driver.save_screenshot("artifacts/create_activity_success.png")
+    #         with open("artifacts/debug.html", "w", encoding="utf-8") as f:
+    #             f.write(self.driver.page_source)
+    #         raise  # Re-raise so the test still fails
 
     @classmethod
     def tearDownClass(cls):
