@@ -213,34 +213,52 @@ class ProfileManagement:
         return result
 
     def edit_activity(self, user_id, activity_id, form):
-        activity = get_sports_activity_by_id(activity_id)
-
-        def get_val(r, key, default=None):
-            if isinstance(r, dict):
-                return r.get(key, default)
-            return getattr(r, key, default)
-
         def safe_int(val, default=0):
             try:
-                return int(val)
-            except (TypeError, ValueError):
-                return default
-
+                if val is None:
+                    return default
+                if isinstance(val, (int, float)):
+                    return int(val)
+                if isinstance(val, str) and val.strip() != '':
+                    return int(val)
+            except Exception:
+                pass
+            return default
+        activity = get_sports_activity_by_id(activity_id)
         if not activity:
             return False, "Activity not found."
-        activity_user_id = safe_int(get_val(activity, "user_id", 0))
+        if hasattr(activity, 'get') and callable(activity.get):
+            activity_user_id = safe_int(activity.get('user_id', 0))
+            activity_id_val = safe_int(activity.get('id', 0))
+            activity_name = str(activity.get('activity_name', ''))
+            activity_type = str(activity.get('activity_type', ''))
+            skills_req = str(activity.get('skills_req', ''))
+            date = str(activity.get('date', ''))
+            location = str(activity.get('location', ''))
+            max_pax = safe_int(activity.get('max_pax', 0))
+            user_id_list_join = str(activity.get('user_id_list_join', ''))
+        else:
+            activity_user_id = safe_int(getattr(activity, 'user_id', 0))
+            activity_id_val = safe_int(getattr(activity, 'id', 0))
+            activity_name = str(getattr(activity, 'activity_name', ''))
+            activity_type = str(getattr(activity, 'activity_type', ''))
+            skills_req = str(getattr(activity, 'skills_req', ''))
+            date = str(getattr(activity, 'date', ''))
+            location = str(getattr(activity, 'location', ''))
+            max_pax = safe_int(getattr(activity, 'max_pax', 0))
+            user_id_list_join = str(getattr(activity, 'user_id_list_join', ''))
         if activity_user_id != user_id:
             return False, "You can only edit activities you created."
         activity_obj = SportsActivity(
-            id=safe_int(get_val(activity, "id", 0)),
+            id=activity_id_val,
             user_id=activity_user_id,
-            activity_name=str(get_val(activity, "activity_name", "")),
-            activity_type=str(get_val(activity, "activity_type", "")),
-            skills_req=str(get_val(activity, "skills_req", "")),
-            date=str(get_val(activity, "date", "")),
-            location=str(get_val(activity, "location", "")),
-            max_pax=safe_int(get_val(activity, "max_pax", 0)),
-            user_id_list_join=str(get_val(activity, "user_id_list_join", "")),
+            activity_name=activity_name,
+            activity_type=activity_type,
+            skills_req=skills_req,
+            date=date,
+            location=location,
+            max_pax=max_pax,
+            user_id_list_join=user_id_list_join,
         )
         if form.validate_on_submit():
             activity_obj.activity_name = form.activity_name.data
@@ -270,25 +288,15 @@ class ProfileManagement:
 
     def leave_activity(self, user_id, activity_id):
         activity = get_sports_activity_by_id(activity_id)
-
-        def get_val(r, key, default=None):
-            if isinstance(r, dict):
-                return r.get(key, default)
-            return getattr(r, key, default)
-
-        def safe_int(val, default=0):
-            try:
-                return int(val)
-            except (TypeError, ValueError):
-                return default
-
         if not activity:
             return False, "Activity not found."
-        joined_ids = [
-            uid.strip()
-            for uid in (get_val(activity, "user_id_list_join", "") or "").split(",")
-            if uid.strip()
-        ]
+        if hasattr(activity, 'get') and callable(activity.get):
+            user_id_list_join = activity.get('user_id_list_join', '') or ''
+        else:
+            user_id_list_join = getattr(activity, 'user_id_list_join', '') or ''
+        if not isinstance(user_id_list_join, str):
+            user_id_list_join = str(user_id_list_join)
+        joined_ids = [uid.strip() for uid in user_id_list_join.split(',') if isinstance(uid, str) and uid.strip()]
         if str(user_id) not in joined_ids:
             return False, "You are not a participant in this activity."
         joined_ids.remove(str(user_id))
