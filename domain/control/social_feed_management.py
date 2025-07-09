@@ -168,7 +168,7 @@ def create_post_control(user_id, content, image_file=None):
             image = Image.open(image_file)
             image.verify()
             image_file.seek(0)
-        except (UnidentifiedImageError, Exception):
+        except UnidentifiedImageError:
             return False
 
         # Get the original file extension

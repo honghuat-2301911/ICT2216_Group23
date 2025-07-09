@@ -96,6 +96,14 @@ body::before {
   flex-direction: column;
   cursor: pointer;
   gap: 4px;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
+  outline: none;
+  justify-content: center;
+  align-items: center;
 }
 
 .hamburger div {

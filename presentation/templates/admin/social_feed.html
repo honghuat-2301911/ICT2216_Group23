@@ -16,7 +16,7 @@
   {% include 'admin_navbar.html' %}
     <div id="flashModal" class="modal" style="display:none;">
     <div class="modal-content">
-      <span class="close" onclick="closeFlashModal()" tabindex="0" role="button" aria-label="Close" onkeydown="if(event.key==='Enter'||event.key===' '){closeFlashModal();}">&times;</span>
+      <button type="button" class="close" onclick="closeFlashModal()" aria-label="Close">&times;</button>
       {% with flash_messages = get_flashed_messages(with_categories=true) %}
         {% if flash_messages %}
           {% for category, message in flash_messages %}

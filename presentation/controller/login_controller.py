@@ -41,6 +41,10 @@ login_bp = Blueprint(
     "login", __name__, url_prefix="/", template_folder="../templates/login"
 )
 
+def get_client_ip():
+    if request.headers.get("X-Forwarded-For"):
+        return request.headers.get("X-Forwarded-For").split(",")[0].strip()
+    return request.remote_addr
 
 @login_bp.route("/")
 def root_redirect():
@@ -62,6 +66,7 @@ def login():
                 form.email.errors.append(
                     "You must verify your email before logging in. Please check your inbox."
                 )
+                current_app.logger.warning(f"Unverified login attempt by user with email: {form.email.data}")
                 return render_template("login/login.html", form=form)
             # If 2FA is enabled, redirect to OTP verification page
             if getattr(user, "otp_enabled", False):
@@ -80,8 +85,10 @@ def login():
             ).isoformat()  # After user authenticated, time stamp is set
             session["last_activity"] = datetime.now(timezone.utc).isoformat()
             if user.role == "admin":
+                current_app.logger.info(f"Admin user with email: {form.email.data} was logged in successfully")
                 return redirect(url_for("admin.bulletin_page"))
             else:
+                current_app.logger.info(f"Normal user with email: {form.email.data} was logged in successfully")
                 return redirect(url_for(BULLETIN_PAGE))
         # invalid credentials
         form.email.errors.append("Invalid email or password.")
@@ -94,6 +101,7 @@ def login():
 def logout():
     logout_user()
     if hasattr(current_user, "id"):
+        current_app.logger.info(f"User with ID {current_user.id} logged out")
         update_user_session_token(current_user.id, None)
     session.clear()
     return redirect(url_for(LOGIN_VIEW))
@@ -124,10 +132,14 @@ def otp_verify():
             session["created_at"] = datetime.now(timezone.utc).isoformat()
             session["last_activity"] = datetime.now(timezone.utc).isoformat()
             if user.role == "admin":
+                current_app.logger.info(f"Admin User with email {user.email} passed 2FA and was logged in")
                 return redirect(url_for("admin.bulletin_page"))
             else:
+                current_app.logger.info(f"Normal User with email {user.email} passed 2FA and was logged in")
                 return redirect(url_for(BULLETIN_PAGE))
         else:
+            ip = get_client_ip()
+            current_app.logger.warning(f"Failed OTP verification attempt for user: {user.email}, IP: {ip}")
             flash("Invalid OTP code. Please try again.")
     # user_data = get_user_by_email(user_email)
     # if not user_data or not user_data.get("otp_secret"):

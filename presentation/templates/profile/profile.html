@@ -12,6 +12,25 @@
         window.sessionCreatedAt = "{{ session.get('created_at', '') }}";
         window.sessionLastActivity = "{{ session.get('last_activity', '') }}";
     </script>
+    <style>
+.close {
+    background: none;
+    border: none;
+    color: #c00;
+    font-size: 1.5em;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    outline: none;
+    box-shadow: none;
+    line-height: 1;
+    vertical-align: middle;
+}
+.close:focus {
+    outline: none;
+    box-shadow: none;
+}
+</style>
 </head>
 <body>
     {% include 'navbar.html' %}
@@ -452,7 +471,6 @@
                     .then(data => {
                         if (data.status === 'success') {
                             qr2faImg.src = data.qr;
-                            otpSecretText.textContent = "Secret: " + data.secret;
                         } else {
                             otpSecretText.textContent = data.message || "Failed to generate OTP";
                             qr2faImg.src = "";

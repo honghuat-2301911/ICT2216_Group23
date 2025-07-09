@@ -12,12 +12,31 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/social_feed.css') }}">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+.close, .close-modal {
+    background: none;
+    border: none;
+    color: #c00;
+    font-size: 1.5em;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    outline: none;
+    box-shadow: none;
+    line-height: 1;
+    vertical-align: middle;
+}
+.close:focus, .close-modal:focus {
+    outline: none;
+    box-shadow: none;
+}
+</style>
 </head>
 <body>
   {% include 'navbar.html' %}
   <div id="flashModal" class="flash-toast" style="display:none;">
     <div class="flash-toast-content">
-      <span class="close" onclick="closeFlashModal()" tabindex="0" role="button" aria-label="Close" onkeydown="if(event.key==='Enter'||event.key===' '){closeFlashModal();}">&times;</span>
+      <button type="button" class="close" onclick="closeFlashModal()" aria-label="Close">&times;</button>
       {% with flash_messages = get_flashed_messages(with_categories=true) %}
         {% if flash_messages %}
           {% for category, message in flash_messages %}
@@ -176,7 +195,7 @@
       <div class="featured-posts-sidebar">
         <h3 class="featured-title">Featured</h3>
         {% for post in featured_posts %}
-        <div class="featured-post-card" onclick="filterToPost('{{ post.id }}')" style="cursor:pointer;">
+        <button type="button" class="featured-post-card" onclick="filterToPost('{{ post.id }}')" style="cursor:pointer;background:none;border:none;padding:0;text-align:left;width:100%;">
           <img src="{{ post.profile_picture or url_for('static', filename='icons/user.png') }}"
                class="avatar"
                style="width:36px;height:36px;border-radius:50%;object-fit:cover;background:#fff;"
@@ -187,7 +206,7 @@
             </div>
             <div class="featured-post-meta">by {{ post.user }} · {{ post.likes }} likes</div>
           </div>
-        </div>
+        </button>
         {% endfor %}
         {% if filtered_post_id %}
         <button type="button" class="featured-post-card" onclick="clearFilter()" style="background:#f0f0f0;border:2px solid #ff5858;cursor:pointer;">
@@ -202,8 +221,8 @@
 
   <!-- Image Modal -->
   <div id="imageModal" class="modal" style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.8);align-items:center;justify-content:center;">
-    <span class="close-modal" onclick="closeImageModal()" style="position:absolute;top:32px;right:48px;font-size:2.5em;color:#fff;cursor:pointer;z-index:10001;">&times;</span>
-    <img id="modalImage" src="" alt="Expanded image" style="max-width:90vw;max-height:80vh;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+    <button type="button" class="close-modal" onclick="closeImageModal()" aria-label="Close" style="position:absolute;top:32px;right:48px;font-size:2.5em;color:#fff;cursor:pointer;z-index:10001;">&times;</button>
+    <img id="modalImage" src="" alt="Expanded" style="max-width:90vw;max-height:80vh;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.4);">
   </div>
 
   <!-- Spinner Overlay -->
@@ -295,38 +314,45 @@
     let searchTimeout;
     const searchInput = document.getElementById('userSearchInput');
     const searchResults = document.getElementById('userSearchResults');
-    searchInput.addEventListener('input', () => {
+
+    function handleUserSearchInput() {
       const q = searchInput.value.trim();
       clearTimeout(searchTimeout);
       if (q.length < 2) {
         searchResults.style.display = 'none';
         return;
       }
-      searchTimeout = setTimeout(() => {
-        fetch(`/feed/search-users?q=${encodeURIComponent(q)}`)
-          .then(r => r.json())
-          .then(users => {
-            searchResults.innerHTML = '';
-            if (!users.length) {
-              searchResults.style.display = 'none';
-              return;
-            }
-            users.forEach(u => {
-              const div = document.createElement('div');
-              div.className = 'search-result-item';
-              div.onclick = () => selectUser(u);
-              div.innerHTML = `
-                <img src="${u.profile_picture || '/static/icons/user.png'}" alt="Profile" style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:8px;">
-                <div class="user-info" style="display:inline-block;vertical-align:middle;">
-                  <div class="user-name">${u.name}</div>
-                  <div class="user-email" style="color:#888;font-size:0.9em;">${u.email}</div>
-                </div>`;
-              searchResults.appendChild(div);
-            });
-            searchResults.style.display = 'block';
-          });
-      }, 300);
-    });
+      searchTimeout = setTimeout(() => fetchUserSearchResults(q), 300);
+    }
+
+    function fetchUserSearchResults(q) {
+      fetch(`/feed/search-users?q=${encodeURIComponent(q)}`)
+        .then(r => r.json())
+        .then(users => renderUserSearchResults(users));
+    }
+
+    function renderUserSearchResults(users) {
+      searchResults.innerHTML = '';
+      if (!users.length) {
+        searchResults.style.display = 'none';
+        return;
+      }
+      users.forEach(u => {
+        const div = document.createElement('div');
+        div.className = 'search-result-item';
+        div.onclick = () => selectUser(u);
+        div.innerHTML = `
+          <img src="${u.profile_picture || '/static/icons/user.png'}" alt="Profile" style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:8px;">
+          <div class="user-info" style="display:inline-block;vertical-align:middle;">
+            <div class="user-name">${u.name}</div>
+            <div class="user-email" style="color:#888;font-size:0.9em;">${u.email}</div>
+          </div>`;
+        searchResults.appendChild(div);
+      });
+      searchResults.style.display = 'block';
+    }
+
+    searchInput.addEventListener('input', handleUserSearchInput);
     document.addEventListener('click', e => {
       if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
         searchResults.style.display = 'none';

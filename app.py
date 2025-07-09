@@ -22,6 +22,13 @@ from presentation.controller.social_feed_controller import social_feed_bp
 
 from werkzeug.exceptions import HTTPException
 
+
+class LevelFilter(logging.Filter):
+    def __init__(self, level):
+        self.level = level
+    def filter(self, record):
+        return record.levelno == self.level
+        
 def setup_logging(app, error_log_file, warning_log_file, info_log_file):
     formatter = logging.Formatter("[%(asctime)s] %(levelname)s in %(module)s: %(message)s")
     
@@ -31,6 +38,7 @@ def setup_logging(app, error_log_file, warning_log_file, info_log_file):
     )
     error_handler.setLevel(logging.ERROR)
     error_handler.setFormatter(formatter)
+    error_handler.addFilter(LevelFilter(logging.ERROR))
     
     # Warning handler
     warning_handler = RotatingFileHandler(
@@ -38,6 +46,7 @@ def setup_logging(app, error_log_file, warning_log_file, info_log_file):
     )
     warning_handler.setLevel(logging.WARNING)
     warning_handler.setFormatter(formatter)
+    warning_handler.addFilter(LevelFilter(logging.WARNING))
     
     # Info handler
     info_handler = RotatingFileHandler(
@@ -45,8 +54,9 @@ def setup_logging(app, error_log_file, warning_log_file, info_log_file):
     )
     info_handler.setLevel(logging.INFO)
     info_handler.setFormatter(formatter)
+    info_handler.addFilter(LevelFilter(logging.INFO))
     
-    # Don't log into app.log
+    # Remove default handlers
     app.logger.handlers.clear()
     
     # Add all handlers
