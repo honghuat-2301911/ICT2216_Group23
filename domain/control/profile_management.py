@@ -210,81 +210,84 @@ class ProfileManagement:
                 )
             else:
                 result = self.update_profile(user_id, name, current_password)
+        if result:
+            g.updated_profile = {
+                'user_id': user_id,
+                'name': name,
+                'profile_picture_url': profile_picture_url
+            }
         return result
 
     def edit_activity(self, user_id, activity_id, form):
-        def safe_int(val, default=0):
-            try:
-                if val is None:
-                    return default
-                if isinstance(val, (int, float)):
-                    return int(val)
-                if isinstance(val, str) and val.strip() != '':
-                    return int(val)
-            except Exception:
-                pass
-            return default
-        activity = get_sports_activity_by_id(activity_id)
-        if not activity:
+        activity_data = get_sports_activity_by_id(activity_id)
+        if not activity_data:
             return False, "Activity not found."
-        if hasattr(activity, 'get') and callable(activity.get):
-            activity_user_id = safe_int(activity.get('user_id', 0))
-            activity_id_val = safe_int(activity.get('id', 0))
-            activity_name = str(activity.get('activity_name', ''))
-            activity_type = str(activity.get('activity_type', ''))
-            skills_req = str(activity.get('skills_req', ''))
-            date = str(activity.get('date', ''))
-            location = str(activity.get('location', ''))
-            max_pax = safe_int(activity.get('max_pax', 0))
-            user_id_list_join = str(activity.get('user_id_list_join', ''))
-        else:
-            activity_user_id = safe_int(getattr(activity, 'user_id', 0))
-            activity_id_val = safe_int(getattr(activity, 'id', 0))
-            activity_name = str(getattr(activity, 'activity_name', ''))
-            activity_type = str(getattr(activity, 'activity_type', ''))
-            skills_req = str(getattr(activity, 'skills_req', ''))
-            date = str(getattr(activity, 'date', ''))
-            location = str(getattr(activity, 'location', ''))
-            max_pax = safe_int(getattr(activity, 'max_pax', 0))
-            user_id_list_join = str(getattr(activity, 'user_id_list_join', ''))
-        if activity_user_id != user_id:
-            return False, "You can only edit activities you created."
-        activity_obj = SportsActivity(
-            id=activity_id_val,
-            user_id=activity_user_id,
-            activity_name=activity_name,
-            activity_type=activity_type,
-            skills_req=skills_req,
-            date=date,
-            location=location,
-            max_pax=max_pax,
-            user_id_list_join=user_id_list_join,
-        )
-        if form.validate_on_submit():
-            activity_obj.activity_name = form.activity_name.data
-            activity_obj.activity_type = form.activity_type.data
-            activity_obj.skills_req = form.skills_req.data
-            activity_obj.date = form.date.data
-            activity_obj.location = form.location.data
-            activity_obj.max_pax = form.max_pax.data
-            result = update_sports_activity_details(
-                activity_obj.id,
-                activity_obj.activity_name,
-                activity_obj.activity_type,
-                activity_obj.skills_req,
-                activity_obj.date,
-                activity_obj.location,
-                activity_obj.max_pax,
-                activity_obj.user_id_list_join,
+
+
+        if hasattr(activity_data, 'get') and callable(activity_data.get):
+            activity = SportsActivity(
+                id=int(activity_data.get('id', 0)),
+                user_id=int(activity_data.get('user_id', 0)),
+                activity_name=str(activity_data.get('activity_name', '')),
+                activity_type=str(activity_data.get('activity_type', '')),
+                skills_req=str(activity_data.get('skills_req', '')),
+                date=str(activity_data.get('date', '')),
+                location=str(activity_data.get('location', '')),
+                max_pax=int(activity_data.get('max_pax', 0)),
+                user_id_list_join=str(activity_data.get('user_id_list_join', '')),
             )
-            if result:
-                return True, "Activity updated successfully."
-            else:
-                return False, "Failed to update activity."
-        return False, "Invalid form data."
+        else:
+            activity = SportsActivity(
+                id=int(getattr(activity_data, 'id', 0)),
+                user_id=int(getattr(activity_data, 'user_id', 0)),
+                activity_name=str(getattr(activity_data, 'activity_name', '')),
+                activity_type=str(getattr(activity_data, 'activity_type', '')),
+                skills_req=str(getattr(activity_data, 'skills_req', '')),
+                date=str(getattr(activity_data, 'date', '')),
+                location=str(getattr(activity_data, 'location', '')),
+                max_pax=int(getattr(activity_data, 'max_pax', 0)),
+                user_id_list_join=str(getattr(activity_data, 'user_id_list_join', '')),
+            )
+
+        if activity.get_user_id() != user_id:
+            return False, "You can only edit activities you created."
+
+        if not form.validate_on_submit():
+            return False, "Invalid form data."
+
+        # Update fields from form
+        activity.activity_name = form.activity_name.data
+        activity.activity_type = form.activity_type.data
+        activity.skills_req = form.skills_req.data
+        activity.date = form.date.data
+        activity.location = form.location.data
+        activity.max_pax = form.max_pax.data
+
+        result = update_sports_activity_details(
+            activity.id,
+            activity.activity_name,
+            activity.activity_type,
+            activity.skills_req,
+            activity.date,
+            activity.location,
+            activity.max_pax,
+            activity.user_id_list_join,
+        )
+        if result:
+            g.updated_activity = activity
+            return True, "Activity updated successfully."
+        return False, "Failed to update activity."
 
     def edit_post(self, user_id, post_id, form):
-        return edit_post(user_id, post_id, form.content.data, form.remove_image.data)
+        result = edit_post(user_id, post_id, form.content.data, form.remove_image.data)
+        if result and result[0]:
+            g.updated_post = {
+                'user_id': user_id,
+                'post_id': post_id,
+                'content': form.content.data,
+                'remove_image': form.remove_image.data
+            }
+        return result
 
     def leave_activity(self, user_id, activity_id):
         activity = get_sports_activity_by_id(activity_id)
@@ -303,6 +306,11 @@ class ProfileManagement:
         new_join_list = ",".join(joined_ids)
         result = update_sports_activity(activity_id, new_join_list)
         if result:
+            g.left_activity = {
+                'user_id': user_id,
+                'activity_id': activity_id,
+                'new_join_list': new_join_list
+            }
             return True, "Successfully left the activity."
         else:
             return False, "Failed to leave the activity."
@@ -310,18 +318,31 @@ class ProfileManagement:
     def delete_post(self, user_id, post_id):
         success = delete_post(user_id, post_id)
         if success:
+            g.deleted_post = {
+                'user_id': user_id,
+                'post_id': post_id
+            }
             return True, "Post deleted successfully."
         else:
             return False, "Failed to delete post."
 
     def generate_otp(self, user_id):
-        return generate_otp_for_user(user_id)
+        result = generate_otp_for_user(user_id)
+        if result:
+            g.generated_otp = {'user_id': user_id, 'otp': result}
+        return result
 
     def verify_otp(self, user_id, otp_code):
-        return verify_and_enable_otp(user_id, otp_code)
+        result = verify_and_enable_otp(user_id, otp_code)
+        if result:
+            g.verified_otp = {'user_id': user_id, 'otp_code': otp_code}
+        return result
 
     def disable_otp(self, user_id):
-        return disable_otp_by_user_id(user_id)
+        result = disable_otp_by_user_id(user_id)
+        if result:
+            g.disabled_otp = {'user_id': user_id}
+        return result
 
     def get_profile_display_data(self):
         """
