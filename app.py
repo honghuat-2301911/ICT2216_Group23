@@ -52,6 +52,9 @@ def create_app():
     app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(
         minutes=30
     )  # Browser cookie timeout
+    
+    app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024
+        
     app.config["SESSION_COOKIE_SECURE"] = True
     app.config["SESSION_COOKIE_HTTPONLY"] = True
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"

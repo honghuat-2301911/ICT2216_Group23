@@ -160,6 +160,17 @@ class PostForm(FlaskForm):
     )
     submit = SubmitField("Post")
 
+    def validate_image(self, field):
+        if field.data:
+            file = field.data
+            if hasattr(file, "filename") and file.filename:
+                file.seek(0, 2)
+                file_length = file.tell()
+                file.seek(0)
+                max_size = 1 * 1024 * 1024 
+                if file_length > max_size:
+                    raise ValidationError("Image size must be less than 1MB.")
+                
 
 class CommentForm(FlaskForm):
     comment = StringField(
