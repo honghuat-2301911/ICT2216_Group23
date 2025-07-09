@@ -75,14 +75,6 @@ def create_app():
         static_url_path="/static",
     )
 
-
-    @app.after_request
-    def set_security_headers(response):
-        response.headers["X-XSS-Protection"] = "1; mode=block"
-        response.headers["Content-Security-Policy"] = "default-src 'self';"
-        return response
-    
-    
     # Configuration for log format and handling
 
     log_dir = "/app/logs"
