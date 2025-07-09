@@ -234,7 +234,7 @@ def process_reset_password(token, form):
                 "Invalid or expired reset link. Please request a new password reset.",
                 "danger",
             )
-            current_app.logger.warning(f"An Invalid token was used for password reset")
+            current_app.logger.warning("An Invalid token was used for password reset")
             return redirect(url_for(LOGIN_VIEW))
 
         if token_data["used"]:
@@ -242,7 +242,7 @@ def process_reset_password(token, form):
                 "This reset link has been used. Please request a new password reset.",
                 "danger",
             )
-            current_app.logger.warning(f"A password reset token is being reused")
+            current_app.logger.warning("A password reset token is being reused")
             return redirect(url_for(LOGIN_VIEW))
 
         utc_plus_8 = timezone(timedelta(hours=8))
