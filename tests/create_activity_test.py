@@ -119,16 +119,16 @@ class CreateActivityPageTest(unittest.TestCase):
 
             print("Reach here 3")
 
-            # Assert that the activity was not created and an error message is displayed
-            self.assertIn("Host form error: Date cannot be in the past.", self.driver.page_source)
+            # # Assert that the activity was not created and an error message is displayed
+            # self.assertIn("Host form error: Date cannot be in the past.", self.driver.page_source)
 
             print("Reach here 4")
 
-            # wait = WebDriverWait(self.driver, 10)
-            # error_elem = wait.until(
-            #     EC.visibility_of_element_located((By.CSS_SELECTOR, "#flashModal .flash-message.error"))
-            # )
-            # self.assertIn("Date cannot be in the past", error_elem.text)
+            wait = WebDriverWait(self.driver, 10)
+            error_elem = wait.until(
+                EC.visibility_of_element_located((By.CSS_SELECTOR, "#flashModal .flash-message.error"))
+            )
+            self.assertIn("Date cannot be in the past", error_elem.text)
 
             # Logout to reset the state for the next test
             self.driver.get(f"{self.base_url}/logout")
