@@ -7,6 +7,8 @@ from data_source.db_connection import get_connection
 
 DB_CONN_ERROR = "[DB ERROR] Could not connect to database."
 
+SELECT_LIKE_USER_IDS_QUERY = "SELECT like_user_ids FROM feed WHERE id = %s"
+
 
 def get_all_posts():
     connection = get_connection()
@@ -322,7 +324,7 @@ def add_like(post_id, user_id):
         return False
     cursor = connection.cursor(dictionary=True)
     try:
-        cursor.execute("SELECT like_user_ids FROM feed WHERE id = %s", (post_id,))
+        cursor.execute(SELECT_LIKE_USER_IDS_QUERY, (post_id,))
         row = cursor.fetchone()
         if row is None:
             return False
@@ -351,7 +353,7 @@ def remove_like(post_id, user_id):
         return False
     cursor = connection.cursor(dictionary=True)
     try:
-        cursor.execute("SELECT like_user_ids FROM feed WHERE id = %s", (post_id,))
+        cursor.execute(SELECT_LIKE_USER_IDS_QUERY, (post_id,))
         row = cursor.fetchone()
         if row is None or not row["like_user_ids"]:
             return False
@@ -380,7 +382,7 @@ def get_like_count(post_id):
         return 0
     cursor = connection.cursor(dictionary=True)
     try:
-        cursor.execute("SELECT like_user_ids FROM feed WHERE id = %s", (post_id,))
+        cursor.execute(SELECT_LIKE_USER_IDS_QUERY, (post_id,))
         row = cursor.fetchone()
         if row and row["like_user_ids"] is not None:
             # Only count non-empty user IDs

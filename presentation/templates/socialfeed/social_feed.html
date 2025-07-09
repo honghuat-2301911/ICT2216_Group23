@@ -17,7 +17,7 @@
   {% include 'navbar.html' %}
   <div id="flashModal" class="flash-toast" style="display:none;">
     <div class="flash-toast-content">
-      <span class="close" onclick="closeFlashModal()">&times;</span>
+      <span class="close" onclick="closeFlashModal()" tabindex="0" role="button" aria-label="Close" onkeydown="if(event.key==='Enter'||event.key===' '){closeFlashModal();}">&times;</span>
       {% with flash_messages = get_flashed_messages(with_categories=true) %}
         {% if flash_messages %}
           {% for category, message in flash_messages %}
@@ -49,7 +49,7 @@
         </button>
       </div>
       <div class="searched-user-banner" style="display:flex;align-items:center;gap:16px;margin-bottom:24px;background:#fff;padding:16px 20px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
-        <img src="{{ filtered_user_profile_picture or url_for('static', filename='icons/user.png') }}" alt="Profile Picture" style="width:56px;height:56px;border-radius:50%;object-fit:cover;background:#fff;">
+        <img src="{{ filtered_user_profile_picture or url_for('static', filename='icons/user.png') }}" alt="Profile" style="width:56px;height:56px;border-radius:50%;object-fit:cover;background:#fff;">
         <div>
           <div style="font-size:1.2em;font-weight:600;">{{ filtered_user_name }}</div>
           <div style="color:#888;font-size:0.95em;">Viewing posts by this user</div>
@@ -65,12 +65,12 @@
             <img src="{{ current_user.profile_picture or url_for('static', filename='icons/user.png') }}"
                  class="avatar"
                  style="width:40px;height:40px;border-radius:50%;object-fit:cover;background:#fff;"
-                 alt="Profile Picture">
+                 alt="Profile">
             {{ post_form.content(rows=3, placeholder="Share something with your buddies...", required=True) }}
           </div>
           <div id="image-preview-container" class="image-preview-container" style="display:none;">
-            <button type="button" class="remove-image-btn" onclick="removeImagePreview()">&times;</button>
-            <img id="image-preview" src="" alt="Image preview">
+            <button type="button" class="remove-image-btn" onclick="removeImagePreview()" tabindex="0" role="button" aria-label="Remove image" onkeydown="if(event.key==='Enter'||event.key===' '){removeImagePreview();}">&times;</button>
+            <img id="image-preview" src="" alt="Preview">
           </div>
           <div class="composer-divider"></div>
           <div class="post-footer">
@@ -81,7 +81,7 @@
                 <path d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l10-10a3 3 0 0 1 4.24 4.24l-10 10a1 1 0 0 1-1.41-1.41l9.19-9.19"/>
               </svg>
             </label>
-            <button type="submit" class="post-btn" id="postBtn">Post</button>
+            <button type="submit" class="post-btn" id="postBtn" tabindex="0" role="button" aria-label="Post" onkeydown="if(event.key==='Enter'||event.key===' '){document.getElementById('postForm').submit();}">Post</button>
             <span id="postLoading" style="display:none;margin-left:10px;vertical-align:middle;">
               <svg width="20" height="20" viewBox="0 0 50 50"><circle cx="25" cy="25" r="20" fill="none" stroke="#888" stroke-width="5" stroke-linecap="round" stroke-dasharray="31.4 31.4" transform="rotate(-90 25 25)"><animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.5s" repeatCount="indefinite"/></circle></svg>
             </span>
@@ -96,7 +96,7 @@
           <img src="{{ post.profile_picture or url_for('static', filename='icons/user.png') }}"
                class="avatar"
                style="width:40px;height:40px;border-radius:50%;object-fit:cover;background:#fff;"
-               alt="Profile Picture">
+               alt="Profile">
           <div class="user-info">
             <span class="username">{{ post.user }}</span>
           </div>
@@ -104,15 +104,15 @@
         <div class="post-content">{{ post.content }}</div>
         {% if post.image_url %}
         <div class="post-image">
-          <img src="{{ post.image_url }}" alt="Post image" onclick="expandImage('{{ post.image_url }}')">
+          <img src="{{ post.image_url }}" alt="Post" onclick="expandImage('{{ post.image_url }}')" tabindex="0" role="button" aria-label="Expand image" onkeydown="if(event.key==='Enter'||event.key===' '){expandImage('{{ post.image_url }}');}">
         </div>
         {% endif %}
         <div class="post-stats">
-          <div class="stat-item comment-button" onclick="toggleComments('{{ post.id }}')">
+          <div class="stat-item comment-button" onclick="toggleComments('{{ post.id }}')" tabindex="0" role="button" aria-label="View comments" onkeydown="if(event.key==='Enter'||event.key===' '){toggleComments('{{ post.id }}');}">
             <span class="comment-icon"></span>
             <span class="stat-count">{{ post.comments|length }}</span>
           </div>
-          <div class="stat-item like-button" onclick="toggleLike('{{ post.id }}', this)">
+          <div class="stat-item like-button" onclick="toggleLike('{{ post.id }}', this)" tabindex="0" role="button" aria-label="Like post" onkeydown="if(event.key==='Enter'||event.key===' '){toggleLike('{{ post.id }}', this);}">
             <span class="heart-icon {% if current_user.id|string in (post.like_user_ids or '').split(',') %}liked{% endif %}"></span>
             <span class="stat-count">{{ post.likes }}</span>
           </div>
@@ -126,7 +126,7 @@
               <img src="{{ comment.profile_picture or url_for('static', filename='icons/user.png') }}"
                    class="comment-avatar"
                    style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:#fff;"
-                   alt="Profile Picture">
+                   alt="Profile">
               <div class="comment-content">
                 <div class="comment-header">
                   <span class="comment-username">{{ comment.user }}</span>
@@ -143,7 +143,7 @@
               <img src="{{ current_user.profile_picture or url_for('static', filename='icons/user.png') }}"
                    class="comment-avatar"
                    style="width:32px;height:32px;border-radius:50%;object-fit:cover;background:#fff;"
-                   alt="Profile Picture">
+                   alt="Profile">
               {{ comment_form.comment(class_="comment-input", placeholder="Write a comment...", required=True) }}
               {{ comment_form.submit(class_="comment-submit") }}
             </div>
@@ -178,7 +178,7 @@
           <img src="{{ post.profile_picture or url_for('static', filename='icons/user.png') }}"
                class="avatar"
                style="width:36px;height:36px;border-radius:50%;object-fit:cover;background:#fff;"
-               alt="Profile Picture">
+               alt="Profile">
           <div class="featured-post-content">
             <div class="featured-post-title">
               {{ post.content[:40] }}{% if post.content|length>40 %}...{% endif %}

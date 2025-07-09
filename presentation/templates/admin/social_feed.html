@@ -40,7 +40,7 @@
           <div style="display: flex; align-items: center;">
             <img src="{{ post.profile_picture or url_for('static', filename='icons/user.png') }}"
                  class="avatar" style="width:40px;height:40px;border-radius:50%;object-fit:cover;background:#fff;"
-                 alt="Profile Picture">
+                 alt="Profile">
             <div class="user-info" style="margin-left: 12px;">
               <span class="username" style="font-weight: 600;">{{ post.user }}</span><br/>
               <small style="color: #666;">{{ post.created_at }}</small>
@@ -65,7 +65,7 @@
         <!-- Optional Thumbnail -->
         {% if post.image_url %}
         <div class="post-image" style="margin-bottom: 12px;">
-          <img src="{{ post.image_url }}" alt="Post image" style="max-width:100%; border-radius:8px;">
+          <img src="{{ post.image_url }}" alt="Post" style="max-width:100%; border-radius:8px;">
         </div>
         {% endif %}
 
