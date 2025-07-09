@@ -17,7 +17,7 @@
   {% include 'navbar.html' %}
   <div id="flashModal" class="flash-toast" style="display:none;">
     <div class="flash-toast-content">
-      <span class="close" onclick="closeFlashModal()" tabindex="0" role="button" aria-label="Close" onkeydown="if(event.key==='Enter'||event.key===' '){closeFlashModal();}">&times;</span>
+      <button type="button" class="close" onclick="closeFlashModal()" aria-label="Close">&times;</button>
       {% with flash_messages = get_flashed_messages(with_categories=true) %}
         {% if flash_messages %}
           {% for category, message in flash_messages %}
@@ -176,7 +176,7 @@
       <div class="featured-posts-sidebar">
         <h3 class="featured-title">Featured</h3>
         {% for post in featured_posts %}
-        <div class="featured-post-card" onclick="filterToPost('{{ post.id }}')" style="cursor:pointer;">
+        <button type="button" class="featured-post-card" onclick="filterToPost('{{ post.id }}')" style="cursor:pointer;background:none;border:none;padding:0;text-align:left;width:100%;">
           <img src="{{ post.profile_picture or url_for('static', filename='icons/user.png') }}"
                class="avatar"
                style="width:36px;height:36px;border-radius:50%;object-fit:cover;background:#fff;"
@@ -187,7 +187,7 @@
             </div>
             <div class="featured-post-meta">by {{ post.user }} · {{ post.likes }} likes</div>
           </div>
-        </div>
+        </button>
         {% endfor %}
         {% if filtered_post_id %}
         <button type="button" class="featured-post-card" onclick="clearFilter()" style="background:#f0f0f0;border:2px solid #ff5858;cursor:pointer;">
@@ -202,7 +202,7 @@
 
   <!-- Image Modal -->
   <div id="imageModal" class="modal" style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.8);align-items:center;justify-content:center;">
-    <span class="close-modal" onclick="closeImageModal()" style="position:absolute;top:32px;right:48px;font-size:2.5em;color:#fff;cursor:pointer;z-index:10001;">&times;</span>
+    <button type="button" class="close-modal" onclick="closeImageModal()" aria-label="Close" style="position:absolute;top:32px;right:48px;font-size:2.5em;color:#fff;cursor:pointer;z-index:10001;">&times;</button>
     <img id="modalImage" src="" alt="Expanded image" style="max-width:90vw;max-height:80vh;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.4);">
   </div>
 
