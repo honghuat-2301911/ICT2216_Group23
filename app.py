@@ -22,7 +22,7 @@ from presentation.controller.social_feed_controller import social_feed_bp
 
 from werkzeug.exceptions import HTTPException
 
-def setup_logging(app):
+def setup_logging(app, error_log_file, warning_log_file, info_log_file):
     formatter = logging.Formatter("[%(asctime)s] %(levelname)s in %(module)s: %(message)s")
     
     # Error handler
@@ -74,7 +74,7 @@ def create_app():
     warning_log_file = os.path.join(log_dir, "warning.log")
     info_log_file = os.path.join(log_dir, "info.log")
 
-    setup_logging(app)
+    setup_logging(app, error_log_file, warning_log_file, info_log_file)
 
     app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET_KEY", "")
     app.config["SESSION_TYPE"] = "filesystem"
