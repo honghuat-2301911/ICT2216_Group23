@@ -22,6 +22,38 @@ from presentation.controller.social_feed_controller import social_feed_bp
 
 from werkzeug.exceptions import HTTPException
 
+def setup_logging(app, error_log_file, warning_log_file, info_log_file):
+    formatter = logging.Formatter("[%(asctime)s] %(levelname)s in %(module)s: %(message)s")
+    
+    # Error handler
+    error_handler = RotatingFileHandler(
+        error_log_file, maxBytes=10 * 1024 * 1024, backupCount=200, encoding="utf-8"
+    )
+    error_handler.setLevel(logging.ERROR)
+    error_handler.setFormatter(formatter)
+    
+    # Warning handler
+    warning_handler = RotatingFileHandler(
+        warning_log_file, maxBytes=10 * 1024 * 1024, backupCount=200, encoding="utf-8"
+    )
+    warning_handler.setLevel(logging.WARNING)
+    warning_handler.setFormatter(formatter)
+    
+    # Info handler
+    info_handler = RotatingFileHandler(
+        info_log_file, maxBytes=10 * 1024 * 1024, backupCount=200, encoding="utf-8"
+    )
+    info_handler.setLevel(logging.INFO)
+    info_handler.setFormatter(formatter)
+    
+    # Don't log into app.log
+    app.logger.handlers.clear()
+    
+    # Add all handlers
+    app.logger.addHandler(error_handler)
+    app.logger.addHandler(warning_handler)
+    app.logger.addHandler(info_handler)
+    app.logger.setLevel(logging.INFO)
 
 def create_app():
     load_dotenv()
@@ -38,16 +70,11 @@ def create_app():
     log_dir = "/app/logs"
     os.makedirs(log_dir, exist_ok=True)
 
-    log_file = os.path.join(log_dir, "app.log")
-    file_handler = RotatingFileHandler(
-        filename=log_file, maxBytes=10 * 1024 * 1024, backupCount=200, encoding="utf-8"
-    )
-    file_handler.setLevel(logging.INFO)
-    file_handler.setFormatter(
-        logging.Formatter("[%(asctime)s] %(levelname)s in %(module)s: %(message)s")
-    )
-    app.logger.addHandler(file_handler)
-    app.logger.setLevel(logging.INFO)
+    error_log_file = os.path.join(log_dir, "error.log")
+    warning_log_file = os.path.join(log_dir, "warning.log")
+    info_log_file = os.path.join(log_dir, "info.log")
+
+    setup_logging(app, error_log_file, warning_log_file, info_log_file)
 
     app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET_KEY", "")
     app.config["SESSION_TYPE"] = "filesystem"
