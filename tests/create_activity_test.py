@@ -81,8 +81,6 @@ class CreateActivityPageTest(unittest.TestCase):
 
             # Assert that the activity was created successfully
             self.assertIn("Selenium Test Activity", self.driver.page_source)
-            # activity_card = self.driver.find_element(By.XPATH, "//div[contains(@class, 'card')]//h3[text()='Selenium Test Activity']")
-            # self.assertTrue(activity_card.is_displayed())
 
             # Logout to reset the state for the next test
             self.driver.get(f"{self.base_url}/logout")
