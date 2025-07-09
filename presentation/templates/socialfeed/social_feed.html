@@ -112,10 +112,10 @@
             <span class="comment-icon"></span>
             <span class="stat-count">{{ post.comments|length }}</span>
           </div>
-          <div class="stat-item like-button" onclick="toggleLike('{{ post.id }}', this)" tabindex="0" role="button" aria-label="Like post" onkeydown="if(event.key==='Enter'||event.key===' '){toggleLike('{{ post.id }}', this);}">
+          <button type="button" class="stat-item like-button" onclick="toggleLike('{{ post.id }}', this)">
             <span class="heart-icon {% if current_user.id|string in (post.like_user_ids or '').split(',') %}liked{% endif %}"></span>
             <span class="stat-count">{{ post.likes }}</span>
-          </div>
+          </button>
         </div>
 
         <!-- Comments Section -->
