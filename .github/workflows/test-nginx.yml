@@ -26,8 +26,17 @@ jobs:
           echo "FLASK_SECRET_KEY=${{ secrets.FLASK_SECRET_KEY }}" >> .env
           echo "CERTBOT_EMAIL=${{ secrets.CERTBOT_EMAIL }}" >> .env
 
+      - name: Generate dummy SSL certs
+        run: |
+          mkdir -p ./certbot/conf/live/buddiesfinders.hopto.org
+
+          openssl req -x509 -nodes -newkey rsa:2048 -days 1 \
+            -keyout ./certbot/conf/live/buddiesfinders.hopto.org/privkey.pem \
+            -out ./certbot/conf/live/buddiesfinders.hopto.org/fullchain.pem \
+            -subj "/CN=localhost"
+      
       - name: Start Docker
-        run: docker compose up --build -d
+        run: docker compose -f docker-compose.yml -f certbot-uitest-override.yml up --build -d
 
       - name: Wait for Nginx
         run: sleep 30
