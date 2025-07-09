@@ -197,7 +197,7 @@ class ProfileManagement:
                 image = Image.open(file)
                 image.verify()
                 file.seek(0)
-            except (UnidentifiedImageError, Exception):
+            except Exception:
                 current_app.logger.error("Uploaded profile picture is not a valid image.")
                 return False
             ext = os.path.splitext(secure_filename(file.filename))[1]
