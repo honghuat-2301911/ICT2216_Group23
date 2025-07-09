@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed
@@ -137,11 +137,8 @@ class HostForm(FlaskForm):
     submit = SubmitField("Host")
 
     def validate_date(self, field):
-        tz = timezone(timedelta(hours=8))
-        now_gmt8 = datetime.now(tz)
-        if field.data < now_gmt8:
-            raise ValidationError("Date cannot be in the past (GMT+8).")
-
+        if field.data < datetime.now():
+            raise ValidationError("Date cannot be in the past.")
 
 
 class JoinForm(FlaskForm):
@@ -282,10 +279,8 @@ class ActivityEditForm(FlaskForm):
     submit = SubmitField(SAVE_CHANGES_MESSAGE)
 
     def validate_date(self, field):
-        tz = timezone(timedelta(hours=8))
-        now_gmt8 = datetime.now(tz)
-        if field.data < now_gmt8:
-            raise ValidationError("Date cannot be in the past (GMT+8).")
+        if field.data < datetime.now():
+            raise ValidationError("Date cannot be in the past.")
 
 
 class PostEditForm(FlaskForm):
