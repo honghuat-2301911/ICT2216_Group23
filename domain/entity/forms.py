@@ -213,6 +213,17 @@ class ProfileEditForm(FlaskForm):
     remove_profile_picture = BooleanField("Remove current profile picture")
     submit = SubmitField(SAVE_CHANGES_MESSAGE)
 
+    def validate_profile_picture(self, field):
+        if field.data:
+            file = field.data
+            if hasattr(file, "filename") and file.filename:
+                file.seek(0, 2)
+                file_length = file.tell()
+                file.seek(0)
+                max_size = 1 * 1024 * 1024 
+                if file_length > max_size:
+                    raise ValidationError("Profile picture size must be less than 1MB.")
+
 
 class ActivityEditForm(FlaskForm):
     activity_id = HiddenField()
