@@ -6,6 +6,8 @@ from logging.handlers import RotatingFileHandler
 
 from dotenv import load_dotenv
 from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from flask_login import LoginManager
 from flask_session import Session
 from flask_wtf import CSRFProtect
@@ -114,6 +116,12 @@ def create_app():
 
     csrf = CSRFProtect(app)
 
+    limiter = Limiter(
+        app,
+        key_func=get_remote_address,
+        default_limits=["10 per second"]
+    )
+
     @login_manager.user_loader
     def load_user(user_id):
         user_data = get_user_by_id(user_id)
@@ -181,6 +189,19 @@ def create_app():
 
     # Configuration for email verification
     app.config["SERIALIZER"] = URLSafeTimedSerializer(app.config["SECRET_KEY"])
+
+
+    @app.errorhandler(429)
+    def ratelimit_handler(e):
+        ip = get_remote_address()
+        app.logger.warning(f"Rate limit exceeded by IP: {ip}")
+        return render_template(
+            "error/error.html",
+            error_code=429,
+            error_message="Too many requests. Please wait and try again.",
+            exception_type="RateLimitExceeded",
+            traceback_info="",
+        ), 429
 
     @app.errorhandler(Exception)
     def handle_exception(e):
