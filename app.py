@@ -20,6 +20,8 @@ from presentation.controller.profile_controller import profile_bp
 from presentation.controller.register_controller import register_bp
 from presentation.controller.social_feed_controller import social_feed_bp
 
+from werkzeug.exceptions import HTTPException
+
 
 def create_app():
     load_dotenv()
@@ -145,15 +147,15 @@ def create_app():
         code = 500
         message = str(e)
         exception_type = type(e).__name__
-
-        # Get full traceback as a string
         tb = traceback.format_exc()
 
         # If the exception is an HTTPException, extract details
-        if hasattr(e, "code"):
+        if isinstance(e, HTTPException):
             code = e.code
-        if hasattr(e, "description"):
             message = e.description
+
+        # Log the error with traceback
+        app.logger.error(f"Exception occurred: {exception_type}: {message}\n{tb}")
 
         return (
             render_template(
@@ -165,7 +167,7 @@ def create_app():
             ),
             code,
         )
-
+        
     # make sure DB has the required tables
     # init_schema()
     return app
