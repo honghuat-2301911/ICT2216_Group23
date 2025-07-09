@@ -8,6 +8,8 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 
 class CreateActivityPageTest(unittest.TestCase):
@@ -108,8 +110,14 @@ class CreateActivityPageTest(unittest.TestCase):
                 date="2000-07-08T15:30"  # Past date for testing failure
             )
 
-            # Assert that the activity was not created and an error message is displayed
-            self.assertIn("Host form error: Date cannot be in the past.", self.driver.page_source)
+            # # Assert that the activity was not created and an error message is displayed
+            # self.assertIn("Host form error: Date cannot be in the past.", self.driver.page_source)
+
+            wait = WebDriverWait(self.driver, 10)
+            error_elem = wait.until(
+                EC.visibility_of_element_located((By.CSS_SELECTOR, "#flashModal .flash-message.error"))
+            )
+            self.assertIn("Date cannot be in the past", error_elem.text)
 
         except Exception as e:
             os.makedirs("artifacts", exist_ok=True)
