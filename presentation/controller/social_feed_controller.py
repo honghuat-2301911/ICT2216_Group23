@@ -68,8 +68,9 @@ def feed():
 def create_post():
     post_form = PostForm()
     if not post_form.validate_on_submit():
-        flash(post_form.errors, "error")
-        # flash("Cannot submit empty post.", "error")
+        for field, field_errors in post_form.errors.items():
+            for error in field_errors:
+                flash(f"{field.capitalize()}: {error}", "error")
         return redirect(url_for(SOCIAL_FEED_FEED))
 
     user_id = int(current_user.get_id())
