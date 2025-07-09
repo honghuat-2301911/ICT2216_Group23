@@ -35,3 +35,10 @@ jobs:
             git pull
             sudo docker compose down
             sudo docker compose up -d --build
+
+            sleep 30
+
+            sudo docker compose exec mysqldb mysql -uroot -p${{ secrets.SQL_ROOT_PASSWORD }} -e \
+              "REVOKE ALL PRIVILEGES, GRANT OPTION FROM '${{ secrets.DB_USER }}'@'%'; \
+              GRANT SELECT, INSERT, UPDATE, DELETE ON \`${{ secrets.DB_NAME }}\`.* TO '${{ secrets.DB_USER }}'@'%'; \
+              FLUSH PRIVILEGES;"
