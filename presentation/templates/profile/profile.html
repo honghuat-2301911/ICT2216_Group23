@@ -314,7 +314,7 @@
     <!-- Leave Activity Modal -->
     <div id="leaveActivityModal" class="modal">
         <div class="modal-content">
-            <span class="close-modal" id="closeLeaveActivityModalBtn">&times;</span>
+            <button class="close-modal" id="closeLeaveActivityModalBtn" onclick="closeActivityModalBtn()" aria-label="Close" style="font-size:2rem;cursor:pointer;z-index:10001;background:none;border:none;">&times;</button>
             <h3>Leave Activity</h3>
             <p>Are you sure you want to leave this activity?</p>
             <div class="delete-modal-actions">
@@ -325,7 +325,7 @@
     </div>
     <!-- Profile Picture Modal -->
     <div id="profilePicModal" class="modal" style="display:none;position:fixed;z-index:9999;left:0;top:0;width:100vw;height:100vh;background:rgba(0,0,0,0.8);align-items:center;justify-content:center;">
-        <span class="close-modal" onclick="closeProfilePicModal()" style="position:absolute;top:32px;right:48px;font-size:2.5em;color:#fff;cursor:pointer;z-index:10001;">&times;</span>
+        <button class="close-modal" onclick="closeProfilePicModal()" aria-label="Close" style="position:absolute;top:32px;right:48px;font-size:2.5em;color:#fff;cursor:pointer;z-index:10001;background:none;border:none;">&times;</button>
         <img id="profilePicModalImg" src="" alt="Profile" style="max-width:90vw;max-height:80vh;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.4);background:#fff;">
     </div>
         <!-- Modal for viewing joined users -->
