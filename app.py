@@ -31,6 +31,7 @@ def setup_logging(app, error_log_file, warning_log_file, info_log_file):
     )
     error_handler.setLevel(logging.ERROR)
     error_handler.setFormatter(formatter)
+    error_handler.addFilter(LevelFilter(logging.ERROR))
     
     # Warning handler
     warning_handler = RotatingFileHandler(
@@ -38,6 +39,7 @@ def setup_logging(app, error_log_file, warning_log_file, info_log_file):
     )
     warning_handler.setLevel(logging.WARNING)
     warning_handler.setFormatter(formatter)
+    error_handler.addFilter(LevelFilter(logging.WARNING)
     
     # Info handler
     info_handler = RotatingFileHandler(
@@ -45,6 +47,7 @@ def setup_logging(app, error_log_file, warning_log_file, info_log_file):
     )
     info_handler.setLevel(logging.INFO)
     info_handler.setFormatter(formatter)
+    error_handler.addFilter(LevelFilter(logging.INFO))
     
     # Don't log into app.log
     app.logger.handlers.clear()
