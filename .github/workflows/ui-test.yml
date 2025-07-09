@@ -1,4 +1,4 @@
-name: Run Unit Tests
+name: Run UI Tests
 
 permissions:
   contents: read
@@ -10,7 +10,7 @@ on:
   pull_request:
 
 jobs:
-  unit-test:
+  ui-test:
     runs-on: ubuntu-latest
 
     steps:
