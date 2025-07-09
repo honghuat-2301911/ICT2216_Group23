@@ -39,7 +39,7 @@ def remove_social_post(post_id: int):
         if not post:
             return False
 
-        post_id, user_id, image_path, caption, like_count = post
+        post_id, _, image_path, _, _ = post
         # If the post has an image, remove it from the filesystem
         if image_path:
             rel_path = image_path.lstrip("/")  # Remove leading slash if present

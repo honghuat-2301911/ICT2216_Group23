@@ -134,7 +134,7 @@ def update_user_verification_status(email):
         connection.commit()
         updated_rows = cursor.rowcount
         return updated_rows > 0
-    except Exception as e:
+    except Exception:
         return False
     finally:
         cursor.close()

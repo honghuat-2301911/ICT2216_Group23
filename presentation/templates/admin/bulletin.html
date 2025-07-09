@@ -46,14 +46,24 @@
         </div>
 
 
+        
+
         <div class="grid-container">
             {% for b in bulletin_list %}
-                <div class="card" onclick="openModal('{{ loop.index0 }}')">
+                <button
+                    class="card"
+                    onclick="openModal('{{ loop.index0 }}')"
+                    aria-controls="modal-data-{{ loop.index0 }}"
+                >
                     <h3>{{ b.activity_name }}</h3>
-                </div>
+                </button>
 
                 <!-- Hidden modal content -->
-                <div id="modal-data-{{ loop.index0 }}" data-activity-id="{{ b.id }}" style="display: none;">
+                <div
+                    id="modal-data-{{ loop.index0 }}"
+                    data-activity-id="{{ b.id }}"
+                    hidden
+                >
                     <h2>{{ b.activity_name }}</h2>
                     <p><strong>Type:</strong> {{ b.activity_type }}</p>
                     <p><strong>Location:</strong> {{ b.location }}</p>
@@ -62,8 +72,9 @@
                     <p><strong>Max Participants:</strong> {{ b.max_pax }}</p>
                 </div>
             {% endfor %}
-
         </div>
+
+        
     </div>
 
     <!-- Global Join Modal -->
