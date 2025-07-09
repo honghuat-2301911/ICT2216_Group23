@@ -1,4 +1,4 @@
-name: Run Unit Tests
+name: Run UI Tests
 
 permissions:
   contents: read
@@ -10,7 +10,7 @@ on:
   pull_request:
 
 jobs:
-  unit-test:
+  ui-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -59,15 +59,15 @@ jobs:
           pip install selenium>=4.10.0
           pip install webdriver-manager>=4.0.0
 
-      - name: Run Unit Tests for Register
+      - name: Run UI Tests for Register
         run: | 
           python tests/register_test.py
 
-      - name: Run Unit Tests for Login
+      - name: Run UI Tests for Login
         run: |
           python tests/login_test.py
 
-      - name: Run Unit Tests for Create Activity
+      - name: Run UI Tests for Create Activity
         run: |
           python tests/create_activity_test.py
 
