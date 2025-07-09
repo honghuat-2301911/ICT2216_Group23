@@ -91,12 +91,12 @@ class CreateActivityPageTest(unittest.TestCase):
                 f.write(self.driver.page_source)
             raise  # Re-raise so the test still fails
 
-    # def test_create_activity_past_date(self):
-    #     try:
-    #         # Assert that the login with the seeded email and password is successful
-    #         # After login, the user should be redirected to the bulletin board page
-    #         self.fill_login_form(email=self.seeded_email, password=self.seeded_password)
-    #         self.assertIn("Bulletin Board", self.driver.page_source)
+    def test_create_activity_past_date(self):
+        try:
+            # Assert that the login with the seeded email and password is successful
+            # After login, the user should be redirected to the bulletin board page
+            self.fill_login_form(email=self.seeded_email, password=self.seeded_password)
+            self.assertIn("Bulletin Board", self.driver.page_source)
 
     #         # Open the host activity modal
     #         host_button = self.driver.find_element(
@@ -119,12 +119,12 @@ class CreateActivityPageTest(unittest.TestCase):
     #         )
     #         self.assertIn("Date cannot be in the past", error_elem.text)
 
-    #     except Exception as e:
-    #         os.makedirs("artifacts", exist_ok=True)
-    #         self.driver.save_screenshot("artifacts/create_activity_success.png")
-    #         with open("artifacts/debug.html", "w", encoding="utf-8") as f:
-    #             f.write(self.driver.page_source)
-    #         raise  # Re-raise so the test still fails
+        except Exception as e:
+            os.makedirs("artifacts", exist_ok=True)
+            self.driver.save_screenshot("artifacts/create_activity_success.png")
+            with open("artifacts/debug.html", "w", encoding="utf-8") as f:
+                f.write(self.driver.page_source)
+            raise  # Re-raise so the test still fails
 
     @classmethod
     def tearDownClass(cls):
