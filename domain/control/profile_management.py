@@ -159,57 +159,28 @@ class ProfileManagement:
     def update_profile_full(self, user_id, form):
         name = form.name.data
         password = form.password.data
-        profile_picture_url = None
         remove_picture = form.remove_profile_picture.data
 
-        # Handle file upload
-        if form.profile_picture.data:
-            file = form.profile_picture.data
-            try:
-                file.seek(0)
-                image = Image.open(file)
-                image.verify()  # Raises if not a valid image
-                file.seek(0)  # Reset pointer for saving
-            except (UnidentifiedImageError, Exception):
-                current_app.logger.error(
-                    "Uploaded profile picture is not a valid image."
-                )
-                return False
-
-            ext = os.path.splitext(secure_filename(file.filename))[1]
-            unique_filename = f"{uuid.uuid4().hex}{ext}"
-            image_path = os.path.join(
-                "presentation", "static", "images", "profile", unique_filename
-            )
-            os.makedirs(os.path.dirname(image_path), exist_ok=True)
-            file.save(image_path)
-            profile_picture_url = f"/static/images/profile/{unique_filename}"
-        elif remove_picture:
+        profile_picture_url = self._handle_profile_picture_upload(form)
+        if profile_picture_url is False:
+            return False
+        if remove_picture:
             profile_picture_url = ""
-        # Password logic
-        if password:
-            hashed_password = bcrypt.hashpw(
-                password.encode("utf-8"), bcrypt.gensalt()
-            ).decode("utf-8")
-            if profile_picture_url is not None:
-                result = self.update_profile(
-                    user_id, name, hashed_password, profile_picture_url
-                )
-            else:
-                result = self.update_profile(user_id, name, hashed_password)
+
+        hashed_password = self._handle_password(password)
+        if hashed_password is False:
+            return False
+
+        if hashed_password:
+            result = self.update_profile(user_id, name, hashed_password, profile_picture_url)
         else:
             user_data = get_user_by_id(user_id)
-            current_password = (
-                user_data["password"]
-                if isinstance(user_data, dict) and "password" in user_data
-                else ""
-            )
+            current_password = user_data["password"] if isinstance(user_data, dict) and "password" in user_data else ""
             if profile_picture_url is not None:
-                result = self.update_profile(
-                    user_id, name, current_password, profile_picture_url
-                )
+                result = self.update_profile(user_id, name, current_password, profile_picture_url)
             else:
                 result = self.update_profile(user_id, name, current_password)
+
         if result:
             g.updated_profile = {
                 'user_id': user_id,
@@ -217,6 +188,33 @@ class ProfileManagement:
                 'profile_picture_url': profile_picture_url
             }
         return result
+
+    def _handle_profile_picture_upload(self, form):
+        if form.profile_picture.data:
+            file = form.profile_picture.data
+            try:
+                file.seek(0)
+                image = Image.open(file)
+                image.verify()
+                file.seek(0)
+            except (UnidentifiedImageError, Exception):
+                current_app.logger.error("Uploaded profile picture is not a valid image.")
+                return False
+            ext = os.path.splitext(secure_filename(file.filename))[1]
+            unique_filename = f"{uuid.uuid4().hex}{ext}"
+            image_path = os.path.join("presentation", "static", "images", "profile", unique_filename)
+            os.makedirs(os.path.dirname(image_path), exist_ok=True)
+            file.save(image_path)
+            return f"/static/images/profile/{unique_filename}"
+        return None
+
+    def _handle_password(self, password):
+        if password:
+            try:
+                return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+            except Exception:
+                return False
+        return None
 
     def edit_activity(self, user_id, activity_id, form):
         activity_data = get_sports_activity_by_id(activity_id)
