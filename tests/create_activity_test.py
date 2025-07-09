@@ -67,9 +67,8 @@ class CreateActivityPageTest(unittest.TestCase):
             self.driver.find_element(By.ID, "maxPaxInput").send_keys("10")
 
             # Submit the form
-            self.driver.find_element(
-                By.XPATH, "//button[contains(text(), 'Host')]"
-            ).click()
+            modal = self.driver.find_element(By.ID, "hostModal")
+            modal.find_element(By.XPATH, ".//button[contains(text(), 'Host')]").click()
             time.sleep(2)
 
             # Assert that the activity was created successfully
