@@ -59,7 +59,7 @@ class CreateActivityPageTest(unittest.TestCase):
 
             date_input = self.driver.find_element(By.ID, "dateInput")
             self.driver.execute_script(
-                "arguments[0].value = arguments[1]", date_input, "2025-07-08T15:30"
+                "arguments[0].value = arguments[1]", date_input, "2026-07-08T15:30"
             )
 
             self.driver.find_element(By.ID, "locationInput").send_keys("Test Field")
