@@ -17,7 +17,7 @@
     {% include 'navbar.html' %}
     <div id="flashModal" class="modal" style="display:none;">
       <div class="modal-content">
-        <span class="close" onclick="closeFlashModal()">&times;</span>
+        <button class="close" onclick="closeFlashModal()" aria-label="Close">&times;</button>
         {% with flash_messages = get_flashed_messages(with_categories=true) %}
           {% if flash_messages %}
             {% for category, message in flash_messages %}
@@ -29,7 +29,9 @@
     </div>
     <div class="profile-banner">
         <div class="profile-header">
-            <img id="profilePicView" src="{% if not user.profile_picture or user.profile_picture == 'None' %}{{ url_for('static', filename='icons/user.png') }}{% else %}{{ user.profile_picture }}{% endif %}" class="profile-avatar" alt="Profile" style="cursor:pointer;" role="button" tabindex="0" aria-label="View profile picture" onkeydown="if(event.key==='Enter'||event.key===' '){this.click();}">
+            <button id="profilePicViewBtn" class="profile-avatar-btn" aria-label="View profile picture" onclick="/* your JS here */" style="background:none;border:none;padding:0;cursor:pointer;">
+                <img id="profilePicView" src="{% if not user.profile_picture or user.profile_picture == 'None' %}{{ url_for('static', filename='icons/user.png') }}{% else %}{{ user.profile_picture }}{% endif %}" class="profile-avatar" alt="Profile" />
+            </button>
             <div class="profile-header-info">
                 <h2>{{ user.name}}</h2>
                 <p>{{ user.email}}</p>
@@ -599,10 +601,10 @@
         function closeProfilePicModal() {
             document.getElementById('profilePicModal').style.display = 'none';
         }
-        document.getElementById('profilePicView').onclick = function() {
+        document.getElementById('profilePicViewBtn').onclick = function() {
             var modal = document.getElementById('profilePicModal');
             var modalImg = document.getElementById('profilePicModalImg');
-            modalImg.src = this.src;
+            modalImg.src = this.querySelector('img').src;
             modal.style.display = 'flex';
         };
         document.getElementById('profilePicModal').onclick = function(e) {
