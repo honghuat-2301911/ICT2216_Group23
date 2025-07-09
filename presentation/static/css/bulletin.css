@@ -27,9 +27,6 @@ body {
     box-shadow: 0 4px 24px rgba(0,0,0,0.08);
     padding: 32px 18px;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
     font-weight: 600;
     font-size: 1.1rem;
     color: #23272a;
@@ -211,7 +208,6 @@ body {
     word-wrap: break-word;
     overflow-wrap: break-word;
     word-break: break-word;
-    text-align: center;
     font-size: 1.2rem;
     line-height: 1.4;
     max-width: 100%;
@@ -220,7 +216,6 @@ body {
     color: #23272a;
     font-size: 1.05rem;
     margin-bottom: 10px;
-    word-wrap: break-word;
     overflow-wrap: break-word;
     word-break: break-word;
     text-align: center;
