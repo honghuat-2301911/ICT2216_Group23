@@ -1,9 +1,19 @@
 # presentation/controller/social_feed_controller.py
 import functools
 
-from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for, session
+from flask import (
+    Blueprint,
+    flash,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 from flask_login import current_user, login_required
 
+from data_source.social_feed_queries import get_like_count
 from data_source.user_queries import get_user_by_id, search_users_by_name
 from domain.control.social_feed_management import (
     create_comment_control,
@@ -16,7 +26,9 @@ from domain.control.social_feed_management import (
     unlike_post_control,
 )
 from domain.entity.forms import CommentForm, PostForm
-from data_source.social_feed_queries import get_like_count
+
+SOCIAL_FEED_TEMPLATE = "socialfeed/social_feed.html"
+SOCIAL_FEED_FEED = "social_feed.feed"
 
 social_feed_bp = Blueprint("social_feed", __name__, url_prefix="/feed")
 
@@ -39,9 +51,9 @@ def feed():
     featured_posts = get_featured_posts_control()
     post_form = PostForm()
     comment_form = CommentForm()
-    liked_posts = session.get('liked_posts', [])
+    liked_posts = session.get("liked_posts", [])
     return render_template(
-        "socialfeed/social_feed.html",
+        SOCIAL_FEED_TEMPLATE,
         posts=posts,
         featured_posts=featured_posts,
         post_form=post_form,
@@ -57,14 +69,14 @@ def create_post():
     post_form = PostForm()
     if not post_form.validate_on_submit():
         flash("Cannot submit empty post.", "error")
-        return redirect(url_for("social_feed.feed"))
+        return redirect(url_for(SOCIAL_FEED_FEED))
 
     user_id = int(current_user.get_id())
     content = post_form.content.data
     image_file = post_form.image.data
     create_post_control(user_id, content, image_file)
     flash("Post uploaded successfully!", "success")  # Flash success message for modal
-    return redirect(url_for("social_feed.feed"))
+    return redirect(url_for(SOCIAL_FEED_FEED))
 
 
 @social_feed_bp.route("/comment/<int:post_id>", methods=["POST"])
@@ -74,12 +86,12 @@ def create_comment(post_id):
     comment_form = CommentForm()
     if not comment_form.validate_on_submit():
         flash("Cannot submit empty comment.", "error")
-        return redirect(url_for("social_feed.feed"))
+        return redirect(url_for(SOCIAL_FEED_FEED))
 
     user_id = int(current_user.get_id())
     content = comment_form.comment.data
     create_comment_control(post_id, user_id, content)
-    return redirect(url_for("social_feed.feed"))
+    return redirect(url_for(SOCIAL_FEED_FEED))
 
 
 @social_feed_bp.route("/like/<int:post_id>", methods=["POST"])
@@ -118,11 +130,11 @@ def view_post(post_id):
     featured_posts = get_featured_posts_control()
     target = get_post_by_id_control(post_id)
     if not target:
-        return redirect(url_for("social_feed.feed"))
+        return redirect(url_for(SOCIAL_FEED_FEED))
 
     filtered = [p for p in posts if p.id == post_id]
     return render_template(
-        "socialfeed/social_feed.html",
+        SOCIAL_FEED_TEMPLATE,
         posts=filtered,
         featured_posts=featured_posts,
         filtered_post_id=post_id,
@@ -148,7 +160,7 @@ def search_users():
                     "email": d.get("email"),
                     "profile_picture": d.get("profile_picture", ""),
                 }
-            )(dict(u._mapping) if hasattr(u, '_mapping') else dict(u))
+            )(dict(u._mapping) if hasattr(u, "_mapping") else dict(u))
             for u in users
         ]
     )
@@ -162,7 +174,7 @@ def view_user_posts(user_id):
     featured = get_featured_posts_control()
     user_data = get_user_by_id(user_id) or {}
     return render_template(
-        "socialfeed/social_feed.html",
+        SOCIAL_FEED_TEMPLATE,
         posts=posts,
         featured_posts=featured,
         filtered_user_id=user_id,

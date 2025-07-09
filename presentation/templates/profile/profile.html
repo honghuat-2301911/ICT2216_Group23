@@ -191,7 +191,7 @@
         <div class="modal-content">
             <span class="close-modal" id="closeModalBtn">&times;</span>
             <h3>Edit Profile</h3>
-            <form class="profile-edit-form" id="profileEditForm" method="POST" action="{{ url_for('profile_bp.fetchProfile') }}" enctype="multipart/form-data">
+            <form class="profile-edit-form" id="profileEditForm" method="POST" action="{{ url_for('profile_bp.fetch_profile') }}" enctype="multipart/form-data">
                 {{ profile_form.hidden_tag() }}
                 <div>
                     {{ profile_form.name.label }}<br>

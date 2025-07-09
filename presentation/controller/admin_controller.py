@@ -3,10 +3,17 @@ import functools
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 from flask_login import current_user, login_required
 
-from domain.control.admin_management import *
-from domain.control.bulletin_management import *
-from domain.control.social_feed_management import *
+from domain.control.admin_management import remove_social_post, remove_sports_activity
+from domain.control.bulletin_management import (
+    get_bulletin_display_data,
+    get_bulletin_listing,
+    search_bulletin,
+)
+from domain.control.social_feed_management import get_all_posts_control
 from domain.entity.forms import DeleteActivityForm, DeletePostForm, SearchForm
+
+ADMIN_BULLETIN_PAGE = "admin.bulletin_page"  # Name of the admin bulletin page route
+
 
 # Create a blueprint for the admin page
 admin_bp = Blueprint(
@@ -76,12 +83,12 @@ def delete_activity():
     form = DeleteActivityForm()
     if not form.validate_on_submit():
         flash("Invalid or missing CSRF token.", "error")
-        return redirect(url_for("admin.bulletin_page"))
+        return redirect(url_for(ADMIN_BULLETIN_PAGE))
 
     activity_id = form.activity_id.data
     if not activity_id:
         flash("Activity ID is required.", "error")
-        return redirect(url_for("admin.bulletin_page"))
+        return redirect(url_for(ADMIN_BULLETIN_PAGE))
 
     success = remove_sports_activity(activity_id)
     if success:
@@ -91,7 +98,7 @@ def delete_activity():
             "Failed to delete the activity. It may not exist or you may not have permission.",
             "error",
         )
-    return redirect(url_for("admin.bulletin_page"))
+    return redirect(url_for(ADMIN_BULLETIN_PAGE))
 
 
 @admin_bp.route("/feed", methods=["GET", "POST"])

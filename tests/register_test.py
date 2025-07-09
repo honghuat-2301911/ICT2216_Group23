@@ -14,9 +14,9 @@ class RegisterPageTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         options = Options()
-        options.add_argument('--ignore-certificate-errors')  # <-- key line
-        options.add_argument('--allow-insecure-localhost')   # optional, but useful
-        options.add_argument('--headless')                   # for CI
+        options.add_argument("--ignore-certificate-errors")  # <-- key line
+        options.add_argument("--allow-insecure-localhost")  # optional, but useful
+        options.add_argument("--headless")  # for CI
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
         cls.driver = webdriver.Chrome(
@@ -39,7 +39,10 @@ class RegisterPageTest(unittest.TestCase):
         test_email = "success@example.com"  # Use a fixed email for success test
         try:
             self.fill_registration_form(email=test_email, password=self.base_password)
-            self.assertIn("A verification link has been sent to your email address.", self.driver.page_source)
+            self.assertIn(
+                "A verification link has been sent to your email address.",
+                self.driver.page_source,
+            )
 
         except Exception as e:
             os.makedirs("artifacts", exist_ok=True)
@@ -49,11 +52,20 @@ class RegisterPageTest(unittest.TestCase):
             raise  # Re-raise so the test still fails
 
     def test_register_duplicate_email(self):
-        duplicate_email = "duplicate@example.com"  # Use a fixed email for duplicate test
+        duplicate_email = (
+            "duplicate@example.com"  # Use a fixed email for duplicate test
+        )
         try:
-            self.fill_registration_form(email=duplicate_email, password=self.base_password)
-            self.assertIn("A verification link has been sent to your email address.", self.driver.page_source)
-            self.fill_registration_form(email=duplicate_email, password=self.base_password)
+            self.fill_registration_form(
+                email=duplicate_email, password=self.base_password
+            )
+            self.assertIn(
+                "A verification link has been sent to your email address.",
+                self.driver.page_source,
+            )
+            self.fill_registration_form(
+                email=duplicate_email, password=self.base_password
+            )
             self.assertIn(
                 "Something went wrong. Please try again.", self.driver.page_source
             )
@@ -81,7 +93,6 @@ class RegisterPageTest(unittest.TestCase):
     #         with open("artifacts/debug.html", "w", encoding="utf-8") as f:
     #             f.write(self.driver.page_source)
     #         raise  # Re-raise so the test still fails
-
 
     @classmethod
     def tearDownClass(cls):

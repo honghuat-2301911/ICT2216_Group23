@@ -3,8 +3,12 @@ import os
 from flask import current_app, g
 from flask_login import current_user
 
-from data_source.admin_queries import *
-from data_source.bulletin_queries import *
+from data_source.admin_queries import (
+    delete_social_post,
+    delete_sports_activity,
+    get_social_post_by_id,
+)
+from data_source.bulletin_queries import get_sports_activity_by_id
 from domain.entity.sports_activity import SportsActivity
 
 """Deletes an activity from the bulletin board by its ID. Returns True if successful, False otherwise."""

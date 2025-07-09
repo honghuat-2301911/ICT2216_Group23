@@ -16,7 +16,7 @@
   <ul class="navbar-links" id="navLinks">
     <li><a href="{{ url_for('bulletin.bulletin_page') }}">Bulletin</a></li>
     <li><a href="{{ url_for('social_feed.feed') }}">Social Feed</a></li>
-    <li><a href="{{ url_for('profile_bp.fetchProfile') }}">Profile</a></li>
+    <li><a href="{{ url_for('profile_bp.fetch_profile') }}">Profile</a></li>
     {% if current_user.is_authenticated %}
       <li><a href="{{ url_for('login.logout') }}" class="logout-btn">Logout</a></li>
     {% endif %}
