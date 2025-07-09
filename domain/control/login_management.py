@@ -108,20 +108,54 @@ def login_user(email: str, password: str):
     return user
 
 
-# Get generate OTP
+# Verifies the OTP code for the user.
 def verify_user_otp(user, otp_code):
     """
-    Verifies the OTP code for the user.
+    Verifies the OTP code for the user and applies account lockout on repeated failures.
+    
     Args:
         user (User): The user object
         otp_code (str): The OTP code entered by the user
+
     Returns:
-        bool: True if valid, False otherwise
+        bool: True if OTP is valid and user not locked out, False otherwise
     """
-    if not user.otp_secret:
+    if not user or not user.otp_secret:
         return False
+
+    utc_plus_8 = timezone(timedelta(hours=8))
+    now = datetime.now(utc_plus_8)
+
+    # Check if account is locked
+    if user.locked_until:
+        db_locked_until = user.locked_until.replace(tzinfo=utc_plus_8)
+        if db_locked_until > now:
+            lock_time = db_locked_until.strftime("%Y-%m-%d %H:%M:%S")
+            current_app.logger.warning(
+                f"Locked account OTP attempt: {user.email} (locked until {lock_time})"
+            )
+            return False
+
+    # Verify OTP
     totp = pyotp.TOTP(user.otp_secret)
-    return totp.verify(otp_code)
+    if totp.verify(otp_code):
+        clear_failed_logins(user.id)
+        update_user_lockout(user.id, None)
+        return True
+
+    # Failed OTP attempt
+    record_failed_login(user.id)
+    recent_failures = get_user_failed_attempts_count(user.id, window_minutes=10)
+    locked_until = None
+
+    if recent_failures >= FAILED_ATTEMPT_LIMIT:
+        locked_until = now + timedelta(minutes=LOCKOUT_MINUTES)
+        update_user_lockout(user.id, locked_until.replace(tzinfo=None))
+        current_app.logger.warning(
+            f"Account locked: {user.email} after {recent_failures} failed OTP attempts in 10 minutes"
+        )
+    return False
+
 
 
 def logout_user():
@@ -182,6 +216,7 @@ def process_reset_password_request(email):
             api_key = os.getenv("EMAILVERIFICATION_API_KEY")
             sg = SendGridAPIClient(api_key)
             sg.send(message)
+            current_app.logger.info(f"A password reset request for {email} was initiated" )
         except Exception as e:
             current_app.logger.error(f"Error sending verification email: {e}")
 
@@ -199,6 +234,7 @@ def process_reset_password(token, form):
                 "Invalid or expired reset link. Please request a new password reset.",
                 "danger",
             )
+            current_app.logger.warning(f"An Invalid token was used for password reset")
             return redirect(url_for(LOGIN_VIEW))
 
         if token_data["used"]:
@@ -206,6 +242,7 @@ def process_reset_password(token, form):
                 "This reset link has been used. Please request a new password reset.",
                 "danger",
             )
+            current_app.logger.warning(f"A password reset token is being reused")
             return redirect(url_for(LOGIN_VIEW))
 
         utc_plus_8 = timezone(timedelta(hours=8))
@@ -226,6 +263,7 @@ def process_reset_password(token, form):
                 "This reset link has expired. Please request a new password reset.",
                 "danger",
             )
+            current_app.logger.warning(f"An expired token was used for password reset for the user {token_data["user_id"]}" )
             return redirect(url_for(LOGIN_VIEW))
 
         hashed = bcrypt.hashpw(
@@ -234,5 +272,6 @@ def process_reset_password(token, form):
         update_user_password_by_id(token_data["user_id"], hashed)
         update_reset_link_used(user_token_hash)
         flash("Your password has been updated. You can now log in.", "success")
+        current_app.logger.warning(f"Password for {token_data["user_id"]} was changed" )
         return redirect(url_for(LOGIN_VIEW))
     return render_template("reset_password.html", form=form)
