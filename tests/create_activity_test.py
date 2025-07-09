@@ -84,6 +84,9 @@ class CreateActivityPageTest(unittest.TestCase):
             # activity_card = self.driver.find_element(By.XPATH, "//div[contains(@class, 'card')]//h3[text()='Selenium Test Activity']")
             # self.assertTrue(activity_card.is_displayed())
 
+            # Logout to reset the state for the next test
+            self.driver.get(f"{self.base_url}/logout")
+
         except Exception as e:
             os.makedirs("artifacts", exist_ok=True)
             self.driver.save_screenshot("artifacts/create_activity_success.png")
@@ -118,6 +121,9 @@ class CreateActivityPageTest(unittest.TestCase):
     #             EC.visibility_of_element_located((By.CSS_SELECTOR, "#flashModal .flash-message.error"))
     #         )
     #         self.assertIn("Date cannot be in the past", error_elem.text)
+
+            # Logout to reset the state for the next test
+            self.driver.get(f"{self.base_url}/logout")
 
         except Exception as e:
             os.makedirs("artifacts", exist_ok=True)
