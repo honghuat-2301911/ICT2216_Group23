@@ -69,7 +69,7 @@
             {{ post_form.content(rows=3, placeholder="Share something with your buddies...", required=True) }}
           </div>
           <div id="image-preview-container" class="image-preview-container" style="display:none;">
-            <button type="button" class="remove-image-btn" onclick="removeImagePreview()" tabindex="0" role="button" aria-label="Remove image" onkeydown="if(event.key==='Enter'||event.key===' '){removeImagePreview();}">&times;</button>
+            <button type="button" class="remove-image-btn" onclick="removeImagePreview()" tabindex="0" aria-label="Remove image" onkeydown="if(event.key==='Enter'||event.key===' '){removeImagePreview();}">&times;</button>
             <img id="image-preview" src="" alt="Preview">
           </div>
           <div class="composer-divider"></div>
@@ -81,7 +81,7 @@
                 <path d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l10-10a3 3 0 0 1 4.24 4.24l-10 10a1 1 0 0 1-1.41-1.41l9.19-9.19"/>
               </svg>
             </label>
-            <button type="submit" class="post-btn" id="postBtn" tabindex="0" role="button" aria-label="Post" onkeydown="if(event.key==='Enter'||event.key===' '){document.getElementById('postForm').submit();}">Post</button>
+            <button type="submit" class="post-btn" id="postBtn" tabindex="0" aria-label="Post" onkeydown="if(event.key==='Enter'||event.key===' '){document.getElementById('postForm').submit();}">Post</button>
             <span id="postLoading" style="display:none;margin-left:10px;vertical-align:middle;">
               <svg width="20" height="20" viewBox="0 0 50 50"><circle cx="25" cy="25" r="20" fill="none" stroke="#888" stroke-width="5" stroke-linecap="round" stroke-dasharray="31.4 31.4" transform="rotate(-90 25 25)"><animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="0.5s" repeatCount="indefinite"/></circle></svg>
             </span>
@@ -104,14 +104,16 @@
         <div class="post-content">{{ post.content }}</div>
         {% if post.image_url %}
         <div class="post-image">
-          <img src="{{ post.image_url }}" alt="Post" onclick="expandImage('{{ post.image_url }}')" tabindex="0" role="button" aria-label="Expand image" onkeydown="if(event.key==='Enter'||event.key===' '){expandImage('{{ post.image_url }}');}">
+          <button type="button" class="post-image-btn" onclick="expandImage('{{ post.image_url }}')" aria-label="Expand image" style="background:none;border:none;padding:0;">
+            <img src="{{ post.image_url }}" alt="Post">
+          </button>
         </div>
         {% endif %}
         <div class="post-stats">
-          <div class="stat-item comment-button" onclick="toggleComments('{{ post.id }}')" tabindex="0" role="button" aria-label="View comments" onkeydown="if(event.key==='Enter'||event.key===' '){toggleComments('{{ post.id }}');}">
+          <button type="button" class="stat-item comment-button" onclick="toggleComments('{{ post.id }}')" aria-label="View comments">
             <span class="comment-icon"></span>
             <span class="stat-count">{{ post.comments|length }}</span>
-          </div>
+          </button>
           <button type="button" class="stat-item like-button" onclick="toggleLike('{{ post.id }}', this)">
             <span class="heart-icon {% if current_user.id|string in (post.like_user_ids or '').split(',') %}liked{% endif %}"></span>
             <span class="stat-count">{{ post.likes }}</span>
@@ -188,11 +190,11 @@
         </div>
         {% endfor %}
         {% if filtered_post_id %}
-        <div class="featured-post-card" onclick="clearFilter()" style="cursor:pointer;background:#f0f0f0;border:2px solid #ff5858;">
+        <button type="button" class="featured-post-card" onclick="clearFilter()" style="background:#f0f0f0;border:2px solid #ff5858;cursor:pointer;">
           <div class="featured-post-content">
             <div class="featured-post-title" style="color:#ff5858;font-weight:600;">← Show All Posts</div>
           </div>
-        </div>
+        </button>
         {% endif %}
       </div>
     </aside>

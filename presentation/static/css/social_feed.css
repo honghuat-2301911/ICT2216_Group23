@@ -669,9 +669,6 @@ body {
 .featured-posts-sidebar {
     width: 100%;
 }
-.search-bar-container {
-    width: 100%;
-}
 
 @media (max-width: 1200px) {
     .feed-main-layout {
@@ -696,9 +693,6 @@ body {
     }
     .feed-search-bar,
     .featured-posts-sidebar {
-        width: 100%;
-    }
-    .search-bar-container {
         width: 100%;
     }
 }
@@ -795,12 +789,6 @@ body {
     margin: 0 auto;
     padding: 24px 8px 0 8px;
     width: 100%;
-}
-
-.feed-main-col {
-    flex: 1 1 0;
-    min-width: 0;
-    max-width: 700px;
 }
 
 .feed-sidebar {
@@ -989,13 +977,6 @@ body {
     }
 }
 
-.feed-main-col {
-    min-width: 320px;
-    max-width: 700px;
-    width: 100%;
-    margin: 0 auto;
-}
-
 .stat-item.like-button {
     background: none;
     border: none;
@@ -1008,6 +989,23 @@ body {
     align-items: center;
     gap: 6px;
 }
+.stat-item.like-button:focus {
+    outline: none;
+}
+.stat-item.comment-button,
+.stat-item.like-button {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+    outline: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.stat-item.comment-button:focus,
 .stat-item.like-button:focus {
     outline: none;
 }
