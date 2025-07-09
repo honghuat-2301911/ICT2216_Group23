@@ -14,9 +14,9 @@ class LoginPageTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         options = Options()
-        options.add_argument('--ignore-certificate-errors')  # <-- key line
-        options.add_argument('--allow-insecure-localhost')   # optional, but useful
-        options.add_argument('--headless')                   # for CI
+        options.add_argument("--ignore-certificate-errors")  # <-- key line
+        options.add_argument("--allow-insecure-localhost")  # optional, but useful
+        options.add_argument("--headless")  # for CI
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
         cls.driver = webdriver.Chrome(
@@ -25,7 +25,6 @@ class LoginPageTest(unittest.TestCase):
         cls.driver.implicitly_wait(10)
         cls.base_url = "https://localhost"
         cls.base_password = "securepassword"
-
 
     def fill_login_form(self, email, password):
         self.driver.get(f"{self.base_url}/login")
@@ -38,7 +37,10 @@ class LoginPageTest(unittest.TestCase):
         test_email = "success@example.com"  # Use a fixed email for success test
         try:
             self.fill_login_form(email=test_email, password=self.base_password)
-            self.assertIn("You must verify your email before logging in. Please check your inbox.", self.driver.page_source)
+            self.assertIn(
+                "You must verify your email before logging in. Please check your inbox.",
+                self.driver.page_source,
+            )
 
         except Exception as e:
             os.makedirs("artifacts", exist_ok=True)
@@ -61,7 +63,9 @@ class LoginPageTest(unittest.TestCase):
             raise  # Re-raise so the test still fails
 
     def test_login_incorrect_password(self):
-        test_email = "success@example.com"  # Use a fixed email to test incorrect password
+        test_email = (
+            "success@example.com"  # Use a fixed email to test incorrect password
+        )
         incorrect_password = "wrongpassword"
         try:
             self.fill_login_form(email=test_email, password=incorrect_password)

@@ -1,18 +1,17 @@
 """User login management for authentication and session handling"""
 
+import hashlib
+import os
+import uuid
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
 import pyotp
-from flask import current_app, g, url_for,flash, redirect, render_template
+from flask import current_app, flash, g, redirect, render_template, url_for
 from flask_login import login_user as flask_login_user
 from flask_login import logout_user as flask_logout_user
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
-import bcrypt
-import os
-import uuid
-import hashlib
 
 from data_source.user_queries import (
     clear_failed_logins,
@@ -31,7 +30,7 @@ from domain.entity.user import User
 
 FAILED_ATTEMPT_LIMIT = 10
 LOCKOUT_MINUTES = 15
-LOGIN_VIEW = 'login.login'
+LOGIN_VIEW = "login.login"
 
 
 def login_user(email: str, password: str):
@@ -148,12 +147,13 @@ def get_user_display_data():
         "role": user.get_role(),
     }
 
+
 def process_reset_password_request(email):
 
     # get user id by email
     if not email:
         return None
-    
+
     user_id = get_id_by_email(email)
 
     # generate a unique token for the password reset and store in the database
@@ -169,19 +169,19 @@ def process_reset_password_request(email):
         expires_at = now + timedelta(minutes=60)
 
         insert_into_reset_password(user_id, token_hash, expires_at.replace(tzinfo=None))
-        
+
         # Send the reset email with the token
-        reset_url = url_for('login.reset_password', token=token, _external=True)
+        reset_url = url_for("login.reset_password", token=token, _external=True)
         message = Mail(
-            from_email='buddiesfinder@gmail.com',
+            from_email="buddiesfinder@gmail.com",
             to_emails=email,
-            subject='Reset Your Password for buddiesfinder',
-            html_content=f'<p>Click <a href="{reset_url}">here</a> to reset your password.</p>'
+            subject="Reset Your Password for buddiesfinder",
+            html_content=f'<p>Click <a href="{reset_url}">here</a> to reset your password.</p>',
         )
         try:
-            api_key = os.getenv('EMAILVERIFICATION_API_KEY')
+            api_key = os.getenv("EMAILVERIFICATION_API_KEY")
             sg = SendGridAPIClient(api_key)
-            sg.send(message)       
+            sg.send(message)
         except Exception as e:
             current_app.logger.error(f"Error sending verification email: {e}")
 
@@ -191,36 +191,48 @@ def process_reset_password(token, form):
     if form.validate_on_submit():
 
         user_token_hash = hashlib.sha256(token.encode()).hexdigest()
-    
+
         token_data = get_user_by_token_hash(user_token_hash)
 
         if not token_data:
-            flash('Invalid or expired reset link. Please request a new password reset.', 'danger')
+            flash(
+                "Invalid or expired reset link. Please request a new password reset.",
+                "danger",
+            )
             return redirect(url_for(LOGIN_VIEW))
 
-        if token_data['used']:
-            flash('This reset link has been used. Please request a new password reset.', 'danger')
+        if token_data["used"]:
+            flash(
+                "This reset link has been used. Please request a new password reset.",
+                "danger",
+            )
             return redirect(url_for(LOGIN_VIEW))
 
-        
         utc_plus_8 = timezone(timedelta(hours=8))
         now = datetime.now(utc_plus_8)
 
         expires_at = token_data["expires_at"]
         if isinstance(expires_at, str):
-            expires_at_with_timezone = datetime.strptime(expires_at, "%Y-%m-%d %H:%M:%S").replace(tzinfo=utc_plus_8)
+            expires_at_with_timezone = datetime.strptime(
+                expires_at, "%Y-%m-%d %H:%M:%S"
+            ).replace(tzinfo=utc_plus_8)
         elif expires_at.tzinfo is None:
             expires_at_with_timezone = expires_at.replace(tzinfo=utc_plus_8)
         else:
             expires_at_with_timezone = expires_at.astimezone(utc_plus_8)
 
         if now > expires_at_with_timezone:
-            flash('This reset link has expired. Please request a new password reset.', 'danger')
+            flash(
+                "This reset link has expired. Please request a new password reset.",
+                "danger",
+            )
             return redirect(url_for(LOGIN_VIEW))
-    
-        hashed = bcrypt.hashpw(form.password.data.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-        update_user_password_by_id(token_data['user_id'], hashed)
+
+        hashed = bcrypt.hashpw(
+            form.password.data.encode("utf-8"), bcrypt.gensalt()
+        ).decode("utf-8")
+        update_user_password_by_id(token_data["user_id"], hashed)
         update_reset_link_used(user_token_hash)
-        flash('Your password has been updated. You can now log in.', 'success')
+        flash("Your password has been updated. You can now log in.", "success")
         return redirect(url_for(LOGIN_VIEW))
-    return render_template('reset_password.html', form=form)
+    return render_template("reset_password.html", form=form)

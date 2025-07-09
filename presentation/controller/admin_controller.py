@@ -3,11 +3,14 @@ import functools
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 from flask_login import current_user, login_required
 
-from domain.control.admin_management  import remove_sports_activity,  remove_social_post
-from domain.control.bulletin_management import get_bulletin_display_data, get_bulletin_listing, search_bulletin
-from domain.control.social_feed_management import get_all_posts_control  
+from domain.control.admin_management import remove_social_post, remove_sports_activity
+from domain.control.bulletin_management import (
+    get_bulletin_display_data,
+    get_bulletin_listing,
+    search_bulletin,
+)
+from domain.control.social_feed_management import get_all_posts_control
 from domain.entity.forms import DeleteActivityForm, DeletePostForm, SearchForm
-
 
 ADMIN_BULLETIN_PAGE = "admin.bulletin_page"  # Name of the admin bulletin page route
 

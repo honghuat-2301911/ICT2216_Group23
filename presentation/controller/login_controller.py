@@ -1,14 +1,26 @@
-from datetime import timezone
-from flask import Blueprint, flash, redirect, render_template, request, session, url_for, current_app
+import os
+from datetime import datetime, timezone
+
+from flask import (
+    Blueprint,
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 from flask_login import current_user, login_required
 from flask_login import login_user as flask_login_user
 from flask_login import logout_user as flask_logout_user
 from itsdangerous import URLSafeTimedSerializer
-from domain.entity.forms import OTPForm, RequestResetForm, ResetPasswordForm 
-from datetime import datetime
-import os
 
-from data_source.user_queries import get_user_by_email, get_user_session_token, update_user_session_token
+from data_source.user_queries import (
+    get_user_by_email,
+    get_user_session_token,
+    update_user_session_token,
+)
 from domain.control.login_management import (
     get_user_display_data,
     login_user,
@@ -17,7 +29,7 @@ from domain.control.login_management import (
     process_reset_password_request,
     verify_user_otp,
 )
-from domain.entity.forms import LoginForm
+from domain.entity.forms import LoginForm, OTPForm, RequestResetForm, ResetPasswordForm
 from domain.entity.user import User
 
 LOGIN_VIEW = "login.login"
@@ -45,7 +57,9 @@ def login():
         if user:
             # Check if email is verified
             if not getattr(user, "email_verified", False):
-                form.email.errors.append("You must verify your email before logging in. Please check your inbox.")
+                form.email.errors.append(
+                    "You must verify your email before logging in. Please check your inbox."
+                )
                 return render_template("login/login.html", form=form)
             # If 2FA is enabled, redirect to OTP verification page
             if getattr(user, "otp_enabled", False):
@@ -54,13 +68,15 @@ def login():
                 return redirect(url_for("login.otp_verify"))
             # Else perform normal login
             session.clear()  # Force new session on login
-            session['init'] = os.urandom(16).hex()  # Force new session file/ID
+            session["init"] = os.urandom(16).hex()  # Force new session file/ID
             session_token = os.urandom(32).hex()
-            session['session_token'] = session_token
+            session["session_token"] = session_token
             update_user_session_token(user.id, session_token)
             flask_login_user(user)
-            session['created_at'] = datetime.now(timezone.utc).isoformat()   # After user authenticated, time stamp is set
-            session['last_activity'] = datetime.now(timezone.utc).isoformat() 
+            session["created_at"] = datetime.now(
+                timezone.utc
+            ).isoformat()  # After user authenticated, time stamp is set
+            session["last_activity"] = datetime.now(timezone.utc).isoformat()
             if user.role == "admin":
                 return redirect(url_for("admin.bulletin_page"))
             else:
@@ -75,7 +91,7 @@ def login():
 @login_required
 def logout():
     logout_user()
-    if hasattr(current_user, 'id'):
+    if hasattr(current_user, "id"):
         update_user_session_token(current_user.id, None)
     session.clear()
     return redirect(url_for(LOGIN_VIEW))
@@ -96,6 +112,7 @@ def otp_verify():
     if form.validate_on_submit():
         otp_code = form.otp_code.data
         from domain.entity.user import User
+
         user = User(
             id=user_data["id"],
             name=user_data["name"],
@@ -109,15 +126,15 @@ def otp_verify():
         verified = verify_user_otp(user, otp_code)
         if verified:
             session.clear()  # Force new session after 2FA so that hackers cannot use the same session ID even in 2FA fails
-            session['init'] = os.urandom(16).hex()  # Force new session file/ID
+            session["init"] = os.urandom(16).hex()  # Force new session file/ID
             session_token = os.urandom(32).hex()
-            session['session_token'] = session_token
+            session["session_token"] = session_token
             update_user_session_token(user.id, session_token)
             flask_login_user(user)
             session.pop("pre_2fa_user_id", None)
             session.pop("pre_2fa_user_email", None)
-            session['created_at'] = datetime.now(timezone.utc).isoformat()
-            session['last_activity'] = datetime.now(timezone.utc).isoformat()
+            session["created_at"] = datetime.now(timezone.utc).isoformat()
+            session["last_activity"] = datetime.now(timezone.utc).isoformat()
             if user.role == "admin":
                 return redirect(url_for("admin.bulletin_page"))
             else:
@@ -126,22 +143,21 @@ def otp_verify():
             flash("Invalid OTP code. Please try again.")
     return render_template("login/login_otp.html", form=form)
 
-@login_bp.route('/reset_password_request', methods=['GET', 'POST'])
+
+@login_bp.route("/reset_password_request", methods=["GET", "POST"])
 def reset_password_request():
     form = RequestResetForm()
     if form.validate_on_submit():
         process_reset_password_request(form.email.data)
-        flash('If your email is registered, you will receive a password reset link.', 'info')
-        return redirect(url_for('login.login'))
-    return render_template('reset_password_request.html', form=form)
+        flash(
+            "If your email is registered, you will receive a password reset link.",
+            "info",
+        )
+        return redirect(url_for("login.login"))
+    return render_template("reset_password_request.html", form=form)
 
 
-
-@login_bp.route('/reset_password/<token>', methods=['GET', 'POST'])
+@login_bp.route("/reset_password/<token>", methods=["GET", "POST"])
 def reset_password(token):
     form = ResetPasswordForm()
     return process_reset_password(token, form)
-    
-
-
-

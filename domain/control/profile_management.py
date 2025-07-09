@@ -1,31 +1,33 @@
+import os
+import uuid
+
+import bcrypt
+from flask import current_app, g
+from PIL import Image, UnidentifiedImageError
+from werkzeug.utils import secure_filename
+
 from data_source.bulletin_queries import (
-    get_joined_user_names_by_activity_id,
     get_all_bulletin,
+    get_hosted_activities,
+    get_joined_activities,
+    get_joined_user_names_by_activity_id,
     get_sports_activity_by_id,
     update_sports_activity,
     update_sports_activity_details,
-    get_hosted_activities,
-    get_joined_activities,
 )
+from data_source.social_feed_queries import get_posts_by_user_id
 from data_source.user_queries import (
+    disable_otp_by_user_id,
+    get_user_by_id,
     remove_user_profile_picture,
     update_user_profile_by_id,
-    get_user_by_id,
-    disable_otp_by_user_id,
 )
-
-from data_source.social_feed_queries import get_posts_by_user_id
-from domain.entity.user import User
-from domain.entity.sports_activity import SportsActivity
-import os
-import uuid
-import bcrypt
-from PIL import Image, UnidentifiedImageError
-from werkzeug.utils import secure_filename
 from domain.control.otp_management import generate_otp_for_user, verify_and_enable_otp
 from domain.control.social_feed_management import delete_post, edit_post
-from domain.entity.social_post import Post, Comment
-from flask import g, current_app
+from domain.entity.social_post import Comment, Post
+from domain.entity.sports_activity import SportsActivity
+from domain.entity.user import User
+
 
 class ProfileManagement:
     def update_profile(self, user_id, name, password, profile_picture=None):
@@ -55,18 +57,28 @@ class ProfileManagement:
         otp_secret_val = user_data.get("otp_secret")
         if otp_secret_val is not None:
             otp_secret_val = str(otp_secret_val)
-        
+
         otp_enabled_val = user_data.get("otp_enabled", 0)
         if isinstance(otp_enabled_val, (int, str)):
             otp_enabled_val = bool(int(otp_enabled_val))
         else:
             otp_enabled_val = False
-            
+
         user = User(
             id=user_id_val,
-            name=str(user_data.get("name")) if user_data.get("name") is not None else "",
-            password=str(user_data.get("password")) if user_data.get("password") is not None else "",
-            email=str(user_data.get("email")) if user_data.get("email") is not None else "",
+            name=(
+                str(user_data.get("name")) if user_data.get("name") is not None else ""
+            ),
+            password=(
+                str(user_data.get("password"))
+                if user_data.get("password") is not None
+                else ""
+            ),
+            email=(
+                str(user_data.get("email"))
+                if user_data.get("email") is not None
+                else ""
+            ),
             role=str(user_data.get("role", "user")),
             profile_picture=str(user_data.get("profile_picture", "")),
             otp_secret=otp_secret_val,
@@ -82,27 +94,28 @@ class ProfileManagement:
         for post in posts:
             comments = [
                 Comment(
-                    id=int(c.get('id', 0) or 0),
-                    post_id=int(post.get('id', 0) or 0),
-                    user=str(c.get('user', '')),
-                    content=str(c.get('content', '')),
-                    profile_picture=str(c.get('profile_picture', '')),
-                ) for c in post.get('comments', [])
+                    id=int(c.get("id", 0) or 0),
+                    post_id=int(post.get("id", 0) or 0),
+                    user=str(c.get("user", "")),
+                    content=str(c.get("content", "")),
+                    profile_picture=str(c.get("profile_picture", "")),
+                )
+                for c in post.get("comments", [])
             ]
             # Handle likes being None or empty string
-            likes_val = post.get('likes', 0)
-            if likes_val in (None, ''):
+            likes_val = post.get("likes", 0)
+            if likes_val in (None, ""):
                 likes_val = 0
             else:
                 likes_val = int(likes_val)
             post_obj = Post(
-                id=int(post.get('id', 0) or 0),
-                user=str(post.get('user', '')),
-                content=str(post.get('content', '')),
-                image_url=str(post.get('image_url', '')),
+                id=int(post.get("id", 0) or 0),
+                user=str(post.get("user", "")),
+                content=str(post.get("content", "")),
+                image_url=str(post.get("image_url", "")),
                 likes=likes_val,
                 comments=comments,
-                like_user_ids=str(post.get('like_user_ids', '')),
+                like_user_ids=str(post.get("like_user_ids", "")),
             )
             post_objs.append(post_obj)
         # Store user posts in Flask g object
@@ -112,25 +125,25 @@ class ProfileManagement:
     def create_entity_from_row(self, hosted_activities_raw, joined_activities_raw):
         hosted_activities = [
             {
-                'id': a['id'],
-                'activity_name': a['activity_name'],
-                'activity_type': a['activity_type'],
-                'skills_req': a['skills_req'],
-                'date': a['date'],
-                'location': a['location'],
-                'max_pax': a['max_pax'],
+                "id": a["id"],
+                "activity_name": a["activity_name"],
+                "activity_type": a["activity_type"],
+                "skills_req": a["skills_req"],
+                "date": a["date"],
+                "location": a["location"],
+                "max_pax": a["max_pax"],
             }
             for a in hosted_activities_raw
         ]
         joined_only_activities = [
             {
-                'id': a['id'],
-                'activity_name': a['activity_name'],
-                'activity_type': a['activity_type'],
-                'skills_req': a['skills_req'],
-                'date': a['date'],
-                'location': a['location'],
-                'max_pax': a['max_pax'],
+                "id": a["id"],
+                "activity_name": a["activity_name"],
+                "activity_type": a["activity_type"],
+                "skills_req": a["skills_req"],
+                "date": a["date"],
+                "location": a["location"],
+                "max_pax": a["max_pax"],
             }
             for a in joined_activities_raw
         ]
@@ -156,9 +169,11 @@ class ProfileManagement:
                 file.seek(0)
                 image = Image.open(file)
                 image.verify()  # Raises if not a valid image
-                file.seek(0)    # Reset pointer for saving
+                file.seek(0)  # Reset pointer for saving
             except (UnidentifiedImageError, Exception):
-                current_app.logger.error("Uploaded profile picture is not a valid image.")
+                current_app.logger.error(
+                    "Uploaded profile picture is not a valid image."
+                )
                 return False
 
             ext = os.path.splitext(secure_filename(file.filename))[1]
@@ -199,30 +214,33 @@ class ProfileManagement:
 
     def edit_activity(self, user_id, activity_id, form):
         activity = get_sports_activity_by_id(activity_id)
+
         def get_val(r, key, default=None):
             if isinstance(r, dict):
                 return r.get(key, default)
             return getattr(r, key, default)
+
         def safe_int(val, default=0):
             try:
                 return int(val)
             except (TypeError, ValueError):
                 return default
+
         if not activity:
             return False, "Activity not found."
-        activity_user_id = safe_int(get_val(activity, 'user_id', 0))
+        activity_user_id = safe_int(get_val(activity, "user_id", 0))
         if activity_user_id != user_id:
             return False, "You can only edit activities you created."
         activity_obj = SportsActivity(
-            id=safe_int(get_val(activity, 'id', 0)),
+            id=safe_int(get_val(activity, "id", 0)),
             user_id=activity_user_id,
-            activity_name=str(get_val(activity, 'activity_name', '')),
-            activity_type=str(get_val(activity, 'activity_type', '')),
-            skills_req=str(get_val(activity, 'skills_req', '')),
-            date=str(get_val(activity, 'date', '')),
-            location=str(get_val(activity, 'location', '')),
-            max_pax=safe_int(get_val(activity, 'max_pax', 0)),
-            user_id_list_join=str(get_val(activity, 'user_id_list_join', '')),
+            activity_name=str(get_val(activity, "activity_name", "")),
+            activity_type=str(get_val(activity, "activity_type", "")),
+            skills_req=str(get_val(activity, "skills_req", "")),
+            date=str(get_val(activity, "date", "")),
+            location=str(get_val(activity, "location", "")),
+            max_pax=safe_int(get_val(activity, "max_pax", 0)),
+            user_id_list_join=str(get_val(activity, "user_id_list_join", "")),
         )
         if form.validate_on_submit():
             activity_obj.activity_name = form.activity_name.data
@@ -252,26 +270,29 @@ class ProfileManagement:
 
     def leave_activity(self, user_id, activity_id):
         activity = get_sports_activity_by_id(activity_id)
+
         def get_val(r, key, default=None):
             if isinstance(r, dict):
                 return r.get(key, default)
             return getattr(r, key, default)
+
         def safe_int(val, default=0):
             try:
                 return int(val)
             except (TypeError, ValueError):
                 return default
+
         if not activity:
             return False, "Activity not found."
         joined_ids = [
             uid.strip()
-            for uid in (get_val(activity, 'user_id_list_join', '') or '').split(',')
+            for uid in (get_val(activity, "user_id_list_join", "") or "").split(",")
             if uid.strip()
         ]
         if str(user_id) not in joined_ids:
             return False, "You are not a participant in this activity."
         joined_ids.remove(str(user_id))
-        new_join_list = ','.join(joined_ids)
+        new_join_list = ",".join(joined_ids)
         result = update_sports_activity(activity_id, new_join_list)
         if result:
             return True, "Successfully left the activity."
@@ -340,6 +361,6 @@ class ProfileManagement:
         ]
 
     def get_user_activities_display_data(self):
-        hosted_activities = g.get('user_hosted_activities', [])
-        joined_only_activities = g.get('user_joined_activities', [])
+        hosted_activities = g.get("user_hosted_activities", [])
+        joined_only_activities = g.get("user_joined_activities", [])
         return hosted_activities, joined_only_activities

@@ -1,9 +1,19 @@
 # presentation/controller/social_feed_controller.py
 import functools
 
-from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for, session
+from flask import (
+    Blueprint,
+    flash,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 from flask_login import current_user, login_required
 
+from data_source.social_feed_queries import get_like_count
 from data_source.user_queries import get_user_by_id, search_users_by_name
 from domain.control.social_feed_management import (
     create_comment_control,
@@ -16,7 +26,6 @@ from domain.control.social_feed_management import (
     unlike_post_control,
 )
 from domain.entity.forms import CommentForm, PostForm
-from data_source.social_feed_queries import get_like_count
 
 SOCIAL_FEED_TEMPLATE = "socialfeed/social_feed.html"
 SOCIAL_FEED_FEED = "social_feed.feed"
@@ -42,7 +51,7 @@ def feed():
     featured_posts = get_featured_posts_control()
     post_form = PostForm()
     comment_form = CommentForm()
-    liked_posts = session.get('liked_posts', [])
+    liked_posts = session.get("liked_posts", [])
     return render_template(
         SOCIAL_FEED_TEMPLATE,
         posts=posts,
@@ -151,7 +160,7 @@ def search_users():
                     "email": d.get("email"),
                     "profile_picture": d.get("profile_picture", ""),
                 }
-            )(dict(u._mapping) if hasattr(u, '_mapping') else dict(u))
+            )(dict(u._mapping) if hasattr(u, "_mapping") else dict(u))
             for u in users
         ]
     )

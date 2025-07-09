@@ -1,5 +1,6 @@
-from data_source.db_connection import get_connection
 from flask_login import current_user
+
+from data_source.db_connection import get_connection
 
 
 def get_host_id(activity_id: int):
@@ -148,14 +149,17 @@ def get_joined_user_names_by_activity_id(activity_id: int):
     connection = get_connection()
     cursor = connection.cursor(dictionary=True)
     # Check if current user is the host
-    cursor.execute("SELECT user_id, user_id_list_join FROM sports_activity WHERE id = %s", (activity_id,))
+    cursor.execute(
+        "SELECT user_id, user_id_list_join FROM sports_activity WHERE id = %s",
+        (activity_id,),
+    )
     result = cursor.fetchone()
     if not result:
         cursor.close()
         connection.close()
         return []
     # Only allow the host to see the joined users
-    if str(result['user_id']) != str(current_user.get_id()):
+    if str(result["user_id"]) != str(current_user.get_id()):
         cursor.close()
         connection.close()
         return []
@@ -179,7 +183,7 @@ def get_joined_user_names_by_activity_id(activity_id: int):
     cursor.close()
     connection.close()
     # Return only the names as a list
-    return [user['name'] for user in users]
+    return [user["name"] for user in users]
 
 
 def get_hosted_activities(user_id):
@@ -190,7 +194,8 @@ def get_hosted_activities(user_id):
         SELECT sa.id, sa.activity_name, sa.activity_type, sa.skills_req, sa.date, sa.location, sa.max_pax
         FROM sports_activity sa
         WHERE sa.user_id = %s AND sa.date >= CURDATE()
-        """, (user_id,)
+        """,
+        (user_id,),
     )
     data = cursor.fetchall()
     cursor.close()
@@ -206,7 +211,8 @@ def get_joined_activities(user_id):
         SELECT sa.id, sa.activity_name, sa.activity_type, sa.skills_req, sa.date, sa.location, sa.max_pax
         FROM sports_activity sa
         WHERE sa.user_id != %s AND sa.date >= CURDATE() AND FIND_IN_SET(%s, sa.user_id_list_join)
-        """, (user_id, user_id)
+        """,
+        (user_id, user_id),
     )
     data = cursor.fetchall()
     cursor.close()

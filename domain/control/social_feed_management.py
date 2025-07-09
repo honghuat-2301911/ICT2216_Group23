@@ -1,20 +1,26 @@
 import os
 import uuid
-from PIL import Image, UnidentifiedImageError
 
-from flask import current_app, g, flash
+from flask import current_app, flash, g
+from PIL import Image, UnidentifiedImageError
 from werkzeug.utils import secure_filename
 
-from data_source.social_feed_queries import add_comment, add_post, decrement_like, add_like, remove_like
+from data_source.social_feed_queries import (
+    add_comment,
+    add_like,
+    add_post,
+    decrement_like,
+)
 from data_source.social_feed_queries import delete_post as ds_delete_post
 from data_source.social_feed_queries import (
     get_all_posts,
     get_featured_posts,
+    get_like_count,
     get_post_by_id,
     get_posts_by_user_id,
     increment_like,
+    remove_like,
     update_post,
-    get_like_count,
 )
 from domain.entity.social_post import Comment, Post
 
@@ -58,7 +64,7 @@ def create_entity_from_row(result):
             image_url=row.get("image_path", ""),
             likes=get_like_count(row["id"]),
             comments=comments,
-            like_user_ids=row.get('like_user_ids', ''),
+            like_user_ids=row.get("like_user_ids", ""),
         )
         # Attach profile_picture to the post object
         post.profile_picture = row.get("profile_picture", "")
@@ -102,7 +108,7 @@ def get_featured_posts_control():
             image_url=row.get("image_path", ""),
             likes=get_like_count(row["id"]),
             comments=[],  # Featured posts don't need comments
-            like_user_ids=row.get('like_user_ids', ''),
+            like_user_ids=row.get("like_user_ids", ""),
         )
         # Attach profile_picture to the post object
         post.profile_picture = row.get("profile_picture", "")
@@ -142,7 +148,7 @@ def get_post_by_id_control(post_id):
         image_url=row.get("image_path", ""),
         likes=get_like_count(row["id"]),
         comments=comments,
-        like_user_ids=row.get('like_user_ids', ''),
+        like_user_ids=row.get("like_user_ids", ""),
     )
     # Attach profile_picture to the post object
     post.profile_picture = row.get("profile_picture", "")
@@ -160,8 +166,8 @@ def create_post_control(user_id, content, image_file=None):
         try:
             image_file.seek(0)
             image = Image.open(image_file)
-            image.verify() 
-            image_file.seek(0)  
+            image.verify()
+            image_file.seek(0)
         except (UnidentifiedImageError, Exception):
             return False
 
@@ -214,7 +220,11 @@ def get_posts_display_data():
                 "image_url": post.get_image_url(),
                 "likes": post.get_likes(),
                 "comments": [
-                    {"id": comment.get_id(), "user": comment.get_user(), "content": comment.get_content()}
+                    {
+                        "id": comment.get_id(),
+                        "user": comment.get_user(),
+                        "content": comment.get_content(),
+                    }
                     for comment in post.get_comments()
                 ],
             }

@@ -37,7 +37,12 @@ def get_all_posts():
             comment_cursor.execute(comment_query, (post["id"],))
             comments = comment_cursor.fetchall()
             post["comments"] = [
-                {"id": c["id"], "user": c["user_name"], "content": c["comments"], "profile_picture": c.get("profile_picture", "")}
+                {
+                    "id": c["id"],
+                    "user": c["user_name"],
+                    "content": c["comments"],
+                    "profile_picture": c.get("profile_picture", ""),
+                }
                 for c in comments
             ]
             comment_cursor.close()
@@ -184,7 +189,8 @@ def increment_like(post_id):
     cursor = connection.cursor()
     try:
         cursor.execute(
-            "UPDATE feed SET like_user_ids = CONCAT(like_user_ids, %s) WHERE id = %s", (str(post_id), post_id)
+            "UPDATE feed SET like_user_ids = CONCAT(like_user_ids, %s) WHERE id = %s",
+            (str(post_id), post_id),
         )
         connection.commit()
         return True
@@ -204,7 +210,8 @@ def decrement_like(post_id):
     cursor = connection.cursor()
     try:
         cursor.execute(
-            "UPDATE feed SET like_user_ids = REPLACE(like_user_ids, %s, '') WHERE id = %s", (str(post_id), post_id)
+            "UPDATE feed SET like_user_ids = REPLACE(like_user_ids, %s, '') WHERE id = %s",
+            (str(post_id), post_id),
         )
         connection.commit()
         return True
@@ -319,11 +326,13 @@ def add_like(post_id, user_id):
         row = cursor.fetchone()
         if row is None:
             return False
-        user_ids = set((row['like_user_ids'] or '').split(','))
+        user_ids = set((row["like_user_ids"] or "").split(","))
         if str(user_id) not in user_ids:
             user_ids.add(str(user_id))
-            new_ids = ','.join(user_ids)
-            cursor.execute("UPDATE feed SET like_user_ids = %s WHERE id = %s", (new_ids, post_id))
+            new_ids = ",".join(user_ids)
+            cursor.execute(
+                "UPDATE feed SET like_user_ids = %s WHERE id = %s", (new_ids, post_id)
+            )
             connection.commit()
             return True
         return False
@@ -344,13 +353,15 @@ def remove_like(post_id, user_id):
     try:
         cursor.execute("SELECT like_user_ids FROM feed WHERE id = %s", (post_id,))
         row = cursor.fetchone()
-        if row is None or not row['like_user_ids']:
+        if row is None or not row["like_user_ids"]:
             return False
-        user_ids = set((row['like_user_ids'] or '').split(','))
+        user_ids = set((row["like_user_ids"] or "").split(","))
         if str(user_id) in user_ids:
             user_ids.remove(str(user_id))
-            new_ids = ','.join(user_ids)
-            cursor.execute("UPDATE feed SET like_user_ids = %s WHERE id = %s", (new_ids, post_id))
+            new_ids = ",".join(user_ids)
+            cursor.execute(
+                "UPDATE feed SET like_user_ids = %s WHERE id = %s", (new_ids, post_id)
+            )
             connection.commit()
             return True
         return False
@@ -371,9 +382,11 @@ def get_like_count(post_id):
     try:
         cursor.execute("SELECT like_user_ids FROM feed WHERE id = %s", (post_id,))
         row = cursor.fetchone()
-        if row and row['like_user_ids'] is not None:
+        if row and row["like_user_ids"] is not None:
             # Only count non-empty user IDs
-            return len([uid for uid in (row['like_user_ids'] or '').split(',') if uid.strip()])
+            return len(
+                [uid for uid in (row["like_user_ids"] or "").split(",") if uid.strip()]
+            )
         return 0
     except Exception as e:
         print(f"[DB ERROR] Error getting like count: {e}")

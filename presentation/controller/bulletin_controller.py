@@ -92,7 +92,10 @@ def join_activity():
     if not join_activity_control(activity_id, user_id):
         flash("Failed to join the activity. You may have already joined.", "error")
     else:
-        flash("Successfully joined the activity! You may view it in your profile", "success")
+        flash(
+            "Successfully joined the activity! You may view it in your profile",
+            "success",
+        )
     return redirect(url_for(BULLETIN_PAGE))
 
 

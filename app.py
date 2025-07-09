@@ -1,10 +1,11 @@
 import logging
 import os
-from logging.handlers import RotatingFileHandler
-from datetime import timedelta, datetime, timezone
 import traceback
+from datetime import datetime, timedelta, timezone
+from logging.handlers import RotatingFileHandler
 
-from flask import Flask, render_template, session, redirect, url_for, flash, request
+from dotenv import load_dotenv
+from flask import Flask, flash, redirect, render_template, request, session, url_for
 from flask_login import LoginManager
 from flask_session import Session
 from flask_wtf import CSRFProtect
@@ -18,20 +19,17 @@ from presentation.controller.login_controller import login_bp
 from presentation.controller.profile_controller import profile_bp
 from presentation.controller.register_controller import register_bp
 from presentation.controller.social_feed_controller import social_feed_bp
-from dotenv import load_dotenv
-
 
 
 def create_app():
     load_dotenv()
-    
+
     app = Flask(
         __name__,
         template_folder="presentation/templates",
         static_folder="presentation/static",
         static_url_path="/static",
     )
-
 
     # Configuration for log format and handling
 
@@ -51,18 +49,22 @@ def create_app():
 
     app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET_KEY", "")
     app.config["SESSION_TYPE"] = "filesystem"
-    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)  # Browser cookie timeout
-    app.config['SESSION_COOKIE_SECURE'] = True
-    app.config['SESSION_COOKIE_HTTPONLY'] = True
-    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+    app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(
+        minutes=30
+    )  # Browser cookie timeout
+    app.config["SESSION_COOKIE_SECURE"] = True
+    app.config["SESSION_COOKIE_HTTPONLY"] = True
+    app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
     Session(app)
 
     login_manager = LoginManager()
     login_manager.login_view = "login.login"
     login_manager.init_app(app)
-    login_manager.session_protection = "strong" # Check the user's IP address and User-Agent on every request.
-                                                # Log the user out if either changes (to help prevent session hijacking).
+    login_manager.session_protection = (
+        "strong"  # Check the user's IP address and User-Agent on every request.
+    )
+    # Log the user out if either changes (to help prevent session hijacking).
 
     csrf = CSRFProtect(app)
 
@@ -89,18 +91,18 @@ def create_app():
     app.register_blueprint(profile_bp)
 
     # --- SESSION TIMEOUT HANDLER ---
-    IDLE_TIMEOUT = timedelta(seconds= 15 * 60)  # 15 minutes
-    ABSOLUTE_TIMEOUT = timedelta(seconds= 30 * 60)  # 30 minutes
+    IDLE_TIMEOUT = timedelta(seconds=15 * 60)  # 15 minutes
+    ABSOLUTE_TIMEOUT = timedelta(seconds=30 * 60)  # 30 minutes
 
     @app.before_request
     def enforce_session_timeouts():
 
-        LOGIN_VIEW = 'login.login'
-        if not session.get('created_at'):
+        LOGIN_VIEW = "login.login"
+        if not session.get("created_at"):
             return  # Not logged in or session not set yet
         now = datetime.now(timezone.utc)
-        created_at = session.get('created_at')
-        last_activity = session.get('last_activity')
+        created_at = session.get("created_at")
+        last_activity = session.get("last_activity")
         # Convert from string if needed
         if isinstance(created_at, str):
             created_at = datetime.fromisoformat(created_at)
@@ -108,27 +110,31 @@ def create_app():
             last_activity = datetime.fromisoformat(last_activity)
         # Absolute timeout
         if now - created_at > ABSOLUTE_TIMEOUT:
-            session.clear()   # Clear session
-            flash('Session expired. Please log in again.', 'warning')
+            session.clear()  # Clear session
+            flash("Session expired. Please log in again.", "warning")
             return redirect(url_for(LOGIN_VIEW))
         # Idle timeout
         if now - last_activity > IDLE_TIMEOUT:
-            session.clear()   # Clear session
-            flash('Session expired due to inactivity. Please log in again.', 'warning')
+            session.clear()  # Clear session
+            flash("Session expired due to inactivity. Please log in again.", "warning")
             return redirect(url_for(LOGIN_VIEW))
         # Single session enforcement
         from flask_login import current_user
-        if hasattr(current_user, 'is_authenticated') and current_user.is_authenticated:
+
+        if hasattr(current_user, "is_authenticated") and current_user.is_authenticated:
             user_token = get_user_session_token(current_user.id)
-            if session.get('session_token') != user_token:
+            if session.get("session_token") != user_token:
                 session.clear()
-                flash('You have been logged out because your account was accessed from another device.', 'warning')
+                flash(
+                    "You have been logged out because your account was accessed from another device.",
+                    "warning",
+                )
                 return redirect(url_for(LOGIN_VIEW))
         # Update last activity
-        session['last_activity'] = now.isoformat()
+        session["last_activity"] = now.isoformat()
 
     # Configuration for email verification
-    app.config['SERIALIZER'] = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+    app.config["SERIALIZER"] = URLSafeTimedSerializer(app.config["SECRET_KEY"])
 
     @app.errorhandler(Exception)
     def handle_exception(e):
@@ -141,18 +147,21 @@ def create_app():
         tb = traceback.format_exc()
 
         # If the exception is an HTTPException, extract details
-        if hasattr(e, 'code'):
+        if hasattr(e, "code"):
             code = e.code
-        if hasattr(e, 'description'):
+        if hasattr(e, "description"):
             message = e.description
 
-        return render_template(
-            "error/error.html",
-            error_code=code,
-            error_message=message,
-            exception_type=exception_type,
-            traceback_info=tb
-        ), code
+        return (
+            render_template(
+                "error/error.html",
+                error_code=code,
+                error_message=message,
+                exception_type=exception_type,
+                traceback_info=tb,
+            ),
+            code,
+        )
 
     # make sure DB has the required tables
     # init_schema()

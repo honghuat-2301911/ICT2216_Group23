@@ -1,13 +1,18 @@
 import bcrypt
-from flask import Blueprint, flash, redirect, render_template, url_for, current_app
+from flask import Blueprint, current_app, flash, redirect, render_template, url_for
 from itsdangerous import URLSafeTimedSerializer
 
-from domain.control.register import register_user, send_verification_email, update_verification_status
+from domain.control.register import (
+    register_user,
+    send_verification_email,
+    update_verification_status,
+)
 from domain.entity.forms import RegisterForm
 
 register_bp = Blueprint(
     "register", __name__, url_prefix="/", template_folder="../templates/"
 )
+
 
 @register_bp.route("/register", methods=["GET", "POST"])
 def register():
@@ -34,6 +39,7 @@ def register():
 
     # If GET or validation failed, render form with errors
     return render_template("register/register.html", form=form)
+
 
 @register_bp.route("/verify/<token>")
 def verify_email(token):

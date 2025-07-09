@@ -15,8 +15,9 @@ def get_id_by_email(email: str):
     result = cursor.fetchone()
     cursor.close()
     connection.close()
-    
+
     return result[0] if result else None
+
 
 def delete_reset_password(user_id):
     """Delete reset password request by ID."""
@@ -35,7 +36,7 @@ def insert_into_reset_password(user_id, token_hash, expires_at):
         cursor.execute(
             "INSERT INTO reset_password (user_id, token_hash, expires_at) "
             "VALUES (%s, %s, %s)",
-            (user_id, token_hash, expires_at)
+            (user_id, token_hash, expires_at),
         )
         connection.commit()
         cursor.close()
@@ -44,7 +45,7 @@ def insert_into_reset_password(user_id, token_hash, expires_at):
     except Exception as e:
         current_app.logger.error(f"Error inserting reset password request: {e}")
         return False
-    
+
 
 # retrieve hashed token by token hash
 def get_user_by_token_hash(token_hash):
@@ -59,30 +60,26 @@ def get_user_by_token_hash(token_hash):
             ORDER BY expires_at DESC
             LIMIT 1
             """,
-            (token_hash,)
+            (token_hash,),
         )
         result = cursor.fetchone()
         cursor.close()
         connection.close()
         if result:
-            return {
-                'user_id': result[0],
-                'expires_at': result[1],
-                'used': result[2]
-            }
+            return {"user_id": result[0], "expires_at": result[1], "used": result[2]}
         else:
             return None
     except Exception as e:
         current_app.logger.error(f"Error retrieving reset token info: {e}")
         return None
 
+
 def update_user_password_by_id(user_id, hashed_password):
     try:
         connection = get_connection()
         cursor = connection.cursor()
         cursor.execute(
-            "UPDATE user SET password = %s WHERE id = %s",
-            (hashed_password, user_id)
+            "UPDATE user SET password = %s WHERE id = %s", (hashed_password, user_id)
         )
         connection.commit()
         cursor.close()
@@ -91,14 +88,14 @@ def update_user_password_by_id(user_id, hashed_password):
     except Exception as e:
         current_app.logger.error(f"Error updating password: {e}")
         return False
-    
+
+
 def update_reset_link_used(token_hash):
     try:
         connection = get_connection()
         cursor = connection.cursor()
         cursor.execute(
-            "UPDATE reset_password SET used = 1 WHERE token_hash = %s",
-            (token_hash,)
+            "UPDATE reset_password SET used = 1 WHERE token_hash = %s", (token_hash,)
         )
         connection.commit()
         cursor.close()
@@ -107,7 +104,8 @@ def update_reset_link_used(token_hash):
     except Exception as e:
         current_app.logger.error(f"Error updating reset link usage: {e}")
         return False
-    
+
+
 def disable_otp_by_user_id(user_id):
     try:
         connection = get_connection()
@@ -123,6 +121,7 @@ def disable_otp_by_user_id(user_id):
         current_app.logger.error(f"Error disabling OTP: {e}")
         return False
 
+
 def update_user_verification_status(email):
     verified = True
     try:
@@ -130,7 +129,7 @@ def update_user_verification_status(email):
         cursor = connection.cursor()
         cursor.execute(
             "UPDATE user SET email_verified = %s WHERE email = %s",
-            (int(verified), email)
+            (int(verified), email),
         )
         connection.commit()
         updated_rows = cursor.rowcount
@@ -140,6 +139,7 @@ def update_user_verification_status(email):
     finally:
         cursor.close()
         connection.close()
+
 
 def set_otp_secret(otp_secret, user_id):
     try:
@@ -379,7 +379,9 @@ def get_user_session_token(user_id: int):
 def update_user_session_token(user_id: int, token: str):
     connection = get_connection()
     cursor = connection.cursor()
-    cursor.execute("UPDATE user SET current_session_token = %s WHERE id = %s", (token, user_id))
+    cursor.execute(
+        "UPDATE user SET current_session_token = %s WHERE id = %s", (token, user_id)
+    )
     connection.commit()
     cursor.close()
     connection.close()

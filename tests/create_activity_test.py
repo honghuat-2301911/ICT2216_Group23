@@ -14,9 +14,9 @@ class CreateActivityPageTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         options = Options()
-        options.add_argument('--ignore-certificate-errors')  # <-- key line
-        options.add_argument('--allow-insecure-localhost')   # optional, but useful
-        options.add_argument('--headless')                   # for CI
+        options.add_argument("--ignore-certificate-errors")  # <-- key line
+        options.add_argument("--allow-insecure-localhost")  # optional, but useful
+        options.add_argument("--headless")  # for CI
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
         cls.driver = webdriver.Chrome(
@@ -28,7 +28,6 @@ class CreateActivityPageTest(unittest.TestCase):
         # Use the seeded email and password created to test create activity
         cls.seeded_email = "2301875@sit.singaporetech.edu.sg"
         cls.seeded_password = "123123123"
-
 
     def fill_login_form(self, email, password):
         self.driver.get(f"{self.base_url}/login")
@@ -45,24 +44,32 @@ class CreateActivityPageTest(unittest.TestCase):
             self.assertIn("Bulletin Board", self.driver.page_source)
 
             # Open the host activity modal
-            host_button = self.driver.find_element(By.XPATH, "//button[contains(text(), 'Host Activity')]")
+            host_button = self.driver.find_element(
+                By.XPATH, "//button[contains(text(), 'Host Activity')]"
+            )
             host_button.click()
             time.sleep(1)  # Wait for modal animation
 
             # Fill in the activity form
-            self.driver.find_element(By.ID, "activityNameInput").send_keys("Selenium Test Activity")
+            self.driver.find_element(By.ID, "activityNameInput").send_keys(
+                "Selenium Test Activity"
+            )
             self.driver.find_element(By.ID, "activityTypeInput").send_keys("Sports")
             self.driver.find_element(By.ID, "skillsReqInput").send_keys("None")
-            
+
             date_input = self.driver.find_element(By.ID, "dateInput")
-            self.driver.execute_script("arguments[0].value = arguments[1]", date_input, "2025-07-08T15:30")
-            
+            self.driver.execute_script(
+                "arguments[0].value = arguments[1]", date_input, "2025-07-08T15:30"
+            )
+
             self.driver.find_element(By.ID, "locationInput").send_keys("Test Field")
             self.driver.find_element(By.ID, "maxPaxInput").clear()
             self.driver.find_element(By.ID, "maxPaxInput").send_keys("10")
 
             # Submit the form
-            self.driver.find_element(By.XPATH, "//button[contains(text(), 'Host')]").click()
+            self.driver.find_element(
+                By.XPATH, "//button[contains(text(), 'Host')]"
+            ).click()
             time.sleep(2)
 
             # Assert that the activity was created successfully
