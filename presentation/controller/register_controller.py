@@ -31,6 +31,7 @@ def register():
         }
 
         if register_user(user_data):
+            current_app.logger.info(f"A user signed up with the email {form.email.data}")
             send_verification_email(form.email.data)
             return render_template("register/verify_email.html", email=form.email.data)
 

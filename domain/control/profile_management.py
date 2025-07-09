@@ -198,7 +198,7 @@ class ProfileManagement:
                 image.verify()
                 file.seek(0)
             except Exception:
-                current_app.logger.error("Uploaded profile picture is not a valid image.")
+                current_app.logger.warning("Uploaded profile picture is not a valid image.")
                 return False
             ext = os.path.splitext(secure_filename(file.filename))[1]
             unique_filename = f"{uuid.uuid4().hex}{ext}"
@@ -333,12 +333,15 @@ class ProfileManagement:
     def verify_otp(self, user_id, otp_code):
         result = verify_and_enable_otp(user_id, otp_code)
         if result:
+            current_app.logger.info(f"User {user_id} enabled 2 factor authentication" )
             g.verified_otp = {'user_id': user_id, 'otp_code': otp_code}
+            
         return result
 
     def disable_otp(self, user_id):
         result = disable_otp_by_user_id(user_id)
         if result:
+            current_app.logger.warning(f"User {user_id} disabled 2 factor authentication" )
             g.disabled_otp = {'user_id': user_id}
         return result
 
