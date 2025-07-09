@@ -101,6 +101,8 @@ class CreateActivityPageTest(unittest.TestCase):
             self.fill_login_form(email=self.seeded_email, password=self.seeded_password)
             self.assertIn("Bulletin Board", self.driver.page_source)
 
+            print("Reach here")
+
             # Open the host activity modal
             host_button = self.driver.find_element(
                 By.XPATH, "//button[contains(text(), 'Host Activity')]"
@@ -108,13 +110,19 @@ class CreateActivityPageTest(unittest.TestCase):
             host_button.click()
             time.sleep(1)  # Wait for modal animation
 
+            print("Reach here 2")
+
             self.fill_activity_form(
                 name="Past Date Activity",
                 date="2000-07-08T15:30"  # Past date for testing failure
             )
 
+            print("Reach here 3")
+
             # Assert that the activity was not created and an error message is displayed
             self.assertIn("Host form error: Date cannot be in the past.", self.driver.page_source)
+
+            print("Reach here 4")
 
             # wait = WebDriverWait(self.driver, 10)
             # error_elem = wait.until(
