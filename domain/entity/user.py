@@ -46,19 +46,19 @@ class User:
 
     def get_profile_picture(self) -> str:
         return self.profile_picture
-    
+
     def get_locked_until(self) -> Optional[datetime]:
         return self.locked_until
-    
+
     def get_otp_secret(self) -> Optional[str]:
         return self.otp_secret
-    
+
     def get_otp_enabled(self) -> bool:
         return self.otp_enabled
-    
+
     def get_current_session_token(self) -> Optional[str]:
         return self.current_session_token
-    
+
     def get_email_verified(self) -> bool:
         return self.email_verified
 
@@ -104,4 +104,3 @@ class User:
 
     def set_email_verified(self, email_verified: bool) -> None:
         self.email_verified = email_verified
-        

@@ -26,8 +26,8 @@ from data_source.user_queries import (
     update_user_lockout,
     update_user_password_by_id,
 )
-from domain.entity.user import User
 from domain.entity.forms import OTPForm
+from domain.entity.user import User
 
 FAILED_ATTEMPT_LIMIT = 10
 LOCKOUT_MINUTES = 15
@@ -48,7 +48,7 @@ def login_user(email: str, password: str):
     result = get_user_by_email(email)
     if not result:
         return None
-    
+
     user = User(
         id=result["id"],
         name=result["name"],
@@ -77,7 +77,6 @@ def login_user(email: str, password: str):
             )
             return None
 
-
     # Check password hash
     stored_hash = user.get_password()
     password_valid = bcrypt.checkpw(
@@ -86,7 +85,9 @@ def login_user(email: str, password: str):
 
     # If password doesn't match, log failed attempt into DB
     if not password_valid:
-        record_failed_login(user.get_id()) #different table from user, its the user_failed_logins table
+        record_failed_login(
+            user.get_id()
+        )  # different table from user, its the user_failed_logins table
         # Check failed attempts in past 10 minutes
         recent_failures = get_user_failed_attempts_count(
             user.get_id(), window_minutes=10
@@ -107,16 +108,18 @@ def login_user(email: str, password: str):
     update_user_lockout(user.get_id(), None)
     return user
 
+
 def verify_control_class(user_email):
     user_data = get_user_by_email(user_email)
     if not user_data or not user_data.get("otp_secret"):
         return False
     else:
         return True
-    
+
+
 def verify_otp_control_class(user_email, form):
     user_data = get_user_by_email(user_email)
-    
+
     otp_code = form.otp_code.data
     user = User(
         id=user_data["id"],
@@ -130,12 +133,13 @@ def verify_otp_control_class(user_email, form):
     )
     verified = verify_user_otp(user, otp_code)
     return verified, user
-    
+
+
 # Get generate OTP
 def verify_user_otp(user, otp_code):
     """
     Verifies the OTP code for the user and applies account lockout on repeated failures.
-    
+
     Args:
         user (User): The user object
         otp_code (str): The OTP code entered by the user
@@ -178,7 +182,6 @@ def verify_user_otp(user, otp_code):
             f"Account locked: {user.email} after {recent_failures} failed OTP attempts in 10 minutes"
         )
     return False
-
 
 
 def logout_user():
@@ -239,7 +242,9 @@ def process_reset_password_request(email):
             api_key = os.getenv("EMAILVERIFICATION_API_KEY")
             sg = SendGridAPIClient(api_key)
             sg.send(message)
-            current_app.logger.info(f"A password reset request for {email} was initiated" )
+            current_app.logger.info(
+                f"A password reset request for {email} was initiated"
+            )
         except Exception as e:
             current_app.logger.error(f"Error sending verification email: {e}")
 
@@ -286,7 +291,9 @@ def process_reset_password(token, form):
                 "This reset link has expired. Please request a new password reset.",
                 "danger",
             )
-            current_app.logger.warning(f"An expired token was used for password reset for the user {token_data["user_id"]}" )
+            current_app.logger.warning(
+                f"An expired token was used for password reset for the user {token_data["user_id"]}"
+            )
             return redirect(url_for(LOGIN_VIEW))
 
         hashed = bcrypt.hashpw(
@@ -295,6 +302,6 @@ def process_reset_password(token, form):
         update_user_password_by_id(token_data["user_id"], hashed)
         update_reset_link_used(user_token_hash)
         flash("Your password has been updated. You can now log in.", "success")
-        current_app.logger.warning(f"Password for {token_data["user_id"]} was changed" )
+        current_app.logger.warning(f"Password for {token_data["user_id"]} was changed")
         return redirect(url_for(LOGIN_VIEW))
     return render_template("reset_password.html", form=form)

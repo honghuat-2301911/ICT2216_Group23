@@ -592,14 +592,14 @@
             btn.onclick = function() {
                 const activityDiv = this.closest('.profile-feed-item');
                 currentLeaveActivityId = activityDiv ? activityDiv.getAttribute('data-activity-id').split('-')[0] : null;
-                // Validate and sanitize currentLeaveActivityId
-                const sanitizedActivityId = /^[a-zA-Z0-9_-]+$/.test(currentLeaveActivityId) ? currentLeaveActivityId : '';
                 leaveActivityModal.style.display = 'block';
             };
         });
         document.getElementById('confirmLeaveActivityBtn').onclick = function() {
             if (currentLeaveActivityId) {
                 const form = document.getElementById('leaveActivityForm');
+                // Validate and sanitize currentLeaveActivityId
+                const sanitizedActivityId = /^[a-zA-Z0-9_-]+$/.test(currentLeaveActivityId) ? currentLeaveActivityId : '';
                 form.action = '/profile/leave_activity/' + sanitizedActivityId;
                 form.submit();
             }
