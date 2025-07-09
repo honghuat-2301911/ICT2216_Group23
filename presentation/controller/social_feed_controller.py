@@ -87,7 +87,9 @@ def create_post():
 def create_comment(post_id):
     comment_form = CommentForm()
     if not comment_form.validate_on_submit():
-        flash("Cannot submit empty comment.", "error")
+        for field, field_errors in comment_form.errors.items():
+            for error in field_errors:
+                flash(f"{field.capitalize()}: {error}", "error")
         return redirect(url_for(SOCIAL_FEED_FEED))
 
     user_id = int(current_user.get_id())
