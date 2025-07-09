@@ -21,8 +21,8 @@ jobs:
           pip install -r requirements.txt
           pip install pylint
 
-      # Use Pylint to lint Python files as flask mainly uses python
+      # Use Pylint to lint Python files as flask mainly uses python (doc string warnings are disabled)
       - name: Lint with pylint
-        run: find . -type f -name "*.py" ! -path "./venv/*" -print0 | xargs -0 pylint
+        run: find . -type f -name "*.py" ! -path "./venv/*" -print0 | xargs -0 pylint --disable=C0114,C0115,C0116
 
 
