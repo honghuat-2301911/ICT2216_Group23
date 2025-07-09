@@ -75,6 +75,14 @@ def create_app():
         static_url_path="/static",
     )
 
+
+    @app.after_request
+    def set_security_headers(response):
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Content-Security-Policy"] = "default-src 'self';"
+        return response
+    
+    
     # Configuration for log format and handling
 
     log_dir = "/app/logs"
@@ -174,6 +182,7 @@ def create_app():
                 return redirect(url_for(LOGIN_VIEW))
         # Update last activity
         session["last_activity"] = now.isoformat()
+
 
     # Configuration for email verification
     app.config["SERIALIZER"] = URLSafeTimedSerializer(app.config["SECRET_KEY"])
