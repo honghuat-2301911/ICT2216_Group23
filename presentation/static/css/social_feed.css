@@ -791,19 +791,6 @@ body {
     width: 100%;
 }
 
-.feed-sidebar {
-    width: 300px;
-    min-width: 220px;
-    max-width: 340px;
-    position: sticky;
-    top: 100px;
-    align-self: flex-start;
-    height: fit-content;
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-}
 
 @media (max-width: 900px) {
     .layout-3col {
