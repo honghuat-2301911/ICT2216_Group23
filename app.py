@@ -10,6 +10,7 @@ from flask_login import LoginManager
 from flask_session import Session
 from flask_wtf import CSRFProtect
 from itsdangerous import URLSafeTimedSerializer
+from werkzeug.exceptions import HTTPException
 
 from data_source.user_queries import get_user_by_id, get_user_session_token
 from domain.entity.user import User
@@ -20,18 +21,20 @@ from presentation.controller.profile_controller import profile_bp
 from presentation.controller.register_controller import register_bp
 from presentation.controller.social_feed_controller import social_feed_bp
 
-from werkzeug.exceptions import HTTPException
-
 
 class LevelFilter(logging.Filter):
     def __init__(self, level):
         self.level = level
+
     def filter(self, record):
         return record.levelno == self.level
-        
+
+
 def setup_logging(app, error_log_file, warning_log_file, info_log_file):
-    formatter = logging.Formatter("[%(asctime)s] %(levelname)s in %(module)s: %(message)s")
-    
+    formatter = logging.Formatter(
+        "[%(asctime)s] %(levelname)s in %(module)s: %(message)s"
+    )
+
     # Error handler
     error_handler = RotatingFileHandler(
         error_log_file, maxBytes=10 * 1024 * 1024, backupCount=200, encoding="utf-8"
@@ -39,7 +42,7 @@ def setup_logging(app, error_log_file, warning_log_file, info_log_file):
     error_handler.setLevel(logging.ERROR)
     error_handler.setFormatter(formatter)
     error_handler.addFilter(LevelFilter(logging.ERROR))
-    
+
     # Warning handler
     warning_handler = RotatingFileHandler(
         warning_log_file, maxBytes=10 * 1024 * 1024, backupCount=200, encoding="utf-8"
@@ -47,7 +50,7 @@ def setup_logging(app, error_log_file, warning_log_file, info_log_file):
     warning_handler.setLevel(logging.WARNING)
     warning_handler.setFormatter(formatter)
     warning_handler.addFilter(LevelFilter(logging.WARNING))
-    
+
     # Info handler
     info_handler = RotatingFileHandler(
         info_log_file, maxBytes=10 * 1024 * 1024, backupCount=200, encoding="utf-8"
@@ -55,15 +58,16 @@ def setup_logging(app, error_log_file, warning_log_file, info_log_file):
     info_handler.setLevel(logging.INFO)
     info_handler.setFormatter(formatter)
     info_handler.addFilter(LevelFilter(logging.INFO))
-    
+
     # Remove default handlers
     app.logger.handlers.clear()
-    
+
     # Add all handlers
     app.logger.addHandler(error_handler)
     app.logger.addHandler(warning_handler)
     app.logger.addHandler(info_handler)
     app.logger.setLevel(logging.INFO)
+
 
 def create_app():
     load_dotenv()
@@ -91,9 +95,9 @@ def create_app():
     app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(
         minutes=30
     )  # Browser cookie timeout
-    
-    app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024
-        
+
+    app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024
+
     app.config["SESSION_COOKIE_SECURE"] = True
     app.config["SESSION_COOKIE_HTTPONLY"] = True
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
@@ -175,7 +179,6 @@ def create_app():
         # Update last activity
         session["last_activity"] = now.isoformat()
 
-
     # Configuration for email verification
     app.config["SERIALIZER"] = URLSafeTimedSerializer(app.config["SECRET_KEY"])
 
@@ -205,7 +208,7 @@ def create_app():
             ),
             code,
         )
-        
+
     # make sure DB has the required tables
     # init_schema()
     return app

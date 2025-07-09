@@ -405,6 +405,12 @@
         document.querySelectorAll('.edit-post-btn').forEach(btn => {
             btn.onclick = function() {
                 currentEditPostId = this.getAttribute('data-post-id');
+                // Validate currentEditPostId to ensure it is safe
+                const validPostIdPattern = /^[a-zA-Z0-9_-]+$/; // Alphanumeric with dashes/underscores
+                if (!validPostIdPattern.test(currentEditPostId)) {
+                    console.error('Invalid post ID:', currentEditPostId);
+                    return; // Stop execution if post ID is invalid
+                }
                 const postDiv = document.querySelector('.profile-feed-item[data-post-id="' + currentEditPostId + '"]');
                 document.getElementById('editPostId').value = currentEditPostId;
                 document.getElementById('editPostContent').value = this.getAttribute('data-post-content');
@@ -555,9 +561,11 @@
             btn.onclick = function() {
                 const activityDiv = this.closest('.profile-feed-item');
                 currentEditActivityId = activityDiv ? activityDiv.getAttribute('data-activity-id').split('-')[0] : null;
+                // Validate and sanitize the activity ID
+                currentEditActivityId = /^[a-zA-Z0-9_-]+$/.test(currentEditActivityId) ? currentEditActivityId : null;
                 // For now, just fill with dummy data from the DOM
                 document.getElementById('editActivityId').value = currentEditActivityId;
-                document.getElementById('editActivityForm').action = '/profile/edit_activity/' + currentEditActivityId;
+                document.getElementById('editActivityForm').action = currentEditActivityId ? '/profile/edit_activity/' + currentEditActivityId : '/profile/edit_activity/';
                 document.getElementById('editActivityName').value = activityDiv.querySelector('p strong').textContent;
                 document.getElementById('editActivityType').value = activityDiv.querySelector('p:nth-of-type(2)').textContent.replace('Type: ', '');
                 document.getElementById('editSkillsReq').value = activityDiv.querySelector('p:nth-of-type(3)').textContent.replace('Skills Required: ', '');
@@ -590,7 +598,9 @@
         document.getElementById('confirmLeaveActivityBtn').onclick = function() {
             if (currentLeaveActivityId) {
                 const form = document.getElementById('leaveActivityForm');
-                form.action = '/profile/leave_activity/' + currentLeaveActivityId;
+                // Validate and sanitize currentLeaveActivityId
+                const sanitizedActivityId = /^[a-zA-Z0-9_-]+$/.test(currentLeaveActivityId) ? currentLeaveActivityId : '';
+                form.action = '/profile/leave_activity/' + sanitizedActivityId;
                 form.submit();
             }
             leaveActivityModal.style.display = 'none';

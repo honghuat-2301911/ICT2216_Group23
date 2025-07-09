@@ -36,7 +36,9 @@ def send_verification_email(user_email):
         api_key = os.getenv("EMAILVERIFICATION_API_KEY")
         sg = SendGridAPIClient(api_key)
         sg.send(message)
-        current_app.logger.info(f"Verification Email successfully sent to: {user_email}")
+        current_app.logger.info(
+            f"Verification Email successfully sent to: {user_email}"
+        )
     except Exception as e:
         current_app.logger.error(f"Error sending verification email: {e}")
 
@@ -46,7 +48,9 @@ def update_verification_status(token):
     try:
         email = serializer.loads(token, salt="email-verify", max_age=3600)
         if update_user_verification_status(email):
-            current_app.logger.info(f"User registering with email {email} was verified sucessfully")
+            current_app.logger.info(
+                f"User registering with email {email} was verified sucessfully"
+            )
             return True, email  # Success
         else:
             return False, "User not found or verification update failed."

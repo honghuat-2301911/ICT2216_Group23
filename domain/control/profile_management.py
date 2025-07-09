@@ -172,20 +172,28 @@ class ProfileManagement:
             return False
 
         if hashed_password:
-            result = self.update_profile(user_id, name, hashed_password, profile_picture_url)
+            result = self.update_profile(
+                user_id, name, hashed_password, profile_picture_url
+            )
         else:
             user_data = get_user_by_id(user_id)
-            current_password = user_data["password"] if isinstance(user_data, dict) and "password" in user_data else ""
+            current_password = (
+                user_data["password"]
+                if isinstance(user_data, dict) and "password" in user_data
+                else ""
+            )
             if profile_picture_url is not None:
-                result = self.update_profile(user_id, name, current_password, profile_picture_url)
+                result = self.update_profile(
+                    user_id, name, current_password, profile_picture_url
+                )
             else:
                 result = self.update_profile(user_id, name, current_password)
 
         if result:
             g.updated_profile = {
-                'user_id': user_id,
-                'name': name,
-                'profile_picture_url': profile_picture_url
+                "user_id": user_id,
+                "name": name,
+                "profile_picture_url": profile_picture_url,
             }
         return result
 
@@ -198,11 +206,15 @@ class ProfileManagement:
                 image.verify()
                 file.seek(0)
             except Exception:
-                current_app.logger.warning("Uploaded profile picture is not a valid image.")
+                current_app.logger.warning(
+                    "Uploaded profile picture is not a valid image."
+                )
                 return False
             ext = os.path.splitext(secure_filename(file.filename))[1]
             unique_filename = f"{uuid.uuid4().hex}{ext}"
-            image_path = os.path.join("presentation", "static", "images", "profile", unique_filename)
+            image_path = os.path.join(
+                "presentation", "static", "images", "profile", unique_filename
+            )
             os.makedirs(os.path.dirname(image_path), exist_ok=True)
             file.save(image_path)
             return f"/static/images/profile/{unique_filename}"
@@ -211,7 +223,9 @@ class ProfileManagement:
     def _handle_password(self, password):
         if password:
             try:
-                return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+                return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode(
+                    "utf-8"
+                )
             except Exception:
                 return False
         return None
@@ -221,30 +235,29 @@ class ProfileManagement:
         if not activity_data:
             return False, "Activity not found."
 
-
-        if hasattr(activity_data, 'get') and callable(activity_data.get):
+        if hasattr(activity_data, "get") and callable(activity_data.get):
             activity = SportsActivity(
-                id=int(activity_data.get('id', 0)),
-                user_id=int(activity_data.get('user_id', 0)),
-                activity_name=str(activity_data.get('activity_name', '')),
-                activity_type=str(activity_data.get('activity_type', '')),
-                skills_req=str(activity_data.get('skills_req', '')),
-                date=str(activity_data.get('date', '')),
-                location=str(activity_data.get('location', '')),
-                max_pax=int(activity_data.get('max_pax', 0)),
-                user_id_list_join=str(activity_data.get('user_id_list_join', '')),
+                id=int(activity_data.get("id", 0)),
+                user_id=int(activity_data.get("user_id", 0)),
+                activity_name=str(activity_data.get("activity_name", "")),
+                activity_type=str(activity_data.get("activity_type", "")),
+                skills_req=str(activity_data.get("skills_req", "")),
+                date=str(activity_data.get("date", "")),
+                location=str(activity_data.get("location", "")),
+                max_pax=int(activity_data.get("max_pax", 0)),
+                user_id_list_join=str(activity_data.get("user_id_list_join", "")),
             )
         else:
             activity = SportsActivity(
-                id=int(getattr(activity_data, 'id', 0)),
-                user_id=int(getattr(activity_data, 'user_id', 0)),
-                activity_name=str(getattr(activity_data, 'activity_name', '')),
-                activity_type=str(getattr(activity_data, 'activity_type', '')),
-                skills_req=str(getattr(activity_data, 'skills_req', '')),
-                date=str(getattr(activity_data, 'date', '')),
-                location=str(getattr(activity_data, 'location', '')),
-                max_pax=int(getattr(activity_data, 'max_pax', 0)),
-                user_id_list_join=str(getattr(activity_data, 'user_id_list_join', '')),
+                id=int(getattr(activity_data, "id", 0)),
+                user_id=int(getattr(activity_data, "user_id", 0)),
+                activity_name=str(getattr(activity_data, "activity_name", "")),
+                activity_type=str(getattr(activity_data, "activity_type", "")),
+                skills_req=str(getattr(activity_data, "skills_req", "")),
+                date=str(getattr(activity_data, "date", "")),
+                location=str(getattr(activity_data, "location", "")),
+                max_pax=int(getattr(activity_data, "max_pax", 0)),
+                user_id_list_join=str(getattr(activity_data, "user_id_list_join", "")),
             )
 
         if activity.get_user_id() != user_id:
@@ -280,10 +293,10 @@ class ProfileManagement:
         result = edit_post(user_id, post_id, form.content.data, form.remove_image.data)
         if result and result[0]:
             g.updated_post = {
-                'user_id': user_id,
-                'post_id': post_id,
-                'content': form.content.data,
-                'remove_image': form.remove_image.data
+                "user_id": user_id,
+                "post_id": post_id,
+                "content": form.content.data,
+                "remove_image": form.remove_image.data,
             }
         return result
 
@@ -291,13 +304,17 @@ class ProfileManagement:
         activity = get_sports_activity_by_id(activity_id)
         if not activity:
             return False, "Activity not found."
-        if hasattr(activity, 'get') and callable(activity.get):
-            user_id_list_join = activity.get('user_id_list_join', '') or ''
+        if hasattr(activity, "get") and callable(activity.get):
+            user_id_list_join = activity.get("user_id_list_join", "") or ""
         else:
-            user_id_list_join = getattr(activity, 'user_id_list_join', '') or ''
+            user_id_list_join = getattr(activity, "user_id_list_join", "") or ""
         if not isinstance(user_id_list_join, str):
             user_id_list_join = str(user_id_list_join)
-        joined_ids = [uid.strip() for uid in user_id_list_join.split(',') if isinstance(uid, str) and uid.strip()]
+        joined_ids = [
+            uid.strip()
+            for uid in user_id_list_join.split(",")
+            if isinstance(uid, str) and uid.strip()
+        ]
         if str(user_id) not in joined_ids:
             return False, "You are not a participant in this activity."
         joined_ids.remove(str(user_id))
@@ -305,9 +322,9 @@ class ProfileManagement:
         result = update_sports_activity(activity_id, new_join_list)
         if result:
             g.left_activity = {
-                'user_id': user_id,
-                'activity_id': activity_id,
-                'new_join_list': new_join_list
+                "user_id": user_id,
+                "activity_id": activity_id,
+                "new_join_list": new_join_list,
             }
             return True, "Successfully left the activity."
         else:
@@ -316,10 +333,7 @@ class ProfileManagement:
     def delete_post(self, user_id, post_id):
         success = delete_post(user_id, post_id)
         if success:
-            g.deleted_post = {
-                'user_id': user_id,
-                'post_id': post_id
-            }
+            g.deleted_post = {"user_id": user_id, "post_id": post_id}
             return True, "Post deleted successfully."
         else:
             return False, "Failed to delete post."
@@ -327,22 +341,24 @@ class ProfileManagement:
     def generate_otp(self, user_id):
         result = generate_otp_for_user(user_id)
         if result:
-            g.generated_otp = {'user_id': user_id, 'otp': result}
+            g.generated_otp = {"user_id": user_id, "otp": result}
         return result
 
     def verify_otp(self, user_id, otp_code):
         result = verify_and_enable_otp(user_id, otp_code)
         if result:
-            current_app.logger.info(f"User {user_id} enabled 2 factor authentication" )
-            g.verified_otp = {'user_id': user_id, 'otp_code': otp_code}
-            
+            current_app.logger.info(f"User {user_id} enabled 2 factor authentication")
+            g.verified_otp = {"user_id": user_id, "otp_code": otp_code}
+
         return result
 
     def disable_otp(self, user_id):
         result = disable_otp_by_user_id(user_id)
         if result:
-            current_app.logger.warning(f"User {user_id} disabled 2 factor authentication" )
-            g.disabled_otp = {'user_id': user_id}
+            current_app.logger.warning(
+                f"User {user_id} disabled 2 factor authentication"
+            )
+            g.disabled_otp = {"user_id": user_id}
         return result
 
     def get_profile_display_data(self):
