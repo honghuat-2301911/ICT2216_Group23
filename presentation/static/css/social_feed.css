@@ -652,7 +652,7 @@ body {
 }
 .feed-sidebar {
     width: 340px;
-    min-width: 260px;
+    min-width: 220px;
     max-width: 400px;
     position: sticky;
     top: 100px;

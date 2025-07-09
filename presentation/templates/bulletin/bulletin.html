@@ -17,7 +17,7 @@
 
   <div id="flashModal" class="modal" style="display:none;">
   <div class="modal-content">
-    <span class="close" onclick="closeFlashModal()">&times;</span>
+    <button type="button" class="close" onclick="closeFlashModal()" aria-label="Close">&times;</button>
     {% with flash_messages = get_flashed_messages(with_categories=true) %}
       {% if flash_messages %}
         {% for category, message in flash_messages %}
@@ -113,7 +113,7 @@
   <!-- Global Join Modal -->
   <div id="bulletinModal" class="modal">
     <div class="modal-content">
-      <span class="close" onclick="closeModal()">&times;</span>
+      <button type="button" class="close" onclick="closeModal()" aria-label="Close">&times;</button>
       <div id="modalBody"></div>
       <form id="joinForm" method="post" action="{{ url_for('bulletin.join_activity') }}">
         {{ join_form.csrf_token }}
@@ -134,7 +134,7 @@
   <!-- Host Activity Modal -->
   <div id="hostModal" class="modal">
     <div class="modal-content">
-      <span class="close" onclick="closeHostModal()">&times;</span>
+      <button type="button" class="close" onclick="closeHostModal()" aria-label="Close">&times;</button>
       <h2>Host New Activity</h2>
       <form method="post" action="{{ url_for('bulletin.host_activity') }}">
         {{ host_form.csrf_token }}
