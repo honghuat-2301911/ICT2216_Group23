@@ -28,6 +28,8 @@ from domain.control.login_management import (
     process_reset_password,
     process_reset_password_request,
     verify_user_otp,
+    verify_control_class,
+    verify_otp_control_class,
 )
 from domain.entity.forms import LoginForm, OTPForm, RequestResetForm, ResetPasswordForm
 from domain.entity.user import User
@@ -103,27 +105,13 @@ def otp_verify():
     user_email = session.get("pre_2fa_user_email")
     if not user_id or not user_email:
         return redirect(url_for(LOGIN_VIEW))
-    user_data = get_user_by_email(user_email)
-    if not user_data or not user_data.get("otp_secret"):
+    result = verify_control_class(user_email)
+    if not result:
         flash("OTP setup not found. Please login again.")
         return redirect(url_for(LOGIN_VIEW))
-
     form = OTPForm()
     if form.validate_on_submit():
-        otp_code = form.otp_code.data
-        from domain.entity.user import User
-
-        user = User(
-            id=user_data["id"],
-            name=user_data["name"],
-            password=user_data["password"],
-            email=user_data["email"],
-            role=user_data.get("role", "user"),
-            profile_picture=user_data.get("profile_picture", ""),
-            otp_secret=user_data.get("otp_secret"),
-            otp_enabled=bool(int(user_data.get("otp_enabled", 0))),
-        )
-        verified = verify_user_otp(user, otp_code)
+        verified, user = verify_otp_control_class(user_email, form)
         if verified:
             session.clear()  # Force new session after 2FA so that hackers cannot use the same session ID even in 2FA fails
             session["init"] = os.urandom(16).hex()  # Force new session file/ID
@@ -141,6 +129,44 @@ def otp_verify():
                 return redirect(url_for(BULLETIN_PAGE))
         else:
             flash("Invalid OTP code. Please try again.")
+    # user_data = get_user_by_email(user_email)
+    # if not user_data or not user_data.get("otp_secret"):
+    #     flash("OTP setup not found. Please login again.")
+    #     return redirect(url_for(LOGIN_VIEW))
+
+    # form = OTPForm()
+    # if form.validate_on_submit():
+    #     otp_code = form.otp_code.data
+    #     from domain.entity.user import User
+
+    #     user = User(
+    #         id=user_data["id"],
+    #         name=user_data["name"],
+    #         password=user_data["password"],
+    #         email=user_data["email"],
+    #         role=user_data.get("role", "user"),
+    #         profile_picture=user_data.get("profile_picture", ""),
+    #         otp_secret=user_data.get("otp_secret"),
+    #         otp_enabled=bool(int(user_data.get("otp_enabled", 0))),
+    #     )
+        # verified = verify_user_otp(user, otp_code)
+        # if verified:
+        #     session.clear()  # Force new session after 2FA so that hackers cannot use the same session ID even in 2FA fails
+        #     session["init"] = os.urandom(16).hex()  # Force new session file/ID
+        #     session_token = os.urandom(32).hex()
+        #     session["session_token"] = session_token
+        #     update_user_session_token(user.id, session_token)
+        #     flask_login_user(user)
+        #     session.pop("pre_2fa_user_id", None)
+        #     session.pop("pre_2fa_user_email", None)
+        #     session["created_at"] = datetime.now(timezone.utc).isoformat()
+        #     session["last_activity"] = datetime.now(timezone.utc).isoformat()
+        #     if user.role == "admin":
+        #         return redirect(url_for("admin.bulletin_page"))
+        #     else:
+        #         return redirect(url_for(BULLETIN_PAGE))
+        # else:
+        #     flash("Invalid OTP code. Please try again.")
     return render_template("login/login_otp.html", form=form)
 
 
