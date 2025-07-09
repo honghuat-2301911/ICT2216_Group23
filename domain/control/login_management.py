@@ -67,46 +67,6 @@ def login_user(email: str, password: str):
     utc_plus_8 = timezone(timedelta(hours=8))
     now = datetime.now(utc_plus_8)
 
-    # # Check if account is locked
-    # if result.get("locked_until"):
-    #     db_locked_until = result["locked_until"].replace(tzinfo=utc_plus_8)
-    #     if db_locked_until > now:
-    #         lock_time = db_locked_until.strftime("%Y-%m-%d %H:%M:%S")
-    #         current_app.logger.warning(
-    #             f"Locked account login attempt: {email} (locked until {lock_time})"
-    #         )
-    #         return None
-
-    # # Check password hash
-    # stored_hash = result["password"]
-    # password_valid = bcrypt.checkpw(
-    #     password.encode("utf-8"), stored_hash.encode("utf-8")
-    # )
-
-    # # If password doesn't match, log failed attempt into DB
-    # if not password_valid:
-    #     record_failed_login(result["id"])
-    #     # Check failed attempts in past 10 minutes
-    #     recent_failures = get_user_failed_attempts_count(
-    #         result["id"], window_minutes=10
-    #     )
-    #     locked_until = None
-    #     if recent_failures >= FAILED_ATTEMPT_LIMIT:
-    #         locked_until = now + timedelta(minutes=LOCKOUT_MINUTES)
-    #         update_user_lockout(result["id"], locked_until.replace(tzinfo=None))
-    #         current_app.logger.warning(
-    #             f"Account locked: {email} after {recent_failures} failed attempts in 10 minutes"
-    #         )
-    #     current_app.logger.warning(
-    #         f"Failed login for {email} (attempt {recent_failures}/{FAILED_ATTEMPT_LIMIT})"
-    #     )
-    #     return None
-
-    # # On successful login, clear failed logins and unlock account
-    # clear_failed_logins(result["id"])
-    # update_user_lockout(result["id"], None)
-
-        
     # Check if account is locked
     if user.get_locked_until():
         db_locked_until = user.get_locked_until().replace(tzinfo=utc_plus_8)
@@ -143,24 +103,8 @@ def login_user(email: str, password: str):
         )
         return None
 
-    # On successful login, clear failed logins and unlock account
     clear_failed_logins(user.get_id())
     update_user_lockout(user.get_id(), None)
-
-    # user = User(
-    #     id=result["id"],
-    #     name=result["name"],
-    #     password=result["password"],
-    #     email=result["email"],
-    #     role=result.get("role", "user"),
-    #     profile_picture=result.get("profile_picture", ""),
-    #     locked_until=result.get("locked_until"),
-    #     otp_secret=result.get("otp_secret"),
-    #     otp_enabled=bool(int(result.get("otp_enabled", 0))),
-    #     current_session_token=result.get("current_session_token"),
-    #     email_verified=bool(int(result.get("email_verified", 0))),
-    # )
-    # flask_login_user(user)
     return user
 
 def verify_control_class(user_email):
