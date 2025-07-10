@@ -1,16 +1,30 @@
 # presentation/controller/social_feed_controller.py
 import functools
 
-from flask import (Blueprint, flash, jsonify, redirect, render_template,
-                   request, session, url_for)
+from flask import (
+    Blueprint,
+    flash,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 from flask_login import current_user, login_required
 
 from data_source.social_feed_queries import get_like_count
 from data_source.user_queries import get_user_by_id, search_users_by_name
 from domain.control.social_feed_management import (
-    create_comment_control, create_post_control, get_all_posts_control,
-    get_featured_posts_control, get_post_by_id_control,
-    get_posts_by_user_id_control, like_post_control, unlike_post_control)
+    create_comment_control,
+    create_post_control,
+    get_all_posts_control,
+    get_featured_posts_control,
+    get_post_by_id_control,
+    get_posts_by_user_id_control,
+    like_post_control,
+    unlike_post_control,
+)
 from domain.entity.forms import CommentForm, PostForm
 
 SOCIAL_FEED_TEMPLATE = "socialfeed/social_feed.html"

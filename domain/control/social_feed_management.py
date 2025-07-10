@@ -7,10 +7,15 @@ from werkzeug.utils import secure_filename
 
 from data_source.social_feed_queries import add_comment, add_like, add_post
 from data_source.social_feed_queries import delete_post as ds_delete_post
-from data_source.social_feed_queries import (get_all_posts, get_featured_posts,
-                                             get_like_count, get_post_by_id,
-                                             get_posts_by_user_id, remove_like,
-                                             update_post)
+from data_source.social_feed_queries import (
+    get_all_posts,
+    get_featured_posts,
+    get_like_count,
+    get_post_by_id,
+    get_posts_by_user_id,
+    remove_like,
+    update_post,
+)
 from domain.entity.social_post import Comment, Post
 
 

@@ -2,11 +2,27 @@ from datetime import datetime, timedelta, timezone
 
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed
-from wtforms import (BooleanField, DateTimeLocalField, FileField, HiddenField,
-                     IntegerField, PasswordField, SelectField, StringField,
-                     SubmitField, TextAreaField, ValidationError)
-from wtforms.validators import (DataRequired, Email, EqualTo, Length,
-                                NumberRange, Optional)
+from wtforms import (
+    BooleanField,
+    DateTimeLocalField,
+    FileField,
+    HiddenField,
+    IntegerField,
+    PasswordField,
+    SelectField,
+    StringField,
+    SubmitField,
+    TextAreaField,
+    ValidationError,
+)
+from wtforms.validators import (
+    DataRequired,
+    Email,
+    EqualTo,
+    Length,
+    NumberRange,
+    Optional,
+)
 
 PASSWORD_LENGTH_MESSAGE = "Password must be between 8 and 255 characters"
 NON_SPORTS_ACTIVITY_TYPE = "Non Sports"

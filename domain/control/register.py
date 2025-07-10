@@ -7,8 +7,11 @@ from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
-from data_source.user_queries import (get_user_by_email, insert_user,
-                                      update_user_verification_status)
+from data_source.user_queries import (
+    get_user_by_email,
+    insert_user,
+    update_user_verification_status,
+)
 
 
 def register_user(user_data: dict) -> bool:

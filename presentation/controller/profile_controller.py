@@ -1,12 +1,25 @@
 import functools
 
-from flask import (Blueprint, current_app, flash, jsonify, redirect,
-                   render_template, request, url_for)
+from flask import (
+    Blueprint,
+    current_app,
+    flash,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 from flask_login import current_user, login_required
 
 from domain.control.profile_management import ProfileManagement
-from domain.entity.forms import (ActivityEditForm, DeleteForm, DisableOTPForm,
-                                 PostEditForm, ProfileEditForm)
+from domain.entity.forms import (
+    ActivityEditForm,
+    DeleteForm,
+    DisableOTPForm,
+    PostEditForm,
+    ProfileEditForm,
+)
 
 PROFILE_PAGE = "profile_bp.fetch_profile"
 

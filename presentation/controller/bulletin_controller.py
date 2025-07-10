@@ -4,13 +4,15 @@ import functools
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 
-from domain.control.bulletin_management import (create_activity,
-                                                get_bulletin_display_data,
-                                                get_bulletin_listing,
-                                                get_filtered_bulletins,
-                                                get_host_name,
-                                                join_activity_control,
-                                                search_bulletin)
+from domain.control.bulletin_management import (
+    create_activity,
+    get_bulletin_display_data,
+    get_bulletin_listing,
+    get_filtered_bulletins,
+    get_host_name,
+    join_activity_control,
+    search_bulletin,
+)
 from domain.entity.forms import FilterForm, HostForm, JoinForm, SearchForm
 
 BULLETIN_TEMPLATE = "bulletin/bulletin.html"

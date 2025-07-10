@@ -1,9 +1,11 @@
 import bcrypt
-from flask import (Blueprint, current_app, flash, redirect, render_template,
-                   url_for)
+from flask import Blueprint, current_app, flash, redirect, render_template, url_for
 
-from domain.control.register import (register_user, send_verification_email,
-                                     update_verification_status)
+from domain.control.register import (
+    register_user,
+    send_verification_email,
+    update_verification_status,
+)
 from domain.entity.forms import RegisterForm, SubmitVerifyEmailForm
 
 register_bp = Blueprint(
