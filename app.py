@@ -200,13 +200,25 @@ def create_app():
             "error/error.html",
             error_code=429,
             error_message="Too many requests. Please wait and try again.",
-            exception_type="RateLimitExceeded",
-            traceback_info="",
         ), 429
         
     @app.errorhandler(CSRFError)
     def handle_csrf_error(e):
-        return render_template("error/csrf-error.html", reason=e.description), 400
+        # Default values
+        code = 500
+        message = str(e)
+        exception_type = type(e).__name__
+        tb = traceback.format_exc()
+
+        # If the exception is an HTTPException, extract details
+        if isinstance(e, HTTPException):
+            code = e.code
+            message = e.description
+
+        # Log the error with traceback
+        app.logger.error(f"Exception occurred: {exception_type}: {message}\n{tb}")
+
+        return render_template("error/csrf-error.html"), 400
 
     @app.errorhandler(Exception)
     def handle_exception(e):
@@ -228,9 +240,7 @@ def create_app():
             render_template(
                 "error/error.html",
                 error_code=code,
-                error_message=message,
-                exception_type=exception_type,
-                traceback_info=tb,
+                error_message="We're sorry, but an unexpected error has occurred.",
             ),
             code,
         )
