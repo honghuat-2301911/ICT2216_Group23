@@ -13,6 +13,7 @@ from flask_login import LoginManager
 from flask_session import Session
 from flask_wtf import CSRFProtect
 from flask_wtf.csrf import CSRFError
+from flask_login import current_user
 from itsdangerous import URLSafeTimedSerializer
 from werkzeug.exceptions import HTTPException
 
@@ -176,8 +177,7 @@ def create_app():
             session.clear()  # Clear session
             flash("Session expired due to inactivity. Please log in again.", "warning")
             return redirect(url_for(LOGIN_VIEW))
-        # Single session enforcement
-        from flask_login import current_user
+
 
         if hasattr(current_user, "is_authenticated") and current_user.is_authenticated:
             user_token = get_user_session_token(current_user.id)
