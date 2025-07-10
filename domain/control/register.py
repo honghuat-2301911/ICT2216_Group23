@@ -4,7 +4,7 @@ import os
 
 from flask import current_app, url_for
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
-from sendgrid import SendGridAPIClient, SendGridAPIClientError
+from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
 from data_source.user_queries import (
@@ -37,8 +37,8 @@ def send_verification_email(user_email):
         current_app.logger.info(
             f"Verification Email successfully sent to: {user_email}"
         )
-    except SendGridAPIClientError as e:
-        current_app.logger.error(f"SendGrid error sending verification email: {e}")
+    except Exception as e:
+            current_app.logger.error(f"Error sending verification email: {e}")
 
 def update_verification_status(token):
     serializer = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
