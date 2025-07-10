@@ -605,7 +605,7 @@
         document.getElementById('confirmLeaveActivityBtn').onclick = function() {
             if (currentLeaveActivityId) {
                 const form = document.getElementById('leaveActivityForm');
-                form.action = currentLeaveActivityId ? '/profile/leave_activity/' + currentLeaveActivityId : '';
+                form.action = currentLeaveActivityId ? '/profile/leave_activity/' + encodeURIComponent(currentLeaveActivityId) : '';
                 form.submit();
             }
             leaveActivityModal.style.display = 'none';
