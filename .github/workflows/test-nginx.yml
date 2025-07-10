@@ -46,9 +46,9 @@ jobs:
 
       - name: Test Status Codes
         run: |
-          curl -s -o /dev/null -w "%{http_code}" http://localhost | grep 302
-          curl -s -o /dev/null -w "%{http_code}" http://localhost/login | grep 200
-          curl -s -o /dev/null -w "%{http_code}" http://localhost/nonexistent | grep 404
+          curl -s -o /dev/null -w "%{http_code}" https://localhost | grep 302
+          curl -s -o /dev/null -w "%{http_code}" https://localhost/login | grep 200
+          curl -s -o /dev/null -w "%{http_code}" https://localhost/nonexistent | grep 404
 
       - name: Test Security Headers
         run: |
