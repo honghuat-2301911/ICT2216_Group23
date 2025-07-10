@@ -1,3 +1,6 @@
+from domain.entity.social_post import Comment, Post
+
+//
 import os
 import uuid
 
@@ -9,9 +12,7 @@ from data_source.social_feed_queries import (
     add_comment,
     add_like,
     add_post,
-)
-from data_source.social_feed_queries import delete_post as ds_delete_post
-from data_source.social_feed_queries import (
+    delete_post as ds_delete_post,
     get_all_posts,
     get_featured_posts,
     get_like_count,
@@ -22,7 +23,6 @@ from data_source.social_feed_queries import (
 )
 
 from domain.entity.social_post import Comment, Post
-
 
 
 def allowed_file(filename):
