@@ -1,11 +1,12 @@
 import unittest
-from app import app  # Assuming your Flask app is in app.py
+from app import create_app  
 from flask import url_for
 from domain.control import bulletin_management
 
 class TestCreateActivity(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        app = create_app()
         app.config['WTF_CSRF_ENABLED'] = False
         app.config['TESTING'] = True
         cls.client = app.test_client()
