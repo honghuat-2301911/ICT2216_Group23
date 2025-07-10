@@ -71,6 +71,10 @@ jobs:
         run: |
           python tests/create_activity_test.py
 
+      - name: Run UI Tests for Create Feed
+        run: |
+          python tests/create_feed_test.py
+
       - name: Upload test artifacts (screenshots, HTML)
         if: failure()  # Only upload if the job fails
         uses: actions/upload-artifact@v4
