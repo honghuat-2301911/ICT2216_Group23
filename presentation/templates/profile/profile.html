@@ -404,7 +404,13 @@
         let currentEditPostId = null;
         document.querySelectorAll('.edit-post-btn').forEach(btn => {
             btn.onclick = function() {
-                currentEditPostId = this.getAttribute('data-post-id');
+                const rawPostId = this.getAttribute('data-post-id');
+                const postIdPattern = /^[a-zA-Z0-9_-]+$/; // Allow alphanumeric, underscores, and hyphens
+                if (!postIdPattern.test(rawPostId)) {
+                    console.error('Invalid post ID:', rawPostId);
+                    return; // Stop further processing if post ID is invalid
+                }
+                currentEditPostId = rawPostId;
                 const postDiv = document.querySelector('.profile-feed-item[data-post-id="' + currentEditPostId + '"]');
                 document.getElementById('editPostId').value = currentEditPostId;
                 document.getElementById('editPostContent').value = this.getAttribute('data-post-content');
