@@ -53,6 +53,12 @@ jobs:
         run: |
           sleep 5
 
+      - name: Fix log directory permissions
+        run: |
+          mkdir -p ./logs
+          chmod -R 777 ./logs
+
+
       - name: Run Unit Tests
         run: | 
           python -m tests.unit.unit_test
