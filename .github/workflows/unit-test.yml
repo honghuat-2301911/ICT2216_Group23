@@ -17,24 +17,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set environment variables
-        run: |
-          echo "DB_HOST=${{ secrets.DB_HOST }}" > .env
-          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
-          echo "SQL_ROOT_PASSWORD=${{ secrets.SQL_ROOT_PASSWORD }}" >> .env
-          echo "FLASK_SECRET_KEY=${{ secrets.FLASK_SECRET_KEY }}" >> .env
-          echo "CERTBOT_EMAIL=${{ secrets.CERTBOT_EMAIL }}" >> .env
+      # - name: Set environment variables
+      #   run: |
+      #     echo "DB_HOST=${{ secrets.DB_HOST }}" > .env
+      #     echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+      #     echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+      #     echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+      #     echo "SQL_ROOT_PASSWORD=${{ secrets.SQL_ROOT_PASSWORD }}" >> .env
+      #     echo "FLASK_SECRET_KEY=${{ secrets.FLASK_SECRET_KEY }}" >> .env
+      #     echo "CERTBOT_EMAIL=${{ secrets.CERTBOT_EMAIL }}" >> .env
 
-      - name: Generate dummy SSL certs
-        run: |
-          mkdir -p ./certbot/conf/live/buddiesfinders.hopto.org
+      # - name: Generate dummy SSL certs
+      #   run: |
+      #     mkdir -p ./certbot/conf/live/buddiesfinders.hopto.org
 
-          openssl req -x509 -nodes -newkey rsa:2048 -days 1 \
-            -keyout ./certbot/conf/live/buddiesfinders.hopto.org/privkey.pem \
-            -out ./certbot/conf/live/buddiesfinders.hopto.org/fullchain.pem \
-            -subj "/CN=localhost"
+      #     openssl req -x509 -nodes -newkey rsa:2048 -days 1 \
+      #       -keyout ./certbot/conf/live/buddiesfinders.hopto.org/privkey.pem \
+      #       -out ./certbot/conf/live/buddiesfinders.hopto.org/fullchain.pem \
+      #       -subj "/CN=localhost"
 
       # - name: Add a seeded user to the init.sql file
       #   run: |
@@ -52,8 +52,8 @@ jobs:
 
 
 
-      - name: Build and start services (without certbot)
-        run: docker compose -f docker-compose.yml -f certbot-uitest-override.yml up --build -d
+      # - name: Build and start services (without certbot)
+      #   run: docker compose -f docker-compose.yml -f certbot-uitest-override.yml up --build -d
 
       - name: Install Python dependencies
         run: |
