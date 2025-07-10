@@ -38,18 +38,26 @@ class CreateFeedPageTest(unittest.TestCase):
 
     def fill_feed_form(self, content_text, image_path):
         # go to the feed creation page
-        self.driver.get(f"{self.base_url}/feed")  # adjust URL if different
-        time.sleep(2)
-        # fill content
-        self.driver.find_element(By.NAME, "content").send_keys(content_text)
+        self.driver.get(f"{self.base_url}/feed")
+        wait = WebDriverWait(self.driver, 10)
 
-        # upload image
-        image_input = self.driver.find_element(By.NAME, "image")
+        # wait for and fill content
+        content_field = wait.until(EC.element_to_be_clickable((By.NAME, "content")))
+        self.driver.execute_script("arguments[0].scrollIntoView(true);", content_field)
+        content_field.clear()
+        content_field.send_keys(content_text)
+
+        # wait for and upload image
+        image_input = wait.until(EC.presence_of_element_located((By.NAME, "image")))
         image_input.send_keys(image_path)
 
-        # submit form
-        self.driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
+        # wait for and click submit button
+        submit_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button[type='submit']")))
+        submit_btn.click()
+
+        # optional: wait until the page shows confirmation or content
         time.sleep(2)
+
 
     def test_create_feed(self):
         try:
