@@ -5,7 +5,7 @@
 </head>
 <body>
     <h2>Confirm Email Verification</h2>
-    <form method="post" action="{{ url_for('register_bp.verify_email_post', token=token) }}">
+    <form method="post" action="{{ url_for('register.verify_email_post', token=token) }}">
         {{ verify_email_form.csrf_token }}
         <button type="submit">Verify My Email</button>
     </form>
