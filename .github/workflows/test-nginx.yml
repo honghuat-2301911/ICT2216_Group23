@@ -47,7 +47,9 @@ jobs:
       - name: Test Status Codes
         run: |
           curl -sk -o /dev/null -w "%{http_code}" https://localhost | grep 302
+          sleep 5
           curl -sk -o /dev/null -w "%{http_code}" https://localhost/login | grep 200
+          sleep 5
           curl -sk https://localhost/nonexistent
           # curl -sk -o /dev/null -w "%{http_code}" https://localhost/nonexistent | grep 404
 
