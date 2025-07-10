@@ -17,7 +17,7 @@
                 <form method="post" action="{{ url_for('register.verify_email_post') }}">
                     {{ verify_email_form.csrf_token }}
                     {{ verify_email_form.token(value=token) }}
-                    {{ verify_email_form.submit() }}
+                    {{ verify_email_form.submit(class="login-btn") }}
                 </form>
             </div>
         </div>
