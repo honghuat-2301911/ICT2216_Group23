@@ -1,9 +1,9 @@
-from flask import current_app
 import base64
 import io
 
 import pyotp
 import pyqrcode
+from flask import current_app
 
 from data_source.user_queries import enable_2fa, get_user_by_id, set_otp_secret
 

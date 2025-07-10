@@ -7,7 +7,6 @@ from PIL import Image
 from werkzeug.utils import secure_filename
 
 from data_source.bulletin_queries import (
-    get_all_bulletin,
     get_hosted_activities,
     get_joined_activities,
     get_joined_user_names_by_activity_id,

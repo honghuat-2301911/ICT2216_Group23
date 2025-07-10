@@ -13,12 +13,14 @@ from data_source.user_queries import (
     update_user_verification_status,
 )
 
+
 def register_user(user_data: dict) -> bool:
     existing_user = get_user_by_email(user_data["email"])
     if existing_user:
         print("User already exists with this email.")
         return False
     return insert_user(user_data)
+
 
 def send_verification_email(user_email):
     serializer = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
@@ -38,7 +40,8 @@ def send_verification_email(user_email):
             f"Verification Email successfully sent to: {user_email}"
         )
     except Exception as e:
-            current_app.logger.error(f"Error sending verification email: {e}")
+        current_app.logger.error(f"Error sending verification email: {e}")
+
 
 def update_verification_status(token):
     serializer = URLSafeTimedSerializer(current_app.config["SECRET_KEY"])
