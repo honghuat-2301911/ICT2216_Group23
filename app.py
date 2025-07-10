@@ -86,7 +86,7 @@ def create_app():
     # Configuration for log format and handling
 
     log_dir = "/app/logs"
-    
+
     os.makedirs(log_dir, exist_ok=True)
 
     error_log_file = os.path.join(log_dir, "error.log")
