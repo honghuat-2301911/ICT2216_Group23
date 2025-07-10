@@ -39,7 +39,7 @@ jobs:
         run: docker compose -f docker-compose.yml -f certbot-uitest-override.yml up --build -d
 
       - name: Wait for Nginx
-        run: sleep 5
+        run: sleep 15
 
       - name: Validate Nginx Config
         run: docker compose exec nginx nginx -t
