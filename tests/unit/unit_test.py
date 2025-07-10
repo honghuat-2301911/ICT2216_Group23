@@ -87,10 +87,12 @@ def test_image_size_below_1mb():
 def test_host_activity_date_in_past():
     # Check if error is raised when date is in the past
     # Simulate form field
-    formdata = {'date': '2019-07-08T15:30'}
-    form = DummyForm(data=formdata)
+    form = DummyForm()
+    form.process(formdata=None, data={})  # initialize properly
 
-    field = form.date  # this has a `.data` property
+    # manually set field.data as datetime
+    field = form.date
+    field.data = datetime.strptime("2019-07-08T15:30", "%Y-%m-%dT%H:%M")
     def validate_date():
         GMT8 = timezone(timedelta(hours=8))
         user_dt = field.data.replace(tzinfo=GMT8)
@@ -106,10 +108,12 @@ def test_host_activity_date_in_past():
 def test_host_activity_date_in_future():
     # Check if no error is raised when date is in the future
     # Simulate form field
-    formdata = {'date': '2019-07-08T15:30'}
-    form = DummyForm(data=formdata)
+    form = DummyForm()
+    form.process(formdata=None, data={})  # initialize properly
 
-    field = form.date  # this has a `.data` property
+    # manually set field.data as datetime
+    field = form.date
+    field.data = datetime.strptime("2026-07-08T15:30", "%Y-%m-%dT%H:%M")
     def validate_date():
         GMT8 = timezone(timedelta(hours=8))
         user_dt = field.data.replace(tzinfo=GMT8)
