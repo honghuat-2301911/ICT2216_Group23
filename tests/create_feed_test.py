@@ -39,7 +39,7 @@ class CreateFeedPageTest(unittest.TestCase):
     def fill_feed_form(self, content_text, image_path):
         # go to the feed creation page
         self.driver.get(f"{self.base_url}/feed")  # adjust URL if different
-
+        time.sleep(2)
         # fill content
         self.driver.find_element(By.NAME, "content").send_keys(content_text)
 
