@@ -45,7 +45,7 @@ def register():
 
 
 @register_bp.route("/verify/<token>", methods=["GET"])
-def show_verify_email(token):
+def verify_email(token):
     return render_template("verify_button.html", token=token)
 
 @register_bp.route("/verify", methods=["POST"])
