@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Email Verification</title>
+</head>
+<body>
+    <h2>Confirm Email Verification</h2>
+    <form method="post" action="{{ url_for('register_bp.verify_email', token=token) }}">
+        {{ verify_email_form.csrf_token }}
+        <button type="submit">Verify My Email</button>
+    </form>
+</body>
+</html>
