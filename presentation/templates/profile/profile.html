@@ -590,13 +590,17 @@
             btn.onclick = function() {
                 const activityDiv = this.closest('.profile-feed-item');
                 currentLeaveActivityId = activityDiv ? activityDiv.getAttribute('data-activity-id').split('-')[0] : null;
+                // Validate that currentLeaveActivityId contains only digits
+                if (!/^\d+$/.test(currentLeaveActivityId)) {
+                    currentLeaveActivityId = null;
+                }
                 leaveActivityModal.style.display = 'block';
             };
         });
         document.getElementById('confirmLeaveActivityBtn').onclick = function() {
             if (currentLeaveActivityId) {
                 const form = document.getElementById('leaveActivityForm');
-                form.action = '/profile/leave_activity/' + currentLeaveActivityId;
+                form.action = currentLeaveActivityId ? '/profile/leave_activity/' + currentLeaveActivityId : '';
                 form.submit();
             }
             leaveActivityModal.style.display = 'none';
