@@ -73,7 +73,7 @@ def setup_logging(app, error_log_file, warning_log_file, info_log_file):
     app.logger.setLevel(logging.INFO)
 
 
-def create_app(testing=False):
+def create_app():
     load_dotenv()
 
     app = Flask(
@@ -85,12 +85,8 @@ def create_app(testing=False):
 
     # Configuration for log format and handling
 
-    # log_dir = "/app/logs"
-    app.config["TESTING"] = testing
-    if app.config.get("TESTING"):
-        log_dir = os.path.join(os.getcwd(), "logs")  # use current folder for tests
-    else:
-        log_dir = "/app/logs"
+    log_dir = "/app/logs"
+    
     os.makedirs(log_dir, exist_ok=True)
 
     error_log_file = os.path.join(log_dir, "error.log")
