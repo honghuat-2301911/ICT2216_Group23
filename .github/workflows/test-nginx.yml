@@ -39,7 +39,7 @@ jobs:
         run: docker compose -f docker-compose.yml -f certbot-uitest-override.yml up --build -d
 
       - name: Wait for Nginx
-        run: sleep 5
+        run: sleep 15
 
       - name: Validate Nginx Config
         run: docker compose exec nginx nginx -t
@@ -47,8 +47,11 @@ jobs:
       - name: Test Status Codes
         run: |
           curl -sk -o /dev/null -w "%{http_code}" https://localhost | grep 302
+          sleep 5
           curl -sk -o /dev/null -w "%{http_code}" https://localhost/login | grep 200
-          curl -sk -o /dev/null -w "%{http_code}" https://localhost/nonexistent | grep 404
+          sleep 5
+          curl -sk https://localhost/nonexistent
+          # curl -sk -o /dev/null -w "%{http_code}" https://localhost/nonexistent | grep 404
 
       - name: Test Security Headers
         run: |

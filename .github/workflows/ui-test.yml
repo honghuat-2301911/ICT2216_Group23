@@ -61,19 +61,15 @@ jobs:
 
       - name: Run UI Tests for Register
         run: | 
-          python tests/register_test.py
+          python tests/ui/register_test.py
 
       - name: Run UI Tests for Login
         run: |
-          python tests/login_test.py
+          python tests/ui/login_test.py
 
       - name: Run UI Tests for Create Activity
         run: |
-          python tests/create_activity_test.py
-
-      # - name: Run UI Tests for Create Feed
-      #   run: |
-      #     python tests/create_feed_test.py
+          python tests/ui/create_activity_test.py
 
       - name: Upload test artifacts (screenshots, HTML)
         if: failure()  # Only upload if the job fails
