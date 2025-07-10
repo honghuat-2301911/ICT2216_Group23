@@ -1,6 +1,3 @@
-from domain.entity.social_post import Comment, Post
-
-//
 import os
 import uuid
 
