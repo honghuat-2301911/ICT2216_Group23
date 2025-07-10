@@ -78,16 +78,18 @@ def login():
                 session["pre_2fa_user_email"] = user.email
                 return redirect(url_for("login.otp_verify"))
             # Else perform normal login
-            session.clear()  # Force new session on login
-            session["init"] = os.urandom(16).hex()  # Force new session file/ID
+            session.clear()
+            flask_login_user(user)
+
+            session["init"] = os.urandom(16).hex()
             session_token = os.urandom(32).hex()
             session["session_token"] = session_token
             update_user_session_token(user.id, session_token)
-            flask_login_user(user)
-            session["created_at"] = datetime.now(
-                timezone.utc
-            ).isoformat()  # After user authenticated, time stamp is set
+            session["created_at"] = datetime.now(timezone.utc).isoformat()
             session["last_activity"] = datetime.now(timezone.utc).isoformat()
+
+            session.modified = True
+            
             if user.role == "admin":
                 current_app.logger.info(
                     f"Admin user with email: {form.email.data} was logged in successfully"
