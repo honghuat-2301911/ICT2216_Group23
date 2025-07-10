@@ -1,6 +1,5 @@
 import bcrypt
 from flask import Blueprint, current_app, flash, redirect, render_template, url_for
-from itsdangerous import URLSafeTimedSerializer
 
 from domain.control.register import (
     register_user,
@@ -47,7 +46,10 @@ def register():
 @register_bp.route("/verify/<token>", methods=["GET"])
 def verify_email(token):
     verify_email_form = SubmitVerifyEmailForm()
-    return render_template("register/verify_button.html", token=token, verify_email_form=verify_email_form)
+    return render_template(
+        "register/verify_button.html", token=token, verify_email_form=verify_email_form
+    )
+
 
 @register_bp.route("/verify", methods=["POST"])
 def verify_email_post():
@@ -65,4 +67,3 @@ def verify_email_post():
     else:
         flash("Invalid form submission.", "danger")
     return redirect(url_for("login.login"))
-

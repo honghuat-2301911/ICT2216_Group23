@@ -5,15 +5,14 @@ from datetime import datetime, timedelta, timezone
 from logging.handlers import RotatingFileHandler
 
 from dotenv import load_dotenv
-from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask import Flask, flash, redirect, render_template, session, url_for
 from flask_limiter import Limiter
 from flask_limiter.errors import RateLimitExceeded
 from flask_limiter.util import get_remote_address
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 from flask_session import Session
 from flask_wtf import CSRFProtect
 from flask_wtf.csrf import CSRFError
-from flask_login import current_user
 from itsdangerous import URLSafeTimedSerializer
 from werkzeug.exceptions import HTTPException
 
@@ -89,7 +88,6 @@ def create_app():
     log_dir = "/app/logs"
     os.makedirs(log_dir, exist_ok=True)
 
-
     error_log_file = os.path.join(log_dir, "error.log")
     warning_log_file = os.path.join(log_dir, "warning.log")
     info_log_file = os.path.join(log_dir, "info.log")
@@ -121,9 +119,7 @@ def create_app():
     csrf = CSRFProtect(app)
 
     limiter = Limiter(
-        app=app,
-        key_func=get_remote_address,
-        default_limits=["10 per second"]
+        app=app, key_func=get_remote_address, default_limits=["10 per second"]
     )
 
     @login_manager.user_loader
@@ -152,7 +148,9 @@ def create_app():
     # IDLE_TIMEOUT = timedelta(seconds=15 * 60)  # 15 minutes
     ABSOLUTE_TIMEOUT = timedelta(seconds=30 * 60)  # 30 minutes
 
-    IDLE_TIMEOUT = timedelta(seconds=2 * 60)  # temporarily set the idle session timeout to 2 minutes for testing
+    IDLE_TIMEOUT = timedelta(
+        seconds=2 * 60
+    )  # temporarily set the idle session timeout to 2 minutes for testing
 
     @app.before_request
     def enforce_session_timeouts():
@@ -179,7 +177,6 @@ def create_app():
             flash("Session expired due to inactivity. Please log in again.", "warning")
             return redirect(url_for(LOGIN_VIEW))
 
-
         if hasattr(current_user, "is_authenticated") and current_user.is_authenticated:
             user_token = get_user_session_token(current_user.id)
             if session.get("session_token") != user_token:
@@ -195,17 +192,19 @@ def create_app():
     # Configuration for email verification
     app.config["SERIALIZER"] = URLSafeTimedSerializer(app.config["SECRET_KEY"])
 
-
     @app.errorhandler(RateLimitExceeded)
     def ratelimit_handler(e):
         ip = get_remote_address()
         app.logger.warning(f"Rate limit exceeded by IP: {ip}")
-        return render_template(
-            "error/error.html",
-            error_code=429,
-            error_message="Too many requests. Please wait and try again.",
-        ), 429
-        
+        return (
+            render_template(
+                "error/error.html",
+                error_code=429,
+                error_message="Too many requests. Please wait and try again.",
+            ),
+            429,
+        )
+
     @app.errorhandler(CSRFError)
     def handle_csrf_error(e):
         # Default values

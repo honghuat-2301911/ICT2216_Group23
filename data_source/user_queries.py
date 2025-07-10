@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta, timezone
 
-import mysql.connector
 from flask import current_app
 
 from data_source.db_connection import get_connection

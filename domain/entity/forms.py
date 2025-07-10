@@ -350,6 +350,7 @@ class ResetPasswordForm(FlaskForm):
 class DisableOTPForm(FlaskForm):
     submit = SubmitField("Disable 2FA")
 
+
 class SubmitVerifyEmailForm(FlaskForm):
     token = HiddenField()
     submit = SubmitField("Verify My Email")

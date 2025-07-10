@@ -1,8 +1,5 @@
 import functools
-import os
-import uuid
 
-import bcrypt
 from flask import (
     Blueprint,
     current_app,
@@ -14,7 +11,6 @@ from flask import (
     url_for,
 )
 from flask_login import current_user, login_required
-from werkzeug.utils import secure_filename
 
 from domain.control.profile_management import ProfileManagement
 from domain.entity.forms import (
