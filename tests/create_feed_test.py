@@ -40,7 +40,7 @@ class CreateFeedPageTest(unittest.TestCase):
 
     def fill_feed_form(self, content_text, image_path):
         # go to the feed creation page
-        self.driver.get(f"{self.base_url}/feed")
+        self.driver.get(f"{self.base_url}/feed/")
         print(self.driver.current_url)
         print(self.driver.page_source)  # debug
         wait = WebDriverWait(self.driver, 10)
