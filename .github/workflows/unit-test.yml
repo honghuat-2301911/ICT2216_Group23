@@ -44,9 +44,10 @@ jobs:
 
       - name: Fix log directory permissions
         run: |
-          mkdir -p logs
-          chmod -R 777 logs
-          
+          mkdir -p $(pwd)/logs
+          chmod -R 777 $(pwd)/logs
+
+
       - name: Build and start services (without certbot)
         run: docker compose -f docker-compose.yml -f certbot-uitest-override.yml up --build -d
 
