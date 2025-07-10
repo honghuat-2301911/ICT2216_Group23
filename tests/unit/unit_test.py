@@ -1,9 +1,10 @@
+import os
+import uuid
+
 import pytest
+from werkzeug.utils import secure_filename
 
 from app import create_app
-import uuid
-import os
-from werkzeug.utils import secure_filename
 
 
 @pytest.fixture
