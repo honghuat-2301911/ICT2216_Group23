@@ -1,3 +1,4 @@
+from flask import current_app
 import base64
 import io
 
@@ -39,9 +40,8 @@ def verify_and_enable_otp(user_id, otp_code):
     if totp.verify(otp_code):
         if enable_2fa(user_id):
             return True, None
-        else:
-            current_app.logger.warning(
-                f"User {user_id} failed to enable 2 factor authentication"
-            )
-            return False, "Failed to enable 2FA"
+        current_app.logger.warning(
+            f"User {user_id} failed to enable 2 factor authentication"
+        )
+        return False, "Failed to enable 2FA"
     return False, "Invalid OTP code"

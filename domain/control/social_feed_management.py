@@ -1,7 +1,7 @@
 import os
 import uuid
 
-from flask import current_app, flash, g
+from flask import current_app, g
 from PIL import Image, UnidentifiedImageError
 from werkzeug.utils import secure_filename
 
@@ -9,7 +9,6 @@ from data_source.social_feed_queries import (
     add_comment,
     add_like,
     add_post,
-    decrement_like,
 )
 from data_source.social_feed_queries import delete_post as ds_delete_post
 from data_source.social_feed_queries import (
@@ -18,16 +17,14 @@ from data_source.social_feed_queries import (
     get_like_count,
     get_post_by_id,
     get_posts_by_user_id,
-    increment_like,
     remove_like,
     update_post,
 )
 from domain.entity.social_post import Comment, Post
 
-"""Check if the uploaded file has an allowed image extension """
-
 
 def allowed_file(filename):
+    # Check if the uploaded file has an allowed image extension 
     return "." in filename and filename.rsplit(".", 1)[1].lower() in {
         "png",
         "jpg",
@@ -36,9 +33,7 @@ def allowed_file(filename):
     }
 
 
-"""Convert database rows to Post entities using actual DB field names """
-
-
+#Convert database rows to Post entities using actual DB field names
 def create_entity_from_row(result):
 
     post_list = []
@@ -88,9 +83,7 @@ def get_all_posts_control():
     return post_list
 
 
-"""Get featured posts (top 5 by likes) for display"""
-
-
+# Get featured posts (top 5 by likes) for display
 def get_featured_posts_control():
 
     result = get_featured_posts()
@@ -117,9 +110,7 @@ def get_featured_posts_control():
     return featured_list
 
 
-"""Get a specific post by ID"""
-
-
+# Get a specific post by ID
 def get_post_by_id_control(post_id):
     result = get_post_by_id(post_id)
     if not result:
@@ -156,9 +147,7 @@ def get_post_by_id_control(post_id):
     return post
 
 
-"""Handle creation of a new post with optional image upload"""
-
-
+# Handle creation of a new post with optional image upload
 def create_post_control(user_id, content, image_file=None):
     image_url = None
 
@@ -186,9 +175,7 @@ def create_post_control(user_id, content, image_file=None):
     return add_post(user_id, content, image_url)
 
 
-"""Handle creation of a new comment on a post"""
-
-
+# Handle creation of a new comment on a post
 def create_comment_control(post_id, user_id, content):
 
     return add_comment(post_id, user_id, content)
@@ -202,9 +189,7 @@ def unlike_post_control(post_id, user_id):
     return remove_like(post_id, user_id)
 
 
-"""Get formatted display data for posts"""
-
-
+# Get formatted display data for posts
 def get_posts_display_data():
     post_list = g.get("post_list")
     if not post_list:
@@ -254,8 +239,7 @@ def edit_post(
     result = update_post(post_id, updated_content, image_filename)
     if result:
         return True, "Post updated successfully."
-    else:
-        return False, "Failed to update post."
+    return False, "Failed to update post."
 
 
 def delete_post(user_id: int, post_id: int) -> bool:
@@ -272,9 +256,7 @@ def delete_post(user_id: int, post_id: int) -> bool:
     return ds_delete_post(post_id)
 
 
-"""Get all posts by a specific user ID"""
-
-
+# Get all posts by a specific user ID
 def get_posts_by_user_id_control(user_id):
 
     result = get_posts_by_user_id(user_id)
