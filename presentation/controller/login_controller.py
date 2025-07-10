@@ -68,7 +68,6 @@ def login():
                 return redirect(url_for("login.otp_verify"))
             # Else perform normal login
             current_app.session_interface.regenerate(session)
-            session["init"] = os.urandom(16).hex()  # Force new session file/ID
             session_token = os.urandom(32).hex()
             session["session_token"] = session_token
             update_user_session_token(user.id, session_token)
@@ -125,8 +124,7 @@ def otp_verify():
         )
         verified = verify_user_otp(user, otp_code)
         if verified:
-            session.clear()  # Force new session after 2FA so that hackers cannot use the same session ID even in 2FA fails
-            session["init"] = os.urandom(16).hex()  # Force new session file/ID
+            current_app.session_interface.regenerate(session)
             session_token = os.urandom(32).hex()
             session["session_token"] = session_token
             update_user_session_token(user.id, session_token)
