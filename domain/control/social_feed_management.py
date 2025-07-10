@@ -1,8 +1,8 @@
 import os
 import uuid
 
-from PIL import Image, UnidentifiedImageError
 from flask import current_app, g
+from PIL import Image, UnidentifiedImageError
 from werkzeug.utils import secure_filename
 
 from data_source.social_feed_queries import (
