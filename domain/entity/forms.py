@@ -349,3 +349,6 @@ class ResetPasswordForm(FlaskForm):
 
 class DisableOTPForm(FlaskForm):
     submit = SubmitField("Disable 2FA")
+
+class SubmitVerifyEmailForm(FlaskForm):
+    submit = SubmitField("Submit Token")
