@@ -1,4 +1,4 @@
-name: Run UI Tests
+name: Run Unit Tests
 
 permissions:
   contents: read
@@ -10,7 +10,7 @@ on:
   pull_request:
 
 jobs:
-  ui-test:
+  unit-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -45,40 +45,14 @@ jobs:
       - name: Build and start services (without certbot)
         run: docker compose -f docker-compose.yml -f certbot-uitest-override.yml up --build -d
 
-      - name: Install Chrome
+      - name: Install Python dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y wget gnupg unzip
-          wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-          sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
-          sudo apt-get update
-          sudo apt-get install -y google-chrome-stable
+          pip install -r requirements.txt
 
-      - name: Install required packages for tests
+      - name: Wait for DB
         run: |
-          pip install selenium>=4.10.0
-          pip install webdriver-manager>=4.0.0
+          sleep 5
 
-      - name: Run UI Tests for Register
+      - name: Run Unit Tests
         run: | 
-          python tests/register_test.py
-
-      - name: Run UI Tests for Login
-        run: |
-          python tests/login_test.py
-
-      - name: Run UI Tests for Create Activity
-        run: |
-          python tests/create_activity_test.py
-
-      # - name: Run UI Tests for Create Feed
-      #   run: |
-      #     python tests/create_feed_test.py
-
-      - name: Upload test artifacts (screenshots, HTML)
-        if: failure()  # Only upload if the job fails
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-artifacts
-          path: artifacts/
-
+          python -m tests.unit.unit_test
