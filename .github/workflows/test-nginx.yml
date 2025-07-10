@@ -46,13 +46,13 @@ jobs:
 
       - name: Test Status Codes
         run: |
-          curl -s -o /dev/null -w "%{http_code}" https://localhost | grep 302
-          curl -s -o /dev/null -w "%{http_code}" https://localhost/login | grep 200
-          curl -s -o /dev/null -w "%{http_code}" https://localhost/nonexistent | grep 404
+          curl -sk -o /dev/null -w "%{http_code}" https://localhost | grep 302
+          curl -sk -o /dev/null -w "%{http_code}" https://localhost/login | grep 200
+          curl -sk -o /dev/null -w "%{http_code}" https://localhost/nonexistent | grep 404
 
       - name: Test Security Headers
         run: |
-          curl -s -I http://localhost/login | grep "X-Frame-Options: DENY"
+          curl -sk -I https://localhost/login | grep "strict-transport-security: max-age=15768000; includeSubDomains"
 
       - name: Check Nginx Logs
         run: docker compose logs nginx | grep -i "error" && exit 1 || exit 0
