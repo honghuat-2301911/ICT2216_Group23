@@ -1,6 +1,7 @@
 import pytest
 from app import create_app
 
+
 @pytest.fixture
 def client():
     app = create_app()
@@ -21,3 +22,20 @@ def test_host_activity_before_today(client):
     assert response.status_code == 200
     assert b"Date cannot be in the past" in response.data
     
+def test_create_feed_large_image(client):
+    image_path = "tests/assets/test_image2.jpg"
+    with open(image_path, 'rb') as img:
+        data = {
+            "content": "Unit Test",
+            "image": (img, "test_image2.jpg")  # file object and filename
+        }
+        response = client.post(
+            '/create', 
+            data=data,
+            content_type='multipart/form-data', 
+            follow_redirects=True
+        )
+
+    assert response.status_code == 200
+    assert b"Image size must be less than 1MB." in response.data
+
