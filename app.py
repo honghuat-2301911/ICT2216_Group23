@@ -86,8 +86,15 @@ def create_app():
 
     # Configuration for log format and handling
 
-    log_dir = "/app/logs"
-    os.makedirs(log_dir, exist_ok=True)
+    # log_dir = "/app/logs"
+    # os.makedirs(log_dir, exist_ok=True)
+    try:
+        log_dir = "/app/logs"
+        os.makedirs(log_dir, exist_ok=True)
+    except PermissionError:
+        log_dir = os.path.join(os.getcwd(), "logs")
+        os.makedirs(log_dir, exist_ok=True)
+
 
     error_log_file = os.path.join(log_dir, "error.log")
     warning_log_file = os.path.join(log_dir, "warning.log")
