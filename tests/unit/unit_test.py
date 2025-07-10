@@ -1,5 +1,8 @@
 import unittest
 import requests
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 
 class TestCreateActivityLive(unittest.TestCase):
 
@@ -18,7 +21,8 @@ class TestCreateActivityLive(unittest.TestCase):
         # POST to the running Flask app in Docker
         response = requests.post(
             f"{self.BASE_URL}/host",
-            data=data
+            data=data,
+            verify=False  # don’t validate SSL
         )
 
         # Assertions
