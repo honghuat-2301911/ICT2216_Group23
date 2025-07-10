@@ -1,14 +1,14 @@
+import io
 import os
 import uuid
-import pytest
-import io
-from werkzeug.utils import secure_filename
-from wtforms.validators import ValidationError
 from datetime import datetime, timedelta, timezone
-from wtforms.fields import DateTimeLocalField
-from wtforms.validators import DataRequired
+
+import pytest
+from werkzeug.utils import secure_filename
 from wtforms import Form
-from wtforms.validators import ValidationError
+from wtforms.fields import DateTimeLocalField
+from wtforms.validators import DataRequired, ValidationError
+
 
 class DummyForm(Form):
     date = DateTimeLocalField('Date', format="%Y-%m-%dT%H:%M", validators=[DataRequired()])
