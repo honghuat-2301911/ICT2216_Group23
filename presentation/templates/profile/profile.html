@@ -404,13 +404,7 @@
         let currentEditPostId = null;
         document.querySelectorAll('.edit-post-btn').forEach(btn => {
             btn.onclick = function() {
-                const rawPostId = this.getAttribute('data-post-id');
-                const postIdPattern = /^[a-zA-Z0-9_-]+$/; // Allow alphanumeric, underscores, and hyphens
-                if (!postIdPattern.test(rawPostId)) {
-                    console.error('Invalid post ID:', rawPostId);
-                    return; // Stop further processing if post ID is invalid
-                }
-                currentEditPostId = rawPostId;
+                currentEditPostId = this.getAttribute('data-post-id');
                 const postDiv = document.querySelector('.profile-feed-item[data-post-id="' + currentEditPostId + '"]');
                 document.getElementById('editPostId').value = currentEditPostId;
                 document.getElementById('editPostContent').value = this.getAttribute('data-post-content');
@@ -560,15 +554,9 @@
         document.querySelectorAll('.edit-activity-btn').forEach(btn => {
             btn.onclick = function() {
                 const activityDiv = this.closest('.profile-feed-item');
-                const rawActivityId = activityDiv ? activityDiv.getAttribute('data-activity-id') : null;
-                const activityIdPattern = /^[a-zA-Z0-9_-]+$/; // Allow only alphanumeric, hyphen, and underscore
-                currentEditActivityId = rawActivityId && activityIdPattern.test(rawActivityId) ? rawActivityId.split('-')[0] : null;
-                if (currentEditActivityId) {
-                    document.getElementById('editActivityId').value = currentEditActivityId;
-                    document.getElementById('editActivityForm').action = '/profile/edit_activity/' + currentEditActivityId;
-                } else {
-                    console.error('Invalid activity ID');
-                }
+                currentEditActivityId = activityDiv ? activityDiv.getAttribute('data-activity-id').split('-')[0] : null;
+                document.getElementById('editActivityId').value = currentEditActivityId;
+                document.getElementById('editActivityForm').action = '/profile/edit_activity/' + currentEditActivityId;
                 document.getElementById('editActivityName').value = activityDiv.querySelector('p strong').textContent;
                 document.getElementById('editActivityType').value = activityDiv.querySelector('p:nth-of-type(2)').textContent.replace('Type: ', '');
                 document.getElementById('editSkillsReq').value = activityDiv.querySelector('p:nth-of-type(3)').textContent.replace('Skills Required: ', '');
@@ -595,17 +583,13 @@
             btn.onclick = function() {
                 const activityDiv = this.closest('.profile-feed-item');
                 currentLeaveActivityId = activityDiv ? activityDiv.getAttribute('data-activity-id').split('-')[0] : null;
-                // Validate that currentLeaveActivityId contains only digits
-                if (!/^\d+$/.test(currentLeaveActivityId)) {
-                    currentLeaveActivityId = null;
-                }
                 leaveActivityModal.style.display = 'block';
             };
         });
         document.getElementById('confirmLeaveActivityBtn').onclick = function() {
             if (currentLeaveActivityId) {
                 const form = document.getElementById('leaveActivityForm');
-                form.action = currentLeaveActivityId ? '/profile/leave_activity/' + encodeURIComponent(currentLeaveActivityId) : '';
+                form.action = '/profile/leave_activity/' + currentLeaveActivityId;
                 form.submit();
             }
             leaveActivityModal.style.display = 'none';
