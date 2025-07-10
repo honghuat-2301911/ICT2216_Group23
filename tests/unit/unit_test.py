@@ -1,6 +1,9 @@
 import pytest
 
 from app import create_app
+import uuid
+import os
+from werkzeug.utils import secure_filename
 
 
 @pytest.fixture
@@ -43,4 +46,39 @@ def test_create_feed_large_image(client):
         )
 
     assert response.status_code == 200
+
     assert b"Image size must be less than 1MB." in response.data
+
+    assert b"xd" in response.data
+
+
+def testing_random_image_filename():
+    image_filename_list = [
+        "test.jpg", "test.jpg", "test.png",
+        "test.png", "test.jpeg", "test.jpeg"
+    ]
+    unique_filenames = []
+
+    for filename in image_filename_list:
+        _, ext = os.path.splitext(secure_filename(filename))
+        unique_filename = f"{uuid.uuid4().hex}{ext}"
+        unique_filenames.append(unique_filename)
+
+    # Uniqueness
+    assert len(unique_filenames) == len(set(unique_filenames)), "Filenames are not unique"
+
+    # Valid UUID
+    for fname in unique_filenames:
+        base, ext = os.path.splitext(fname)
+        assert len(base) == 32, f"UUID length incorrect: {base}"
+        assert all(c in "0123456789abcdef" for c in base), f"Invalid character in UUID: {base}"
+
+    # Extension matches
+    for fname, original in zip(unique_filenames, image_filename_list):
+        _, orig_ext = os.path.splitext(original)
+        _, ext = os.path.splitext(fname)
+        assert ext == orig_ext, f"Extension mismatch: {ext} vs {orig_ext}"
+
+    
+
+
