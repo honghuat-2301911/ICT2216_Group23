@@ -5,6 +5,13 @@ import io
 from werkzeug.utils import secure_filename
 from wtforms.validators import ValidationError
 from datetime import datetime, timedelta, timezone
+from wtforms.fields import DateTimeLocalField
+from wtforms.validators import DataRequired
+from wtforms import Form
+from wtforms.validators import ValidationError
+
+class DummyForm(Form):
+    date = DateTimeLocalField('Date', format="%Y-%m-%dT%H:%M", validators=[DataRequired()])
 
 def test_random_image_filename():
     image_filename_list = [
@@ -79,10 +86,14 @@ def test_image_size_below_1mb():
 
 def test_host_activity_date_in_past():
     # Check if error is raised when date is in the past
-    fake_date = "2019-07-08T15:30"
+    # Simulate form field
+    formdata = {'date': '2019-07-08T15:30'}
+    form = DummyForm(data=formdata)
+
+    field = form.date  # this has a `.data` property
     def validate_date():
         GMT8 = timezone(timedelta(hours=8))
-        user_dt = fake_date.data.replace(tzinfo=GMT8)
+        user_dt = field.data.replace(tzinfo=GMT8)
         now_gmt8 = datetime.now(GMT8)
         if user_dt <= now_gmt8:
             raise ValidationError("Date cannot be in the past (GMT+8).")
@@ -94,10 +105,14 @@ def test_host_activity_date_in_past():
 
 def test_host_activity_date_in_future():
     # Check if no error is raised when date is in the future
-    fake_date = "2028-07-08T15:30"
+    # Simulate form field
+    formdata = {'date': '2019-07-08T15:30'}
+    form = DummyForm(data=formdata)
+
+    field = form.date  # this has a `.data` property
     def validate_date():
         GMT8 = timezone(timedelta(hours=8))
-        user_dt = fake_date.data.replace(tzinfo=GMT8)
+        user_dt = field.data.replace(tzinfo=GMT8)
         now_gmt8 = datetime.now(GMT8)
         if user_dt <= now_gmt8:
             raise ValidationError("Date cannot be in the past (GMT+8).")
