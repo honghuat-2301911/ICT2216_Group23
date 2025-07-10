@@ -66,4 +66,4 @@ jobs:
 
       - name: Run Unit Tests
         run: | 
-          python -m tests.unit.unit_test
+          pytest
