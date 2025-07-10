@@ -33,8 +33,8 @@ class CreateFeedPageTest(unittest.TestCase):
         self.driver.get(f"{self.base_url}/login")
         print(self.driver.current_url)
         print(self.driver.page_source)  # debug
-        self.driver.find_element(By.NAME, "email").send_keys(email)
-        self.driver.find_element(By.NAME, "password").send_keys(password)
+        self.driver.find_element(By.ID, "email").send_keys(email)
+        self.driver.find_element(By.ID, "password").send_keys(password)
         self.driver.find_element(By.CLASS_NAME, "login-btn").click()
         time.sleep(2)
 
@@ -46,13 +46,13 @@ class CreateFeedPageTest(unittest.TestCase):
         wait = WebDriverWait(self.driver, 10)
 
         # wait for and fill content
-        content_field = wait.until(EC.element_to_be_clickable((By.NAME, "content")))
+        content_field = wait.until(EC.element_to_be_clickable((By.ID, "content")))
         self.driver.execute_script("arguments[0].scrollIntoView(true);", content_field)
         content_field.clear()
         content_field.send_keys(content_text)
 
         # wait for and upload image
-        image_input = wait.until(EC.presence_of_element_located((By.NAME, "image")))
+        image_input = wait.until(EC.presence_of_element_located((By.ID, "image-upload")))
         image_input.send_keys(image_path)
 
         # wait for and click submit button
@@ -61,7 +61,6 @@ class CreateFeedPageTest(unittest.TestCase):
 
         # optional: wait until the page shows confirmation or content
         time.sleep(2)
-
 
     def test_create_feed(self):
         try:
@@ -117,75 +116,6 @@ class CreateFeedPageTest(unittest.TestCase):
             with open("artifacts/create_feed_large_image_debug.html", "w", encoding="utf-8") as f:
                 f.write(self.driver.page_source)
             raise
-
-
-    # def test_create_activity_success(self):
-    #     try:
-    #         # Assert that the login with the seeded email and password is successful
-    #         # After login, the user should be redirected to the bulletin board page
-    #         self.fill_login_form(email=self.seeded_email, password=self.seeded_password)
-    #         self.assertIn("Bulletin Board", self.driver.page_source)
-
-    #         # Open the host activity modal
-    #         host_button = self.driver.find_element(
-    #             By.XPATH, "//button[contains(text(), 'Host Activity')]"
-    #         )
-    #         host_button.click()
-    #         time.sleep(1)  # Wait for modal animation
-
-    #         self.fill_activity_form(
-    #             name="Selenium Test Activity", date="3000-07-08T15:30"
-    #         )
-
-    #         # Assert that the activity was created successfully
-    #         self.assertIn("Selenium Test Activity", self.driver.page_source)
-
-    #         # Logout to reset the state for the next test
-    #         self.driver.get(f"{self.base_url}/logout")
-
-    #     except Exception as e:
-    #         os.makedirs("artifacts", exist_ok=True)
-    #         self.driver.save_screenshot("artifacts/create_activity_success.png")
-    #         with open("artifacts/debug.html", "w", encoding="utf-8") as f:
-    #             f.write(self.driver.page_source)
-    #         raise  # Re-raise so the test still fails
-
-    # def test_create_activity_past_date(self):
-    #     try:
-    #         # Assert that the login with the seeded email and password is successful
-    #         # After login, the user should be redirected to the bulletin board page
-    #         self.fill_login_form(email=self.seeded_email, password=self.seeded_password)
-    #         self.assertIn("Bulletin Board", self.driver.page_source)
-
-    #         # Open the host activity modal
-    #         host_button = self.driver.find_element(
-    #             By.XPATH, "//button[contains(text(), 'Host Activity')]"
-    #         )
-    #         host_button.click()
-    #         time.sleep(1)  # Wait for modal animation
-
-    #         self.fill_activity_form(
-    #             name="Past Date Activity",
-    #             date="2000-07-08T15:30",  # Past date for testing failure
-    #         )
-
-    #         wait = WebDriverWait(self.driver, 10)
-    #         error_elem = wait.until(
-    #             EC.visibility_of_element_located(
-    #                 (By.CSS_SELECTOR, "#flashModal .flash-message.error")
-    #             )
-    #         )
-    #         self.assertIn("Date cannot be in the past", error_elem.text)
-
-    #         # Logout to reset the state for the next test
-    #         self.driver.get(f"{self.base_url}/logout")
-
-    #     except Exception as e:
-    #         os.makedirs("artifacts", exist_ok=True)
-    #         self.driver.save_screenshot("artifacts/create_activity_success.png")
-    #         with open("artifacts/debug.html", "w", encoding="utf-8") as f:
-    #             f.write(self.driver.page_source)
-    #         raise  # Re-raise so the test still fails
 
     @classmethod
     def tearDownClass(cls):
