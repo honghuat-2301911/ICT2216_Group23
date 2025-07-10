@@ -2,11 +2,9 @@ import os
 
 from flask import current_app
 
-from data_source.admin_queries import (
-    delete_social_post,
-    delete_sports_activity,
-    get_social_post_by_id,
-)
+from data_source.admin_queries import (delete_social_post,
+                                       delete_sports_activity,
+                                       get_social_post_by_id)
 from data_source.bulletin_queries import get_sports_activity_by_id
 
 

@@ -1,15 +1,12 @@
 from flask import g
 from flask_login import current_user
 
-from data_source.bulletin_queries import (
-    get_all_bulletin,
-    get_bulletin_by_types,
-    get_bulletin_via_name,
-    get_host_id,
-    get_sports_activity_by_id,
-    insert_new_activity,
-    update_sports_activity,
-)
+from data_source.bulletin_queries import (get_all_bulletin,
+                                          get_bulletin_by_types,
+                                          get_bulletin_via_name, get_host_id,
+                                          get_sports_activity_by_id,
+                                          insert_new_activity,
+                                          update_sports_activity)
 from domain.entity.sports_activity import SportsActivity
 
 
