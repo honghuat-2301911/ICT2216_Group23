@@ -7,22 +7,14 @@ from flask import (
     flash,
     redirect,
     render_template,
-    request,
     session,
     url_for,
 )
 from flask_login import current_user, login_required
 from flask_login import login_user as flask_login_user
-from flask_login import logout_user as flask_logout_user
-from itsdangerous import URLSafeTimedSerializer
 
-from data_source.user_queries import (
-    get_user_by_email,
-    get_user_session_token,
-    update_user_session_token,
-)
+from data_source.user_queries import get_user_by_email, update_user_session_token
 from domain.control.login_management import (
-    get_user_display_data,
     login_user,
     logout_user,
     process_reset_password,
@@ -30,7 +22,6 @@ from domain.control.login_management import (
     verify_user_otp,
 )
 from domain.entity.forms import LoginForm, OTPForm, RequestResetForm, ResetPasswordForm
-from domain.entity.user import User
 
 LOGIN_VIEW = "login.login"
 BULLETIN_PAGE = "bulletin.bulletin_page"

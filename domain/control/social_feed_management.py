@@ -5,11 +5,7 @@ from flask import current_app, g
 from PIL import Image, UnidentifiedImageError
 from werkzeug.utils import secure_filename
 
-from data_source.social_feed_queries import (
-    add_comment,
-    add_like,
-    add_post,
-)
+from data_source.social_feed_queries import add_comment, add_like, add_post
 from data_source.social_feed_queries import delete_post as ds_delete_post
 from data_source.social_feed_queries import (
     get_all_posts,
@@ -24,7 +20,7 @@ from domain.entity.social_post import Comment, Post
 
 
 def allowed_file(filename):
-    # Check if the uploaded file has an allowed image extension 
+    # Check if the uploaded file has an allowed image extension
     return "." in filename and filename.rsplit(".", 1)[1].lower() in {
         "png",
         "jpg",
@@ -33,7 +29,7 @@ def allowed_file(filename):
     }
 
 
-#Convert database rows to Post entities using actual DB field names
+# Convert database rows to Post entities using actual DB field names
 def create_entity_from_row(result):
 
     post_list = []

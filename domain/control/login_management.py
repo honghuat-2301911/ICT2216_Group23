@@ -115,7 +115,6 @@ def verify_control_class(user_email):
     return True
 
 
-
 def verify_otp_control_class(user_email, form):
     user_data = get_user_by_email(user_email)
 

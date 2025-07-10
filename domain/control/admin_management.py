@@ -1,7 +1,6 @@
 import os
 
-from flask import current_app, g
-from flask_login import current_user
+from flask import current_app
 
 from data_source.admin_queries import (
     delete_social_post,
@@ -10,7 +9,8 @@ from data_source.admin_queries import (
 )
 from data_source.bulletin_queries import get_sports_activity_by_id
 
-# Deletes an activity from the bulletin board by its ID. 
+
+# Deletes an activity from the bulletin board by its ID.
 # Returns True if successful, False otherwise.
 def remove_sports_activity(activity_id: int):
     try:
