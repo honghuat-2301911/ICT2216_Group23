@@ -118,7 +118,7 @@ def create_app():
     csrf = CSRFProtect(app)
 
     limiter = Limiter(
-        app,
+        app=app,
         key_func=get_remote_address,
         default_limits=["10 per second"]
     )
@@ -194,7 +194,7 @@ def create_app():
     app.config["SERIALIZER"] = URLSafeTimedSerializer(app.config["SECRET_KEY"])
 
 
-    @app.errorhandler(429)
+    @app.errorhandler(RateLimitExceeded)
     def ratelimit_handler(e):
         ip = get_remote_address()
         app.logger.warning(f"Rate limit exceeded by IP: {ip}")
