@@ -38,6 +38,7 @@ def test_create_feed_large_image(client):
             content_type='multipart/form-data', 
             follow_redirects=True
         )
+    print(response.data.decode())
 
     assert response.status_code == 200
     assert b"THis is just a radnom test lmaooo" in response.data
