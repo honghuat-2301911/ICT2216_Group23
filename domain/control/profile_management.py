@@ -3,7 +3,7 @@ import uuid
 
 import bcrypt
 from flask import current_app, g
-from PIL import Image, UnidentifiedImageError
+from PIL import Image
 from werkzeug.utils import secure_filename
 
 from data_source.bulletin_queries import (
@@ -33,8 +33,7 @@ class ProfileManagement:
     def update_profile(self, user_id, name, password, profile_picture=None):
         if profile_picture is not None:
             return update_user_profile_by_id(user_id, name, password, profile_picture)
-        else:
-            return update_user_profile_by_id(user_id, name, password)
+        return update_user_profile_by_id(user_id, name, password)
 
     def remove_profile_picture(self, user_id):
         return remove_user_profile_picture(user_id)
@@ -205,9 +204,9 @@ class ProfileManagement:
                 image = Image.open(file)
                 image.verify()
                 file.seek(0)
-            except Exception:
+            except (UnidentifiedImageError, OSError) as e:
                 current_app.logger.warning(
-                    "Uploaded profile picture is not a valid image."
+                    f"Uploaded profile picture is not a valid image: {e}"
                 )
                 return False
             ext = os.path.splitext(secure_filename(file.filename))[1]
@@ -327,16 +326,14 @@ class ProfileManagement:
                 "new_join_list": new_join_list,
             }
             return True, "Successfully left the activity."
-        else:
-            return False, "Failed to leave the activity."
+        return False, "Failed to leave the activity."
 
     def delete_post(self, user_id, post_id):
         success = delete_post(user_id, post_id)
         if success:
             g.deleted_post = {"user_id": user_id, "post_id": post_id}
             return True, "Post deleted successfully."
-        else:
-            return False, "Failed to delete post."
+        return False, "Failed to delete post."
 
     def generate_otp(self, user_id):
         result = generate_otp_for_user(user_id)

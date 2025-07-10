@@ -8,9 +8,8 @@ from datetime import datetime, timedelta, timezone
 import bcrypt
 import pyotp
 from flask import current_app, flash, g, redirect, render_template, url_for
-from flask_login import login_user as flask_login_user
 from flask_login import logout_user as flask_logout_user
-from sendgrid import SendGridAPIClient
+from sendgrid import SendGridAPIClient, SendGridAPIClientError
 from sendgrid.helpers.mail import Mail
 
 from data_source.user_queries import (
@@ -26,7 +25,6 @@ from data_source.user_queries import (
     update_user_lockout,
     update_user_password_by_id,
 )
-from domain.entity.forms import OTPForm
 from domain.entity.user import User
 
 FAILED_ATTEMPT_LIMIT = 10
@@ -99,6 +97,7 @@ def login_user(email: str, password: str):
             current_app.logger.warning(
                 f"Account locked: {email} after {recent_failures} failed attempts in 10 minutes"
             )
+
         current_app.logger.warning(
             f"Failed login for {email} (attempt {recent_failures}/{FAILED_ATTEMPT_LIMIT})"
         )
@@ -113,8 +112,8 @@ def verify_control_class(user_email):
     user_data = get_user_by_email(user_email)
     if not user_data or not user_data.get("otp_secret"):
         return False
-    else:
-        return True
+    return True
+
 
 
 def verify_otp_control_class(user_email, form):
@@ -210,10 +209,6 @@ def get_user_display_data():
 
 def process_reset_password_request(email):
 
-    # get user id by email
-    if not email:
-        return None
-
     user_id = get_id_by_email(email)
 
     # generate a unique token for the password reset and store in the database
@@ -245,8 +240,8 @@ def process_reset_password_request(email):
             current_app.logger.info(
                 f"A password reset request for {email} was initiated"
             )
-        except Exception as e:
-            current_app.logger.error(f"Error sending verification email: {e}")
+        except SendGridAPIClientError as e:
+            current_app.logger.error(f"SendGrid error: {e}")
 
 
 def process_reset_password(token, form):
