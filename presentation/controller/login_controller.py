@@ -67,12 +67,7 @@ def login():
                 session["pre_2fa_user_email"] = user.email
                 return redirect(url_for("login.otp_verify"))
             # Else perform normal login
-            session.clear()
-            session.modified = True
-            # Force Flask to assign a new session ID by setting a temporary value
-            session['_regenerate'] = True
-            session.pop('_regenerate', None)
-            
+            session.clear()  # Force new session on login
             session["init"] = os.urandom(16).hex()  # Force new session file/ID
             session_token = os.urandom(32).hex()
             session["session_token"] = session_token
