@@ -15,26 +15,26 @@
 <body>
     {% include 'admin_navbar.html' %}
     <div id="flashModal" class="modal" style="display:none;">
-    <div class="modal-content">
-        <button type="button" class="close" onclick="closeFlashModal()" aria-label="Close">&times;</button>
-        {% with flash_messages = get_flashed_messages(with_categories=true) %}
-        {% if flash_messages %}
-            {% for category, message in flash_messages %}
-            <div class="flash-message {{ category }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-        {% endwith %}
-    </div>
+        <div class="modal-content">
+            <button type="button" class="close" onclick="closeFlashModal()" aria-label="Close">&times;</button>
+            {% with flash_messages = get_flashed_messages(with_categories=true) %}
+                {% if flash_messages %}
+                    {% for category, message in flash_messages %}
+                        <div class="flash-message {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
     </div>
 
     <div class="bulletin-container">
         {% if error %}
             <div class="error-message" style="color: black; text-align: center; margin-top: 20px;">
-            {{ error }}
+                {{ error }}
             </div>
         {% elif query %}
             <div class="search-message" style="color: black; text-align: center; margin-top: 20px;">
-            Showing results for "{{ query }}"
+                Showing results for "{{ query }}"
             </div>
         {% endif %}
         <div class="search-bar" style="text-align: center; margin-bottom: 20px;">
@@ -44,9 +44,6 @@
                 <button type="submit">Search</button>
             </form>
         </div>
-
-
-        
 
         <div class="grid-container">
             {% for b in bulletin_list %}
@@ -73,53 +70,50 @@
                 </div>
             {% endfor %}
         </div>
-
-        
     </div>
 
     <!-- Global Join Modal -->
     <div id="bulletinModal" class="modal">
         <div class="modal-content">
-        <button type="button" class="close" onclick="closeModal()" aria-label="Close">&times;</button>
-        <div id="modalBody"></div>
-        <form id="joinForm" method="post" action="{{ url_for('admin.delete_activity') }}">
-            {{ delete_activity_form.csrf_token }}
-            <input
-            type="hidden"
-            name="activity_id"
-            id="activityIdInput"
-            value="{{ delete_activity_form.activity_id.data or '' }}"
-            >
-            <button type="submit" class="bulletin-btn" style="margin-top: 20px;">Delete</button>
-            {% if delete_activity_form.activity_id.errors %}
-            <div class="error-message">{{ delete_activity_form.activity_id.errors[0] }}</div>
-            {% endif %}
-        </form>
+            <button type="button" class="close" onclick="closeModal()" aria-label="Close">&times;</button>
+            <div id="modalBody"></div>
+            <form id="joinForm" method="post" action="{{ url_for('admin.delete_activity') }}">
+                {{ delete_activity_form.csrf_token }}
+                <input
+                    type="hidden"
+                    name="activity_id"
+                    id="activityIdInput"
+                    value="{{ delete_activity_form.activity_id.data or '' }}"
+                >
+                <button type="submit" class="bulletin-btn" style="margin-top: 20px;">Delete</button>
+                {% if delete_activity_form.activity_id.errors %}
+                    <div class="error-message">{{ delete_activity_form.activity_id.errors[0] }}</div>
+                {% endif %}
+            </form>
         </div>
     </div>
 
     <div id="hostModal" class="modal">
-    <div class="modal-content">
-        <button type="button" class="close" onclick="closeHostModal()" aria-label="Close">&times;</button>
-        <h2>Host New Activity</h2>
-        <form method="POST" action="{{ url_for('bulletin.host_activity') }}">
-            <input type="text" name="activity_name" placeholder="Activity Name" required><br><br>
-            
-            <select name="activity_type" required>
-                <option value="" disabled selected>Select Activity Type</option>
-                <option value="Sports">Sports</option>
-                <option value="Non Sports">Non Sports</option>
-            </select><br><br>
+        <div class="modal-content">
+            <button type="button" class="close" onclick="closeHostModal()" aria-label="Close">&times;</button>
+            <h2>Host New Activity</h2>
+            <form method="POST" action="{{ url_for('bulletin.host_activity') }}">
+                <input type="text" name="activity_name" placeholder="Activity Name" required><br><br>
+                
+                <select name="activity_type" required>
+                    <option value="" disabled selected>Select Activity Type</option>
+                    <option value="Sports">Sports</option>
+                    <option value="Non Sports">Non Sports</option>
+                </select><br><br>
 
-            <input type="text" name="skills_req" placeholder="Required Skills" required><br><br>
-            <input type="datetime-local" name="date" required><br><br>
-            <input type="text" name="location" placeholder="Location" required><br><br>
-            <input type="number" name="max_pax" min="1" value="1" required><br><br>
-            <button type="submit" class="bulletin-btn">Host</button>
-        </form>
+                <input type="text" name="skills_req" placeholder="Required Skills" required><br><br>
+                <input type="datetime-local" name="date" required><br><br>
+                <input type="text" name="location" placeholder="Location" required><br><br>
+                <input type="number" name="max_pax" min="1" value="1" required><br><br>
+                <button type="submit" class="bulletin-btn">Host</button>
+            </form>
+        </div>
     </div>
-    </div>
-
 
     <script>
         function openModal(index) {
@@ -132,7 +126,6 @@
             activityIdInput.value = data.dataset.activityId;  // pulled from data attribute
             modal.style.display = "block";
         }
-
 
         function closeModal() {
             document.getElementById("bulletinModal").style.display = "none";
@@ -152,15 +145,16 @@
         function closeHostModal() {
             document.getElementById("hostModal").style.display = "none";
         }
-        window.onload = function () {
-        if (document.querySelector('#flashModal .flash-message')) {
-            document.getElementById('flashModal').style.display = 'block';
-        }
-        };
-        function closeFlashModal() {
-        document.getElementById('flashModal').style.display = 'none';
-        }
 
+        window.onload = function () {
+            if (document.querySelector('#flashModal .flash-message')) {
+                document.getElementById('flashModal').style.display = 'block';
+            }
+        };
+
+        function closeFlashModal() {
+            document.getElementById('flashModal').style.display = 'none';
+        }
     </script>
 </body>
-</html> 
+</html>
