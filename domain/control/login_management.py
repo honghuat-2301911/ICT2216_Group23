@@ -12,19 +12,16 @@ from flask_login import logout_user as flask_logout_user
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
-from data_source.user_queries import (
-    clear_failed_logins,
-    delete_reset_password,
-    get_id_by_email,
-    get_user_by_email,
-    get_user_by_token_hash,
-    get_user_failed_attempts_count,
-    insert_into_reset_password,
-    record_failed_login,
-    update_reset_link_used,
-    update_user_lockout,
-    update_user_password_by_id,
-)
+from data_source.user_queries import (clear_failed_logins,
+                                      delete_reset_password, get_id_by_email,
+                                      get_user_by_email,
+                                      get_user_by_token_hash,
+                                      get_user_failed_attempts_count,
+                                      insert_into_reset_password,
+                                      record_failed_login,
+                                      update_reset_link_used,
+                                      update_user_lockout,
+                                      update_user_password_by_id)
 from domain.entity.user import User
 
 FAILED_ATTEMPT_LIMIT = 10

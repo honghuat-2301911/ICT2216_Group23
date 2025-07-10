@@ -6,22 +6,18 @@ from flask import current_app, g
 from PIL import Image
 from werkzeug.utils import secure_filename
 
-from data_source.bulletin_queries import (
-    get_hosted_activities,
-    get_joined_activities,
-    get_joined_user_names_by_activity_id,
-    get_sports_activity_by_id,
-    update_sports_activity,
-    update_sports_activity_details,
-)
+from data_source.bulletin_queries import (get_hosted_activities,
+                                          get_joined_activities,
+                                          get_joined_user_names_by_activity_id,
+                                          get_sports_activity_by_id,
+                                          update_sports_activity,
+                                          update_sports_activity_details)
 from data_source.social_feed_queries import get_posts_by_user_id
-from data_source.user_queries import (
-    disable_otp_by_user_id,
-    get_user_by_id,
-    remove_user_profile_picture,
-    update_user_profile_by_id,
-)
-from domain.control.otp_management import generate_otp_for_user, verify_and_enable_otp
+from data_source.user_queries import (disable_otp_by_user_id, get_user_by_id,
+                                      remove_user_profile_picture,
+                                      update_user_profile_by_id)
+from domain.control.otp_management import (generate_otp_for_user,
+                                           verify_and_enable_otp)
 from domain.control.social_feed_management import delete_post, edit_post
 from domain.entity.social_post import Comment, Post
 from domain.entity.sports_activity import SportsActivity

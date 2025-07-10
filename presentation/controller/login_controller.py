@@ -1,27 +1,19 @@
 import os
 from datetime import datetime, timezone
 
-from flask import (
-    Blueprint,
-    current_app,
-    flash,
-    redirect,
-    render_template,
-    session,
-    url_for,
-)
+from flask import (Blueprint, current_app, flash, redirect, render_template,
+                   session, url_for)
 from flask_login import current_user, login_required
 from flask_login import login_user as flask_login_user
 
-from data_source.user_queries import get_user_by_email, update_user_session_token
-from domain.control.login_management import (
-    login_user,
-    logout_user,
-    process_reset_password,
-    process_reset_password_request,
-    verify_user_otp,
-)
-from domain.entity.forms import LoginForm, OTPForm, RequestResetForm, ResetPasswordForm
+from data_source.user_queries import (get_user_by_email,
+                                      update_user_session_token)
+from domain.control.login_management import (login_user, logout_user,
+                                             process_reset_password,
+                                             process_reset_password_request,
+                                             verify_user_otp)
+from domain.entity.forms import (LoginForm, OTPForm, RequestResetForm,
+                                 ResetPasswordForm)
 
 LOGIN_VIEW = "login.login"
 BULLETIN_PAGE = "bulletin.bulletin_page"
