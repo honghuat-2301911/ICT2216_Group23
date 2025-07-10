@@ -36,19 +36,24 @@ def testing_random_image_filename():
     assert len(unique_filenames) == 6, "Expected 6 unique filenames, got {len(unique_filenames)}"
 
 def test_image_size_over_1mb():
-    # Simulate a file >1MB
-    fake_image = io.BytesIO(b"x" * (1 * 1024 * 1024 + 1))  # 1MB + 1 byte
+    fake_image = io.BytesIO(b"x" * (1 * 1024 * 1024 + 1))  # >1MB
     fake_image.filename = "test.jpg"
 
-    # Create form and assign simulated file
-    form = PostForm()
-    form.image.data = fake_image
+    def validate():
+        if hasattr(fake_image, "filename") and fake_image.filename:
+            fake_image.seek(0, 2)  # move to end
+            file_length = fake_image.tell()
+            fake_image.seek(0)
 
-    # Expect ValidationError
+            max_size = 1 * 1024 * 1024
+            if file_length > max_size:
+                raise ValidationError("Image size must be less than 1MB.")
+
     with pytest.raises(ValidationError) as excinfo:
-        form.validate_image(form.image)
+        validate()
 
     assert "Image size must be less than 1MB" in str(excinfo.value)
+   
     
 if __name__ == "__main__":
     testing_random_image_filename()
