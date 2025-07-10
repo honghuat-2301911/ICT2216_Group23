@@ -14,7 +14,9 @@ def generate_otp_for_user(user_id):
 
     otp_secret = pyotp.random_base32()
     if not set_otp_secret(otp_secret, user_id):
-        current_app.logger.warning(f"Failed to update user {user['email']} with OTP secret" )
+        current_app.logger.warning(
+            f"Failed to update user {user['email']} with OTP secret"
+        )
         return None, "Failed to update user with OTP secret"
 
     uri = pyotp.totp.TOTP(otp_secret).provisioning_uri(
@@ -38,6 +40,8 @@ def verify_and_enable_otp(user_id, otp_code):
         if enable_2fa(user_id):
             return True, None
         else:
-            current_app.logger.warning(f"User {user_id} failed to enable 2 factor authentication" )
+            current_app.logger.warning(
+                f"User {user_id} failed to enable 2 factor authentication"
+            )
             return False, "Failed to enable 2FA"
     return False, "Invalid OTP code"

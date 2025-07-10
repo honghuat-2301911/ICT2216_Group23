@@ -27,9 +27,9 @@ from domain.control.login_management import (
     logout_user,
     process_reset_password,
     process_reset_password_request,
-    verify_user_otp,
     verify_control_class,
     verify_otp_control_class,
+    verify_user_otp,
 )
 from domain.entity.forms import LoginForm, OTPForm, RequestResetForm, ResetPasswordForm
 from domain.entity.user import User
@@ -41,10 +41,12 @@ login_bp = Blueprint(
     "login", __name__, url_prefix="/", template_folder="../templates/login"
 )
 
+
 def get_client_ip():
     if request.headers.get("X-Forwarded-For"):
         return request.headers.get("X-Forwarded-For").split(",")[0].strip()
     return request.remote_addr
+
 
 @login_bp.route("/")
 def root_redirect():
@@ -66,7 +68,9 @@ def login():
                 form.email.errors.append(
                     "You must verify your email before logging in. Please check your inbox."
                 )
-                current_app.logger.warning(f"Unverified login attempt by user with email: {form.email.data}")
+                current_app.logger.warning(
+                    f"Unverified login attempt by user with email: {form.email.data}"
+                )
                 return render_template("login/login.html", form=form)
             # If 2FA is enabled, redirect to OTP verification page
             if getattr(user, "otp_enabled", False):
@@ -74,21 +78,27 @@ def login():
                 session["pre_2fa_user_email"] = user.email
                 return redirect(url_for("login.otp_verify"))
             # Else perform normal login
-            session.clear()  # Force new session on login
-            session["init"] = os.urandom(16).hex()  # Force new session file/ID
+            session.clear()
+            flask_login_user(user)
+
+            session["init"] = os.urandom(16).hex()
             session_token = os.urandom(32).hex()
             session["session_token"] = session_token
             update_user_session_token(user.id, session_token)
-            flask_login_user(user)
-            session["created_at"] = datetime.now(
-                timezone.utc
-            ).isoformat()  # After user authenticated, time stamp is set
+            session["created_at"] = datetime.now(timezone.utc).isoformat()
             session["last_activity"] = datetime.now(timezone.utc).isoformat()
+
+            session.modified = True
+            
             if user.role == "admin":
-                current_app.logger.info(f"Admin user with email: {form.email.data} was logged in successfully")
+                current_app.logger.info(
+                    f"Admin user with email: {form.email.data} was logged in successfully"
+                )
                 return redirect(url_for("admin.bulletin_page"))
             else:
-                current_app.logger.info(f"Normal user with email: {form.email.data} was logged in successfully")
+                current_app.logger.info(
+                    f"Normal user with email: {form.email.data} was logged in successfully"
+                )
                 return redirect(url_for(BULLETIN_PAGE))
         # invalid credentials
         form.email.errors.append("Invalid email or password.")
@@ -132,14 +142,20 @@ def otp_verify():
             session["created_at"] = datetime.now(timezone.utc).isoformat()
             session["last_activity"] = datetime.now(timezone.utc).isoformat()
             if user.role == "admin":
-                current_app.logger.info(f"Admin User with email {user.email} passed 2FA and was logged in")
+                current_app.logger.info(
+                    f"Admin User with email {user.email} passed 2FA and was logged in"
+                )
                 return redirect(url_for("admin.bulletin_page"))
             else:
-                current_app.logger.info(f"Normal User with email {user.email} passed 2FA and was logged in")
+                current_app.logger.info(
+                    f"Normal User with email {user.email} passed 2FA and was logged in"
+                )
                 return redirect(url_for(BULLETIN_PAGE))
         else:
             ip = get_client_ip()
-            current_app.logger.warning(f"Failed OTP verification attempt for user: {user.email}, IP: {ip}")
+            current_app.logger.warning(
+                f"Failed OTP verification attempt for user: {user.email}, IP: {ip}"
+            )
             flash("Invalid OTP code. Please try again.")
     return render_template("login/login_otp.html", form=form)
 

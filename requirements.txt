@@ -13,3 +13,4 @@ pillow
 itsdangerous
 sendgrid
 python-dotenv
+Flask-Limiter

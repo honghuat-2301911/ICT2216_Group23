@@ -7,9 +7,9 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+from webdriver_manager.chrome import ChromeDriverManager
 
 
 class CreateActivityPageTest(unittest.TestCase):
@@ -75,8 +75,7 @@ class CreateActivityPageTest(unittest.TestCase):
             time.sleep(1)  # Wait for modal animation
 
             self.fill_activity_form(
-                name="Selenium Test Activity",
-                date="3000-07-08T15:30"
+                name="Selenium Test Activity", date="3000-07-08T15:30"
             )
 
             # Assert that the activity was created successfully
@@ -108,12 +107,14 @@ class CreateActivityPageTest(unittest.TestCase):
 
             self.fill_activity_form(
                 name="Past Date Activity",
-                date="2000-07-08T15:30"  # Past date for testing failure
+                date="2000-07-08T15:30",  # Past date for testing failure
             )
 
             wait = WebDriverWait(self.driver, 10)
             error_elem = wait.until(
-                EC.visibility_of_element_located((By.CSS_SELECTOR, "#flashModal .flash-message.error"))
+                EC.visibility_of_element_located(
+                    (By.CSS_SELECTOR, "#flashModal .flash-message.error")
+                )
             )
             self.assertIn("Date cannot be in the past", error_elem.text)
 

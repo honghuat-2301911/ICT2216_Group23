@@ -43,7 +43,7 @@ jobs:
           echo "VALUES ('eden', '\$2b\$12\$LY/PNCs3ZwJgifKB9rrBiuSao3EaeBq4uTX/1bq4y3ZxidiC0tEsO', '2301875@sit.singaporetech.edu.sg', 'user', 1);" >> init.sql
       
       - name: Build and start services (without certbot)
-        run: docker compose -f docker-compose.yml -f docker-compose.override.yml up --build -d
+        run: docker compose -f docker-compose.yml -f certbot-uitest-override.yml up --build -d
 
       - name: Install Chrome
         run: |
