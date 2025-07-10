@@ -85,7 +85,11 @@ def create_app():
 
     # Configuration for log format and handling
 
-    log_dir = "/app/logs"
+    # log_dir = "/app/logs"
+    if app.config.get("TESTING"):
+        log_dir = os.path.join(os.getcwd(), "logs")  # use current folder for tests
+    else:
+        log_dir = "/app/logs"
     os.makedirs(log_dir, exist_ok=True)
 
     error_log_file = os.path.join(log_dir, "error.log")
