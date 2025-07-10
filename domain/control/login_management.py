@@ -9,7 +9,7 @@ import bcrypt
 import pyotp
 from flask import current_app, flash, g, redirect, render_template, url_for
 from flask_login import logout_user as flask_logout_user
-from sendgrid import SendGridAPIClient, SendGridAPIClientError
+from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
 from data_source.user_queries import (
@@ -240,8 +240,8 @@ def process_reset_password_request(email):
             current_app.logger.info(
                 f"A password reset request for {email} was initiated"
             )
-        except SendGridAPIClientError as e:
-            current_app.logger.error(f"SendGrid error: {e}")
+        except Exception as e:
+            current_app.logger.error(f"Error sending verification email: {e}")
 
 
 def process_reset_password(token, form):
