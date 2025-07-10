@@ -1,3 +1,16 @@
+{% macro render_modal(modal_id, close_func, content) %}
+<div id="{{ modal_id }}" class="modal">
+  <div class="modal-content">
+    <button type="button" class="close" onclick="{{ close_func }}" aria-label="Close">&times;</button>
+    {{ content() }}
+  </div>
+</div>
+{% endmacro %}
+{% macro render_message(message, category) %}
+  <div class="{{ category }}-message" style="color: black; text-align: center; margin-top: 20px;">
+    {{ message }}
+  </div>
+{% endmacro %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,7 +33,7 @@
         {% with flash_messages = get_flashed_messages(with_categories=true) %}
         {% if flash_messages %}
             {% for category, message in flash_messages %}
-            <div class="flash-message {{ category }}">{{ message }}</div>
+                {{ render_message(message, 'flash-message ' ~ category) }}
             {% endfor %}
         {% endif %}
         {% endwith %}
@@ -29,13 +42,9 @@
 
     <div class="bulletin-container">
         {% if error %}
-            <div class="error-message" style="color: black; text-align: center; margin-top: 20px;">
-            {{ error }}
-            </div>
+            {{ render_message(error, 'error') }}
         {% elif query %}
-            <div class="search-message" style="color: black; text-align: center; margin-top: 20px;">
-            Showing results for "{{ query }}"
-            </div>
+            {{ render_message('Showing results for "' ~ query ~ '"', 'search') }}
         {% endif %}
         <div class="search-bar" style="text-align: center; margin-bottom: 20px;">
             <form method="post" action="{{ url_for('admin.bulletin_page') }}">
@@ -77,14 +86,6 @@
         
     </div>
 
-    {% macro render_modal(modal_id, close_func, content) %}
-<div id="{{ modal_id }}" class="modal">
-  <div class="modal-content">
-    <button type="button" class="close" onclick="{{ close_func }}" aria-label="Close">&times;</button>
-    {{ content() }}
-  </div>
-</div>
-{% endmacro %}
     <!-- Global Join Modal -->
     {% call(content) render_modal('bulletinModal', 'closeModal()', content) %}
       <div id="modalBody"></div>
