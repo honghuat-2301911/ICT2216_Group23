@@ -67,7 +67,6 @@
                     <p><strong>Date:</strong> {{ b.date }}</p>
                     <p><strong>Required Skills:</strong> {{ b.skills_req }}</p>
                     <p><strong>Max Participants:</strong> {{ b.max_pax }}</p>
-                    <p><strong>Slots left:</strong> {{ b.count }}</p>
                 </div>
             {% endfor %}
         </div>
@@ -86,10 +85,32 @@
                     id="activityIdInput"
                     value="{{ delete_activity_form.activity_id.data or '' }}"
                 >
-                <button type="submit" class="bulletin-btn" style="margin-top: 20px; background-color: #e74c3c;">Delete</button>
+                <button type="submit" class="bulletin-btn" style="margin-top: 20px;">Delete</button>
                 {% if delete_activity_form.activity_id.errors %}
                     <div class="error-message">{{ delete_activity_form.activity_id.errors[0] }}</div>
                 {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <div id="hostModal" class="modal">
+        <div class="modal-content">
+            <button type="button" class="close" onclick="closeHostModal()" aria-label="Close">&times;</button>
+            <h2>Host New Activity</h2>
+            <form method="POST" action="{{ url_for('bulletin.host_activity') }}">
+                <input type="text" name="activity_name" placeholder="Activity Name" required><br><br>
+                
+                <select name="activity_type" required>
+                    <option value="" disabled selected>Select Activity Type</option>
+                    <option value="Sports">Sports</option>
+                    <option value="Non Sports">Non Sports</option>
+                </select><br><br>
+
+                <input type="text" name="skills_req" placeholder="Required Skills" required><br><br>
+                <input type="datetime-local" name="date" required><br><br>
+                <input type="text" name="location" placeholder="Location" required><br><br>
+                <input type="number" name="max_pax" min="1" value="1" required><br><br>
+                <button type="submit" class="bulletin-btn">Host</button>
             </form>
         </div>
     </div>
@@ -116,6 +137,14 @@
                 closeModal();
             }
         };
+
+        function openHostModal() {
+            document.getElementById("hostModal").style.display = "block";
+        }
+
+        function closeHostModal() {
+            document.getElementById("hostModal").style.display = "none";
+        }
 
         window.onload = function () {
             if (document.querySelector('#flashModal .flash-message')) {
