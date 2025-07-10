@@ -3,7 +3,7 @@ import uuid
 
 import bcrypt
 from flask import current_app, g
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 from werkzeug.utils import secure_filename
 
 from data_source.bulletin_queries import (
