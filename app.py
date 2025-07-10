@@ -146,8 +146,12 @@ def create_app():
     app.register_blueprint(profile_bp)
 
     # --- SESSION TIMEOUT HANDLER ---
-    IDLE_TIMEOUT = timedelta(seconds=15 * 60)  # 15 minutes
-    ABSOLUTE_TIMEOUT = timedelta(seconds=30 * 60)  # 30 minutes
+    # IDLE_TIMEOUT = timedelta(seconds=15 * 60)  # 15 minutes
+    # ABSOLUTE_TIMEOUT = timedelta(seconds=30 * 60)  # 30 minutes
+
+    # temporarily set the session timeouts to 2 minutes for testing
+    IDLE_TIMEOUT = timedelta(seconds=2 * 60)
+    ABSOLUTE_TIMEOUT = timedelta(seconds=2 * 60)
 
     @app.before_request
     def enforce_session_timeouts():
