@@ -108,8 +108,8 @@ def like_post(post_id):
         like_count = get_like_count(post_id)
         return jsonify(success=success, like_count=like_count)
     except Exception as e:
-        print(f"[LIKE ERROR] {e}")
-        return jsonify(success=False, error=str(e)), 500
+        current_app.logger.error(f"[LIKE ERROR] {e}")
+        return jsonify(success=False, error="An internal error occurred."), 500
 
 
 @social_feed_bp.route("/unlike/<int:post_id>", methods=["POST"])
@@ -122,8 +122,8 @@ def unlike_post(post_id):
         like_count = get_like_count(post_id)
         return jsonify(success=success, like_count=like_count)
     except Exception as e:
-        print(f"[UNLIKE ERROR] {e}")
-        return jsonify(success=False, error=str(e)), 500
+        current_app.logger.error(f"[UNLIKE ERROR] {e}")
+        return jsonify(success=False, error="An internal error occurred."), 500
 
 
 @social_feed_bp.route("/post/<int:post_id>", methods=["GET"])

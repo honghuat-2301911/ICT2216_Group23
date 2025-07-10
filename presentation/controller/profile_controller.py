@@ -58,7 +58,7 @@ def fetch_profile():
     user = profile_manager.get_user_profile(user_id)
     user_posts = profile_manager.get_user_posts(user_id)
     form = ProfileEditForm(obj=user)
-    
+
     if request.method == "POST" and form.validate_on_submit():
         profile_manager.update_profile_full(user_id, form)
         flash("Profile updated successfully.", "success")
@@ -68,7 +68,7 @@ def fetch_profile():
             for error in field_errors:
                 flash(f"{field.capitalize()}: {error}", "error")
         return redirect(url_for(PROFILE_PAGE))
-    
+
     return render_template(
         "profile/profile.html",
         user=user,

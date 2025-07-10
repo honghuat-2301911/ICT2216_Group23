@@ -6,10 +6,15 @@ from logging.handlers import RotatingFileHandler
 
 from dotenv import load_dotenv
 from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask_limiter import Limiter
+from flask_limiter.errors import RateLimitExceeded
+from flask_limiter.util import get_remote_address
 from flask_login import LoginManager
 from flask_session import Session
 from flask_wtf import CSRFProtect
+from flask_wtf.csrf import CSRFError
 from itsdangerous import URLSafeTimedSerializer
+from werkzeug.exceptions import HTTPException
 
 from data_source.user_queries import get_user_by_id, get_user_session_token
 from domain.entity.user import User
@@ -20,18 +25,20 @@ from presentation.controller.profile_controller import profile_bp
 from presentation.controller.register_controller import register_bp
 from presentation.controller.social_feed_controller import social_feed_bp
 
-from werkzeug.exceptions import HTTPException
-
 
 class LevelFilter(logging.Filter):
     def __init__(self, level):
         self.level = level
+
     def filter(self, record):
         return record.levelno == self.level
-        
+
+
 def setup_logging(app, error_log_file, warning_log_file, info_log_file):
-    formatter = logging.Formatter("[%(asctime)s] %(levelname)s in %(module)s: %(message)s")
-    
+    formatter = logging.Formatter(
+        "[%(asctime)s] %(levelname)s in %(module)s: %(message)s"
+    )
+
     # Error handler
     error_handler = RotatingFileHandler(
         error_log_file, maxBytes=10 * 1024 * 1024, backupCount=200, encoding="utf-8"
@@ -39,7 +46,7 @@ def setup_logging(app, error_log_file, warning_log_file, info_log_file):
     error_handler.setLevel(logging.ERROR)
     error_handler.setFormatter(formatter)
     error_handler.addFilter(LevelFilter(logging.ERROR))
-    
+
     # Warning handler
     warning_handler = RotatingFileHandler(
         warning_log_file, maxBytes=10 * 1024 * 1024, backupCount=200, encoding="utf-8"
@@ -47,7 +54,7 @@ def setup_logging(app, error_log_file, warning_log_file, info_log_file):
     warning_handler.setLevel(logging.WARNING)
     warning_handler.setFormatter(formatter)
     warning_handler.addFilter(LevelFilter(logging.WARNING))
-    
+
     # Info handler
     info_handler = RotatingFileHandler(
         info_log_file, maxBytes=10 * 1024 * 1024, backupCount=200, encoding="utf-8"
@@ -55,15 +62,16 @@ def setup_logging(app, error_log_file, warning_log_file, info_log_file):
     info_handler.setLevel(logging.INFO)
     info_handler.setFormatter(formatter)
     info_handler.addFilter(LevelFilter(logging.INFO))
-    
+
     # Remove default handlers
     app.logger.handlers.clear()
-    
+
     # Add all handlers
     app.logger.addHandler(error_handler)
     app.logger.addHandler(warning_handler)
     app.logger.addHandler(info_handler)
     app.logger.setLevel(logging.INFO)
+
 
 def create_app():
     load_dotenv()
@@ -91,9 +99,9 @@ def create_app():
     app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(
         minutes=30
     )  # Browser cookie timeout
-    
-    app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024
-        
+
+    app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024
+
     app.config["SESSION_COOKIE_SECURE"] = True
     app.config["SESSION_COOKIE_HTTPONLY"] = True
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
@@ -109,6 +117,12 @@ def create_app():
     # Log the user out if either changes (to help prevent session hijacking).
 
     csrf = CSRFProtect(app)
+
+    limiter = Limiter(
+        app=app,
+        key_func=get_remote_address,
+        default_limits=["10 per second"]
+    )
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -133,8 +147,10 @@ def create_app():
     app.register_blueprint(profile_bp)
 
     # --- SESSION TIMEOUT HANDLER ---
-    IDLE_TIMEOUT = timedelta(seconds=15 * 60)  # 15 minutes
+    # IDLE_TIMEOUT = timedelta(seconds=15 * 60)  # 15 minutes
     ABSOLUTE_TIMEOUT = timedelta(seconds=30 * 60)  # 30 minutes
+
+    IDLE_TIMEOUT = timedelta(seconds=2 * 60)  # temporarily set the idle session timeout to 2 minutes for testing
 
     @app.before_request
     def enforce_session_timeouts():
@@ -175,9 +191,37 @@ def create_app():
         # Update last activity
         session["last_activity"] = now.isoformat()
 
-
     # Configuration for email verification
     app.config["SERIALIZER"] = URLSafeTimedSerializer(app.config["SECRET_KEY"])
+
+
+    @app.errorhandler(RateLimitExceeded)
+    def ratelimit_handler(e):
+        ip = get_remote_address()
+        app.logger.warning(f"Rate limit exceeded by IP: {ip}")
+        return render_template(
+            "error/error.html",
+            error_code=429,
+            error_message="Too many requests. Please wait and try again.",
+        ), 429
+        
+    @app.errorhandler(CSRFError)
+    def handle_csrf_error(e):
+        # Default values
+        code = 500
+        message = str(e)
+        exception_type = type(e).__name__
+        tb = traceback.format_exc()
+
+        # If the exception is an HTTPException, extract details
+        if isinstance(e, HTTPException):
+            code = e.code
+            message = e.description
+
+        # Log the error with traceback
+        app.logger.error(f"Exception occurred: {exception_type}: {message}\n{tb}")
+
+        return render_template("error/csrf-error.html"), 400
 
     @app.errorhandler(Exception)
     def handle_exception(e):
@@ -199,13 +243,11 @@ def create_app():
             render_template(
                 "error/error.html",
                 error_code=code,
-                error_message=message,
-                exception_type=exception_type,
-                traceback_info=tb,
+                error_message="We're sorry, but an unexpected error has occurred.",
             ),
             code,
         )
-        
+
     # make sure DB has the required tables
     # init_schema()
     return app

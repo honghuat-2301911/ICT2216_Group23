@@ -26,8 +26,17 @@ jobs:
           echo "FLASK_SECRET_KEY=${{ secrets.FLASK_SECRET_KEY }}" >> .env
           echo "CERTBOT_EMAIL=${{ secrets.CERTBOT_EMAIL }}" >> .env
 
+      - name: Generate dummy SSL certs
+        run: |
+          mkdir -p ./certbot/conf/live/buddiesfinders.hopto.org
+
+          openssl req -x509 -nodes -newkey rsa:2048 -days 1 \
+            -keyout ./certbot/conf/live/buddiesfinders.hopto.org/privkey.pem \
+            -out ./certbot/conf/live/buddiesfinders.hopto.org/fullchain.pem \
+            -subj "/CN=localhost"
+      
       - name: Start Docker
-        run: docker compose up --build -d
+        run: docker compose -f docker-compose.yml -f certbot-uitest-override.yml up --build -d
 
       - name: Wait for Nginx
         run: sleep 5
@@ -37,13 +46,13 @@ jobs:
 
       - name: Test Status Codes
         run: |
-          curl -s -o /dev/null -w "%{http_code}" http://localhost | grep 302
-          curl -s -o /dev/null -w "%{http_code}" http://localhost/login | grep 200
-          curl -s -o /dev/null -w "%{http_code}" http://localhost/nonexistent | grep 404
+          curl -sk -o /dev/null -w "%{http_code}" https://localhost | grep 302
+          curl -sk -o /dev/null -w "%{http_code}" https://localhost/login | grep 200
+          curl -sk -o /dev/null -w "%{http_code}" https://localhost/nonexistent | grep 404
 
       - name: Test Security Headers
         run: |
-          curl -s -I http://localhost/login | grep "X-Frame-Options: DENY"
+          curl -sk -I https://localhost/login | grep "strict-transport-security: max-age=15768000; includeSubDomains"
 
       - name: Check Nginx Logs
         run: docker compose logs nginx | grep -i "error" && exit 1 || exit 0

@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CSRF Error</title>
+</head>
+<body>
+    <h1>Security Error</h1>
+    <p>Your session has expired or your request could not be verified for security reasons. Please refresh the page and try again.</p>
+    <a href="{{ url_for('login.login') }}">Return to Login</a>
+</body>
+</html>

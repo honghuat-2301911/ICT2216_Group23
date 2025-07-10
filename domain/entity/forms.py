@@ -1,4 +1,4 @@
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed
@@ -170,10 +170,10 @@ class PostForm(FlaskForm):
                 file.seek(0, 2)
                 file_length = file.tell()
                 file.seek(0)
-                max_size = 1 * 1024 * 1024 
+                max_size = 1 * 1024 * 1024
                 if file_length > max_size:
                     raise ValidationError("Image size must be less than 1MB.")
-                
+
 
 class CommentForm(FlaskForm):
     comment = StringField(
@@ -223,7 +223,7 @@ class ProfileEditForm(FlaskForm):
                 file.seek(0, 2)
                 file_length = file.tell()
                 file.seek(0)
-                max_size = 1 * 1024 * 1024 
+                max_size = 1 * 1024 * 1024
                 if file_length > max_size:
                     raise ValidationError("Profile picture size must be less than 1MB.")
 
@@ -349,3 +349,7 @@ class ResetPasswordForm(FlaskForm):
 
 class DisableOTPForm(FlaskForm):
     submit = SubmitField("Disable 2FA")
+
+class SubmitVerifyEmailForm(FlaskForm):
+    token = HiddenField()
+    submit = SubmitField("Verify My Email")
