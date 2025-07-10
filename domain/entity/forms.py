@@ -351,4 +351,5 @@ class DisableOTPForm(FlaskForm):
     submit = SubmitField("Disable 2FA")
 
 class SubmitVerifyEmailForm(FlaskForm):
-    submit = SubmitField("Submit Token")
+    token = HiddenField()
+    submit = SubmitField("Verify My Email")

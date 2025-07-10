@@ -46,17 +46,17 @@ def register():
 
 @register_bp.route("/verify/<token>", methods=["GET"])
 def verify_email(token):
-    return render_template("register/verify_button.html", token=token)
+    verify_email_form = SubmitVerifyEmailForm()
+    return render_template("register/verify_button.html", token=token, verify_email_form=verify_email_form)
 
 @register_bp.route("/verify", methods=["POST"])
 def verify_email_post():
     verify_email_form = SubmitVerifyEmailForm()
-    if form.validate_on_submit():
-        token = form.token.data
+    if verify_email_form.validate_on_submit():
+        token = verify_email_form.token.data
         if not token:
             flash("Verification failed: Missing token.", "danger")
             return redirect(url_for("login.login"))
-
         success, result = update_verification_status(token)
         if success:
             flash("Your email has been verified! You can now log in.", "success")
@@ -65,5 +65,4 @@ def verify_email_post():
     else:
         flash("Invalid form submission.", "danger")
     return redirect(url_for("login.login"))
-
 
