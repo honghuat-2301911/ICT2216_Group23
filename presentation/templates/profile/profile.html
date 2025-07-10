@@ -560,10 +560,15 @@
         document.querySelectorAll('.edit-activity-btn').forEach(btn => {
             btn.onclick = function() {
                 const activityDiv = this.closest('.profile-feed-item');
-                currentEditActivityId = activityDiv ? activityDiv.getAttribute('data-activity-id').split('-')[0] : null;
-                // For now, just fill with dummy data from the DOM
-                document.getElementById('editActivityId').value = currentEditActivityId;
-                document.getElementById('editActivityForm').action = '/profile/edit_activity/' + currentEditActivityId;
+                const rawActivityId = activityDiv ? activityDiv.getAttribute('data-activity-id') : null;
+                const activityIdPattern = /^[a-zA-Z0-9_-]+$/; // Allow only alphanumeric, hyphen, and underscore
+                currentEditActivityId = rawActivityId && activityIdPattern.test(rawActivityId) ? rawActivityId.split('-')[0] : null;
+                if (currentEditActivityId) {
+                    document.getElementById('editActivityId').value = currentEditActivityId;
+                    document.getElementById('editActivityForm').action = '/profile/edit_activity/' + currentEditActivityId;
+                } else {
+                    console.error('Invalid activity ID');
+                }
                 document.getElementById('editActivityName').value = activityDiv.querySelector('p strong').textContent;
                 document.getElementById('editActivityType').value = activityDiv.querySelector('p:nth-of-type(2)').textContent.replace('Type: ', '');
                 document.getElementById('editSkillsReq').value = activityDiv.querySelector('p:nth-of-type(3)').textContent.replace('Skills Required: ', '');
