@@ -31,6 +31,8 @@ class CreateFeedPageTest(unittest.TestCase):
 
     def fill_login_form(self, email, password):
         self.driver.get(f"{self.base_url}/login")
+        print(self.driver.current_url)
+        print(self.driver.page_source)  # debug
         self.driver.find_element(By.NAME, "email").send_keys(email)
         self.driver.find_element(By.NAME, "password").send_keys(password)
         self.driver.find_element(By.CLASS_NAME, "login-btn").click()
@@ -39,6 +41,8 @@ class CreateFeedPageTest(unittest.TestCase):
     def fill_feed_form(self, content_text, image_path):
         # go to the feed creation page
         self.driver.get(f"{self.base_url}/feed")
+        print(self.driver.current_url)
+        print(self.driver.page_source)  # debug
         wait = WebDriverWait(self.driver, 10)
 
         # wait for and fill content
