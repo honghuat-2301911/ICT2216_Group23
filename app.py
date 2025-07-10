@@ -11,6 +11,7 @@ from flask_limiter.util import get_remote_address
 from flask_login import LoginManager
 from flask_session import Session
 from flask_wtf import CSRFProtect
+from flask_wtf.csrf import CSRFError
 from itsdangerous import URLSafeTimedSerializer
 from werkzeug.exceptions import HTTPException
 
@@ -202,6 +203,10 @@ def create_app():
             exception_type="RateLimitExceeded",
             traceback_info="",
         ), 429
+        
+    @app.errorhandler(CSRFError)
+    def handle_csrf_error(e):
+        return render_template("error/csrf-error.html", reason=e.description), 400
 
     @app.errorhandler(Exception)
     def handle_exception(e):
