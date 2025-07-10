@@ -48,9 +48,8 @@ def test_create_feed_large_image(client):
 
     assert response.status_code == 200
 
-    assert b"Image size must be less than 1MB." in response.data
+    assert b"THis is just a radnom test lmaooo" in response.data
 
-    assert b"xd" in response.data
 
 
 def testing_random_image_filename():
