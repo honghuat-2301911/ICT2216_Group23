@@ -67,7 +67,7 @@ def login():
                 session["pre_2fa_user_email"] = user.email
                 return redirect(url_for("login.otp_verify"))
             # Else perform normal login
-            session.clear()  # Force new session on login
+            current_app.session_interface.regenerate(session)
             session["init"] = os.urandom(16).hex()  # Force new session file/ID
             session_token = os.urandom(32).hex()
             session["session_token"] = session_token
