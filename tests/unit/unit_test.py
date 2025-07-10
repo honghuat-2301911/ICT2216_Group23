@@ -1,13 +1,8 @@
 import os
 import uuid
 
-import pytest
 from werkzeug.utils import secure_filename
 
-from app import create_app
-
-
-@pytest.fixture
 # def client():
 #     app = create_app(testing=True)
 #     app.config["TESTING"] = True
@@ -82,5 +77,7 @@ def testing_random_image_filename():
 
     assert len(unique_filenames) == 5, "Expected 6 unique filenames, got {len(unique_filenames)}"
     
-
+if __name__ == "__main__":
+    testing_random_image_filename()
+    print("All tests passed!")  # This will only run if the script is executed directly
 
