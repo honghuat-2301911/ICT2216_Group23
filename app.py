@@ -147,11 +147,9 @@ def create_app():
 
     # --- SESSION TIMEOUT HANDLER ---
     # IDLE_TIMEOUT = timedelta(seconds=15 * 60)  # 15 minutes
-    # ABSOLUTE_TIMEOUT = timedelta(seconds=30 * 60)  # 30 minutes
+    ABSOLUTE_TIMEOUT = timedelta(seconds=30 * 60)  # 30 minutes
 
-    # temporarily set the session timeouts to 2 minutes for testing
-    IDLE_TIMEOUT = timedelta(seconds=2 * 60)
-    ABSOLUTE_TIMEOUT = timedelta(seconds=2 * 60)
+    IDLE_TIMEOUT = timedelta(seconds=2 * 60)  # temporarily set the idle session timeout to 2 minutes for testing
 
     @app.before_request
     def enforce_session_timeouts():
