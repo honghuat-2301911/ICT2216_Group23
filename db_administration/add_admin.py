@@ -1,4 +1,5 @@
 import os
+
 import bcrypt
 import mysql.connector
 from dotenv import load_dotenv
@@ -10,6 +11,7 @@ DB_HOST = "127.0.0.1"
 DB_USER = os.getenv("DB_USER", "")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "")
 DB_NAME = os.getenv("DB_NAME", "")
+
 
 def create_admin_user(email, password, name="admin"):
     # Hash the password securely with bcrypt
@@ -52,10 +54,11 @@ def create_admin_user(email, password, name="admin"):
         cursor.close()
         conn.close()
 
+
 if __name__ == "__main__":
     print("Create a new admin user")
     email = input("Enter admin email: ").strip()
-    
+
     while True:
         password = input("Enter admin password (min 8 characters): ").strip()
         if len(password) < 8:
