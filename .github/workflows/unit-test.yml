@@ -42,10 +42,14 @@ jobs:
           echo "INSERT INTO mydb.user (name, password, email, role, email_verified)" >> init.sql
           echo "VALUES ('eden', '\$2b\$12\$LY/PNCs3ZwJgifKB9rrBiuSao3EaeBq4uTX/1bq4y3ZxidiC0tEsO', '2301875@sit.singaporetech.edu.sg', 'user', 1);" >> init.sql
 
-      - name: Fix log directory permissions
+      - name: Fix log directory permissions & create log files
         run: |
           mkdir -p $(pwd)/logs
+          touch $(pwd)/logs/error.log
+          touch $(pwd)/logs/warning.log
+          touch $(pwd)/logs/info.log
           chmod -R 777 $(pwd)/logs
+
 
 
       - name: Build and start services (without certbot)
